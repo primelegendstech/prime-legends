@@ -27,7 +27,16 @@ export default function Home() {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <div className="max-w-2xl text-left">
+        <div
+          className="md:hidden absolute inset-0 opacity-25 pointer-events-none"
+          style={{
+            backgroundImage: `url('/hero-mobile-bg.png')`,
+            backgroundSize: "cover",
+            backgroundPosition: "top center",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+        <div className="max-w-2xl text-left relative z-10">
           <div className="flex items-center gap-3 mb-6">
             <img src="/logo.png" alt="Prime Legends Tech" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
             <span className="border border-amber-500/40 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-semibold text-amber-400">
