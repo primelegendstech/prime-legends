@@ -2,16 +2,34 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useIdioma } from "@/context/LanguageContext";
+
+const textos = {
+  pt: {
+    inicio: "Início",
+    alugueis: "Aluguéis",
+    servico: "Serviço Remoto",
+    sobre: "Sobre",
+  },
+  en: {
+    inicio: "Home",
+    alugueis: "Rentals",
+    servico: "Remote Service",
+    sobre: "About",
+  },
+};
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { idioma, trocarIdioma } = useIdioma();
+  const t = textos[idioma];
 
   const links = [
-  { label: "Início", href: "#home" },
-  { label: "Aluguéis", href: "/alugueis" },
-  { label: "Serviço Remoto", href: "#servicos" },
-  { label: "Sobre", href: "#sobre" },
-];
+    { label: t.inicio, href: "#home" },
+    { label: t.alugueis, href: "/alugueis" },
+    { label: t.servico, href: "#servicos" },
+    { label: t.sobre, href: "#sobre" },
+  ];
 
   return (
     <header className="w-full bg-black border-b border-yellow-500/20 fixed top-0 left-0 z-50">
@@ -27,7 +45,7 @@ export default function Header() {
           </span>
         </Link>
 
-        <nav className="hidden md:flex gap-8">
+        <nav className="hidden md:flex items-center gap-8">
           {links.map((link) => (
             <a
               key={link.href}
@@ -37,6 +55,29 @@ export default function Header() {
               {link.label}
             </a>
           ))}
+
+          <div className="flex items-center gap-1 border border-yellow-500/30 rounded-full p-1">
+            <button
+              onClick={() => trocarIdioma("pt")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+                idioma === "pt"
+                  ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-black"
+                  : "text-gray-400 hover:text-yellow-400"
+              }`}
+            >
+              BR
+            </button>
+            <button
+              onClick={() => trocarIdioma("en")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+                idioma === "en"
+                  ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-black"
+                  : "text-gray-400 hover:text-yellow-400"
+              }`}
+            >
+              EN
+            </button>
+          </div>
         </nav>
 
         <button
@@ -59,6 +100,29 @@ export default function Header() {
               {link.label}
             </a>
           ))}
+
+          <div className="flex items-center gap-1 border border-yellow-500/30 rounded-full p-1 w-fit">
+            <button
+              onClick={() => trocarIdioma("pt")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+                idioma === "pt"
+                  ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-black"
+                  : "text-gray-400 hover:text-yellow-400"
+              }`}
+            >
+              BR
+            </button>
+            <button
+              onClick={() => trocarIdioma("en")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+                idioma === "en"
+                  ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-black"
+                  : "text-gray-400 hover:text-yellow-400"
+              }`}
+            >
+              EN
+            </button>
+          </div>
         </nav>
       )}
     </header>

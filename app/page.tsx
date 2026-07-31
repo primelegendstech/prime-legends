@@ -1,3 +1,5 @@
+"use client";
+
 import Header from "@/components/Header";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
@@ -5,7 +7,39 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import TrustBadges from "@/components/TrustBadges";
 import About from "@/components/About";
 import Link from "next/link";
+import { useIdioma } from "@/context/LanguageContext";
+
+const textos = {
+  pt: {
+    badge: "Serviço de Ativação Imediata",
+    tituloDestaque: "Ativações",
+    tituloResto: ["e aluguéis", "profissionais."],
+    paragrafoInicio: "Sua solução completa para serviços técnicos. Oferecemos",
+    paragrafoNegrito: "serviços remotos, ferramentas, licenças, downloads e suporte",
+    paragrafoFim: "especializado para manutenção de dispositivos Android e iPhone.",
+    comprarLicenca: "COMPRAR LICENÇA",
+    aluguelFerramentas: "ALUGUEL DE FERRAMENTAS",
+    mensagemWhatsApp:
+      "Olá! Tenho interesse em comprar uma licença (3, 6 ou 12 meses). Podem me passar mais informações?",
+  },
+  en: {
+    badge: "Immediate Activation Service",
+    tituloDestaque: "Activations",
+    tituloResto: ["and", "professional rentals."],
+    paragrafoInicio: "Your complete solution for technical services. We offer",
+    paragrafoNegrito: "remote services, tools, licenses, downloads and support",
+    paragrafoFim: "specialized in Android and iPhone device maintenance.",
+    comprarLicenca: "BUY LICENSE",
+    aluguelFerramentas: "TOOL RENTAL",
+    mensagemWhatsApp:
+      "Hi! I'm interested in buying a license (3, 6 or 12 months). Could you send me more information?",
+  },
+};
+
 export default function Home() {
+  const { idioma } = useIdioma();
+  const t = textos[idioma];
+
   return (
     <main className="min-h-screen bg-[#0B0B0B] text-white relative overflow-hidden">
       <div
@@ -40,43 +74,41 @@ export default function Home() {
           <div className="flex items-center gap-3 mb-6">
             <img src="/logo.png" alt="Prime Legends Tech" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
             <span className="border border-amber-500/40 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-semibold text-amber-400">
-              Serviço de Ativação Imediata
+              {t.badge}
             </span>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
             <span className="bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
-              Ativações
+              {t.tituloDestaque}
             </span>
             <br />
-            e aluguéis
+            {t.tituloResto[0]}
             <br />
-            profissionais.
+            {t.tituloResto[1]}
           </h1>
 
           <p className="mt-6 md:mt-8 text-base md:text-xl text-zinc-400 max-w-xl">
-            Sua solução completa para serviços técnicos. Oferecemos{" "}
-            <span className="font-bold text-white">serviços remotos, ferramentas, licenças, downloads e suporte</span>{" "}
-            especializado para manutenção de dispositivos Android e iPhone.
+            {t.paragrafoInicio}{" "}
+            <span className="font-bold text-white">{t.paragrafoNegrito}</span>{" "}
+            {t.paragrafoFim}
           </p>
 
           <div className="mt-4 md:mt-6 flex flex-col sm:flex-row justify-start sm:justify-end gap-3 sm:gap-4">
             <a
-              href={`https://wa.me/5581995716227?text=${encodeURIComponent(
-                "Olá! Tenho interesse em comprar uma licença (3, 6 ou 12 meses). Podem me passar mais informações?"
-              )}`}
+              href={`https://wa.me/5581995716227?text=${encodeURIComponent(t.mensagemWhatsApp)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-black transition hover:scale-105"
             >
-              🛒 COMPRAR LICENÇA
+              🛒 {t.comprarLicenca}
             </a>
 
             <Link
               href="/alugueis"
               className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
             >
-              🕐 ALUGUEL DE FERRAMENTAS
+              🕐 {t.aluguelFerramentas}
             </Link>
           </div>
         </div>
