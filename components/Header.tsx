@@ -32,8 +32,6 @@ export default function Header() {
             <a
               key={link.href}
               href={link.href}
-              target={link.newTab ? "_blank" : undefined}
-              rel={link.newTab ? "noopener noreferrer" : undefined}
               className="text-gray-300 hover:text-yellow-400 text-sm font-medium transition"
             >
               {link.label}
@@ -55,8 +53,6 @@ export default function Header() {
             <a
               key={link.href}
               href={link.href}
-              target={link.newTab ? "_blank" : undefined}
-              rel={link.newTab ? "noopener noreferrer" : undefined}
               className="text-gray-300 hover:text-yellow-400 text-sm"
               onClick={() => setMenuOpen(false)}
             >
