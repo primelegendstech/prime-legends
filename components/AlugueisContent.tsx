@@ -14,42 +14,43 @@ const imagensPorFerramenta: Record<string, string[]> = {
 
 const planosPorFerramenta: Record<
   string,
-  { nome: string; preco: string; periodo: string; destaque: boolean }[]
+  { nome: string; preco: number; destaque: boolean }[]
 > = {
   UnlockTool: [
-    { nome: "6 horas", preco: "R$ 5,00", periodo: "", destaque: true },
-    { nome: "12 horas", preco: "R$ 9,00", periodo: "", destaque: false },
-    { nome: "48 horas", preco: "R$ 18,00", periodo: "", destaque: true },
-    { nome: "120 horas", preco: "R$ 30,00", periodo: "", destaque: false },
+    { nome: "6 horas", preco: 5, destaque: true },
+    { nome: "12 horas", preco: 9, destaque: false },
+    { nome: "48 horas", preco: 18, destaque: true },
+    { nome: "120 horas", preco: 30, destaque: false },
   ],
   "TSM Tool": [
-    { nome: "3 horas", preco: "R$ 5,00", periodo: "", destaque: false },
-    { nome: "12 horas", preco: "R$ 9,00", periodo: "", destaque: true },
-    { nome: "48 horas", preco: "R$ 18,00", periodo: "", destaque: true },
-    { nome: "168 horas", preco: "R$ 35,00", periodo: "", destaque: false },
+    { nome: "3 horas", preco: 5, destaque: false },
+    { nome: "12 horas", preco: 9, destaque: true },
+    { nome: "48 horas", preco: 18, destaque: true },
+    { nome: "168 horas", preco: 35, destaque: false },
   ],
   "AMT Tool": [
-    { nome: "2 horas", preco: "R$ 5,00", periodo: "", destaque: false },
-    { nome: "3 horas", preco: "R$ 6,00", periodo: "", destaque: true },
-    { nome: "5 horas", preco: "R$ 8,00", periodo: "", destaque: false },
-    { nome: "12 horas", preco: "R$ 10,00", periodo: "", destaque: true },
+    { nome: "2 horas", preco: 5, destaque: false },
+    { nome: "3 horas", preco: 6, destaque: true },
+    { nome: "5 horas", preco: 8, destaque: false },
+    { nome: "12 horas", preco: 10, destaque: true },
   ],
   "Samsung Tool": [
-    { nome: "12 horas", preco: "R$ 15,00", periodo: "", destaque: true },
-    { nome: "24 horas", preco: "R$ 20,00", periodo: "", destaque: true },
-    { nome: "48 horas", preco: "R$ 30,00", periodo: "", destaque: false },
-    { nome: "72 horas", preco: "R$ 35,00", periodo: "", destaque: false },
+    { nome: "12 horas", preco: 15, destaque: true },
+    { nome: "24 horas", preco: 20, destaque: true },
+    { nome: "48 horas", preco: 30, destaque: false },
+    { nome: "72 horas", preco: 35, destaque: false },
   ],
   "Griffin-Unlocker": [
-    { nome: "6 horas", preco: "R$ 9,00", periodo: "", destaque: true },
-    { nome: "12 horas", preco: "R$ 14,00", periodo: "", destaque: true },
-    { nome: "24 horas", preco: "R$ 18,00", periodo: "", destaque: false },
+    { nome: "6 horas", preco: 9, destaque: true },
+    { nome: "12 horas", preco: 14, destaque: true },
+    { nome: "24 horas", preco: 18, destaque: false },
   ],
 };
 
 export default function AlugueisContent() {
   const [ativo, setAtivo] = useState(ferramentas[0]);
   const [indiceImagem, setIndiceImagem] = useState(0);
+  const [carregando, setCarregando] = useState<string | null>(null);
   const planos = planosPorFerramenta[ativo];
   const imagens = imagensPorFerramenta[ativo];
 
@@ -60,6 +61,28 @@ export default function AlugueisContent() {
     }, 3000);
     return () => clearInterval(intervalo);
   }, [ativo, imagens.length]);
+
+  async function pagar(nomePlano: string, preco: number) {
+    const titulo = `${ativo} - Aluguel ${nomePlano}`;
+    setCarregando(nomePlano);
+    try {
+      const resposta = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ titulo, preco }),
+      });
+      const dados = await resposta.json();
+      if (dados.url) {
+        window.location.href = dados.url;
+      } else {
+        alert("Erro ao gerar pagamento. Tente novamente.");
+        setCarregando(null);
+      }
+    } catch (erro) {
+      alert("Erro ao gerar pagamento. Tente novamente.");
+      setCarregando(null);
+    }
+  }
 
   return (
     <>
@@ -130,9 +153,14 @@ export default function AlugueisContent() {
                   </p>
                   <p className="text-gray-400 text-sm">Login e senha</p>
                 </div>
-                <button className="px-5 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm whitespace-nowrap">
-                  {plano.preco}
-                  <span className="font-normal">{plano.periodo}</span>
+                <button
+                  onClick={() => pagar(plano.nome, plano.preco)}
+                  disabled={carregando === plano.nome}
+                  className="px-5 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm whitespace-nowrap disabled:opacity-50"
+                >
+                  {carregando === plano.nome
+                    ? "Aguarde..."
+                    : `R$ ${plano.preco.toFixed(2).replace(".", ",")}`}
                 </button>
               </div>
             ))}
