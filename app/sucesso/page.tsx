@@ -27,7 +27,25 @@ function ConteudoSucesso() {
           </span>
         </div>
 
-        <div className="text-5xl mb-4">✅</div>
+        <div className="flex justify-center mb-4">
+          <div className="relative flex items-center justify-center w-16 h-16">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-30 animate-ping" />
+            <span className="relative inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-7 h-7"
+              >
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </span>
+          </div>
+        </div>
         <h1 className="text-2xl font-bold mb-2">Pagamento aprovado!</h1>
         <p className="text-gray-400 mb-2">
           Obrigado pela confiança! Seu pagamento de{" "}
