@@ -60,14 +60,21 @@ export default function Home() {
             especializado para manutenção de dispositivos Android e iPhone.
           </p>
 
-          <div className="mt-8 md:mt-12 flex flex-col sm:flex-row justify-start gap-3 sm:gap-4">
-            <button className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-6 py-3 md:px-8 md:py-4 text-sm md:text-base font-bold text-black transition hover:scale-105">
+          <div className="mt-4 md:mt-6 flex flex-col sm:flex-row justify-start sm:justify-end gap-3 sm:gap-4">
+            <a
+              href={`https://wa.me/5581995716227?text=${encodeURIComponent(
+                "Olá! Tenho interesse em comprar uma licença (3, 6 ou 12 meses). Podem me passar mais informações?"
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-black transition hover:scale-105"
+            >
               🛒 COMPRAR LICENÇA
-            </button>
+            </a>
 
             <Link
               href="/alugueis"
-              className="flex items-center justify-center gap-2 rounded-xl border border-amber-500 px-6 py-3 md:px-8 md:py-4 text-sm md:text-base font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
+              className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
             >
               🕐 ALUGUEL DE FERRAMENTAS
             </Link>
