@@ -76,19 +76,17 @@ export async function POST(request: NextRequest) {
       "1": { ID: servico.serviceId, QNT: 1 },
     });
 
-    // A GSM Cheap pode responder com um bloco ERROR (ex: saldo insuficiente).
-    // Tentamos capturar a mensagem em alguns formatos comuns dessa API.
-    const blocoErro =
-      pedido?.ERROR?.["1"] ??
-      pedido?.error?.["1"] ??
-      (pedido?.SUCCESS ? null : pedido?.MESSAGE ?? pedido?.message ?? null);
+    // A GSM Cheap responde erros (ex: saldo insuficiente) DENTRO do bloco SUCCESS,
+    // com status: "error" — confirmado nos logs em 03/08.
+    // Exemplo real: {"SUCCESS":{"1":{"status":"error","message":"Not enough balance"}}}
+    const itemResposta = pedido?.SUCCESS?.["1"];
+    const deuErro = itemResposta?.status === "error";
+    const mensagemGsm = itemResposta?.message;
 
-    const referenceId = pedido?.SUCCESS?.["1"]?.referenceid;
+    const referenceId = !deuErro ? itemResposta?.referenceid : undefined;
 
     if (!referenceId) {
-      const mensagemErro =
-        (typeof blocoErro === "string" ? blocoErro : blocoErro?.MESSAGE ?? blocoErro?.message) ??
-        "Falha ao gerar acesso na GSM Cheap";
+      const mensagemErro = mensagemGsm ?? "Falha ao gerar acesso na GSM Cheap";
 
       console.error("[entregar] GSM Cheap não retornou referenceId. Resposta completa:", JSON.stringify(pedido));
 
