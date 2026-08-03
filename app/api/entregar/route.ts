@@ -23,7 +23,7 @@ async function chamarGsmCheap(action: string, parametros?: any) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { paymentId, ferramenta, duracao } = await request.json();
+    const { paymentId } = await request.json();
 
     if (!paymentId) {
       return NextResponse.json({ erro: "paymentId ausente" }, { status: 400 });
@@ -37,8 +37,6 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (pedidoExistente) {
-      // Se já deu erro antes (sem reference_id), não tenta de novo na GSM Cheap —
-      // só avisa que está pendente de resolução manual
       if (!pedidoExistente.reference_id) {
         return NextResponse.json({
           erro: "gsmcheap_falhou",
@@ -46,15 +44,15 @@ export async function POST(request: NextRequest) {
           mensagem: pedidoExistente.dados?.mensagem ?? "Pedido pendente de liberação manual",
         });
       }
-
-      // Já foi processado antes — só consulta o status atual e retorna
       const resultado = await chamarGsmCheap("getimeiorderbulk", {
         "1": { ID: pedidoExistente.reference_id },
       });
       return NextResponse.json({ sucesso: true, dados: resultado?.["1"] ?? resultado });
     }
 
-    // 2. Confirma no Mercado Pago que o pagamento foi realmente aprovado
+    // 2. Confirma no Mercado Pago que o pagamento foi realmente aprovado,
+    // e pega o external_reference que o PRÓPRIO Mercado Pago guardou
+    // (nunca confiamos em ferramenta/duracao vindos do navegador aqui)
     const pagamentoResp = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       headers: { Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}` },
     });
@@ -64,59 +62,95 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ erro: "Pagamento ainda não confirmado" }, { status: 400 });
     }
 
-    // 3. Verifica se temos o serviço mapeado
+    const externalReference = pagamento.external_reference;
+    if (!externalReference) {
+      console.error("[entregar] pagamento sem external_reference:", paymentId);
+      return NextResponse.json({ erro: "Pedido não identificado" }, { status: 400 });
+    }
+
+    // 3. Busca o que foi REALMENTE contratado, gravado no momento do checkout
+    const { data: checkout } = await supabase
+      .from("checkouts")
+      .select("*")
+      .eq("external_reference", externalReference)
+      .maybeSingle();
+
+    if (!checkout) {
+      console.error("[entregar] checkout não encontrado para external_reference:", externalReference);
+      return NextResponse.json({ erro: "Pedido não identificado" }, { status: 400 });
+    }
+
+    // Proteção extra: confere se o valor pago bate com o valor do plano
+    if (Number(pagamento.transaction_amount) < Number(checkout.preco)) {
+      console.error(
+        "[entregar] valor pago menor que o esperado:",
+        pagamento.transaction_amount,
+        checkout.preco
+      );
+      return NextResponse.json({ erro: "Valor pago não confere" }, { status: 400 });
+    }
+
+    const { ferramenta, duracao } = checkout;
+
+    // 4. Verifica se temos o serviço mapeado como automático
     const chave = `${ferramenta}|${duracao}`;
     const servico = mapaServicos[chave];
     if (!servico) {
       return NextResponse.json({ manual: true });
     }
 
-    // 4. Faz o pedido na GSM Cheap
+    // 5. Faz o pedido na GSM Cheap
     const pedido = await chamarGsmCheap("placebulkorder", {
       "1": { ID: servico.serviceId, QNT: 1 },
     });
 
-    // A GSM Cheap responde erros (ex: saldo insuficiente) DENTRO do bloco SUCCESS,
-    // com status: "error" — confirmado nos logs em 03/08.
-    // Exemplo real: {"SUCCESS":{"1":{"status":"error","message":"Not enough balance"}}}
+    // A GSM Cheap responde erros (ex: saldo insuficiente) DENTRO do bloco SUCCESS
     const itemResposta = pedido?.SUCCESS?.["1"];
     const deuErro = itemResposta?.status === "error";
     const mensagemGsm = itemResposta?.message;
-
     const referenceId = !deuErro ? itemResposta?.referenceid : undefined;
 
     if (!referenceId) {
       const mensagemErro = mensagemGsm ?? "Falha ao gerar acesso na GSM Cheap";
-
       console.error("[entregar] GSM Cheap não retornou referenceId. Resposta completa:", JSON.stringify(pedido));
 
-      // Salva como pendente pra você resolver manualmente (ex: colocar saldo e reprocessar)
-      await supabase.from("pedidos").insert({
+      const { error: erroInsert } = await supabase.from("pedidos").insert({
         payment_id: paymentId,
         reference_id: null,
         dados: { status: "erro_gsmcheap", mensagem: mensagemErro, respostaCompleta: pedido },
       });
+      if (erroInsert && erroInsert.code !== "23505") {
+        console.error("[entregar] erro ao salvar pedido pendente:", erroInsert);
+      }
 
-      return NextResponse.json({
-        erro: "gsmcheap_falhou",
-        manual: true,
-        mensagem: mensagemErro,
-      });
+      return NextResponse.json({ erro: "gsmcheap_falhou", manual: true, mensagem: mensagemErro });
     }
 
-    // 5. Consulta o resultado (instantâneo)
+    // 6. Consulta o resultado (instantâneo)
     const resultado = await chamarGsmCheap("getimeiorderbulk", {
       "1": { ID: referenceId },
     });
-
     const dadosFinais = resultado?.["1"] ?? resultado;
 
-    // 6. Salva no banco pra não duplicar depois
-    await supabase.from("pedidos").insert({
+    // 7. Salva no banco pra não duplicar depois — a constraint UNIQUE protege contra corrida
+    const { error: erroInsertFinal } = await supabase.from("pedidos").insert({
       payment_id: paymentId,
       reference_id: referenceId,
       dados: dadosFinais,
     });
+
+    if (erroInsertFinal) {
+      if (erroInsertFinal.code === "23505") {
+        // Outra requisição já processou esse mesmo pagamento entre a checagem e agora
+        const { data: jaExiste } = await supabase
+          .from("pedidos")
+          .select("*")
+          .eq("payment_id", paymentId)
+          .maybeSingle();
+        return NextResponse.json({ sucesso: true, dados: jaExiste?.dados ?? dadosFinais });
+      }
+      console.error("[entregar] erro ao salvar pedido final:", erroInsertFinal);
+    }
 
     return NextResponse.json({ sucesso: true, dados: dadosFinais });
   } catch (erro: any) {

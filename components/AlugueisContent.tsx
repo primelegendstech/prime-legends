@@ -63,13 +63,12 @@ export default function AlugueisContent() {
   }, [ativo, imagens.length]);
 
   async function pagar(nomePlano: string, preco: number) {
-    const titulo = `${ativo} - Aluguel ${nomePlano}`;
     setCarregando(nomePlano);
     try {
       const resposta = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titulo, preco, ferramenta: ativo, duracao: nomePlano }),
+        body: JSON.stringify({ ferramenta: ativo, duracao: nomePlano }),
       });
       const dados = await resposta.json();
       if (dados.url) {
