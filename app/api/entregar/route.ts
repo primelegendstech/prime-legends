@@ -16,7 +16,9 @@ async function chamarGsmCheap(action: string, parametros?: any) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
   });
-  return resposta.json();
+  const json = await resposta.json();
+  console.log(`[GSM Cheap] action=${action} resposta:`, JSON.stringify(json));
+  return json;
 }
 
 export async function POST(request: NextRequest) {
@@ -35,6 +37,16 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (pedidoExistente) {
+      // Se já deu erro antes (sem reference_id), não tenta de novo na GSM Cheap —
+      // só avisa que está pendente de resolução manual
+      if (!pedidoExistente.reference_id) {
+        return NextResponse.json({
+          erro: "gsmcheap_falhou",
+          manual: true,
+          mensagem: pedidoExistente.dados?.mensagem ?? "Pedido pendente de liberação manual",
+        });
+      }
+
       // Já foi processado antes — só consulta o status atual e retorna
       const resultado = await chamarGsmCheap("getimeiorderbulk", {
         "1": { ID: pedidoExistente.reference_id },
@@ -64,9 +76,34 @@ export async function POST(request: NextRequest) {
       "1": { ID: servico.serviceId, QNT: 1 },
     });
 
+    // A GSM Cheap pode responder com um bloco ERROR (ex: saldo insuficiente).
+    // Tentamos capturar a mensagem em alguns formatos comuns dessa API.
+    const blocoErro =
+      pedido?.ERROR?.["1"] ??
+      pedido?.error?.["1"] ??
+      (pedido?.SUCCESS ? null : pedido?.MESSAGE ?? pedido?.message ?? null);
+
     const referenceId = pedido?.SUCCESS?.["1"]?.referenceid;
+
     if (!referenceId) {
-      return NextResponse.json({ erro: "Falha ao gerar acesso" }, { status: 500 });
+      const mensagemErro =
+        (typeof blocoErro === "string" ? blocoErro : blocoErro?.MESSAGE ?? blocoErro?.message) ??
+        "Falha ao gerar acesso na GSM Cheap";
+
+      console.error("[entregar] GSM Cheap não retornou referenceId. Resposta completa:", JSON.stringify(pedido));
+
+      // Salva como pendente pra você resolver manualmente (ex: colocar saldo e reprocessar)
+      await supabase.from("pedidos").insert({
+        payment_id: paymentId,
+        reference_id: null,
+        dados: { status: "erro_gsmcheap", mensagem: mensagemErro, respostaCompleta: pedido },
+      });
+
+      return NextResponse.json({
+        erro: "gsmcheap_falhou",
+        manual: true,
+        mensagem: mensagemErro,
+      });
     }
 
     // 5. Consulta o resultado (instantâneo)
@@ -84,7 +121,11 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ sucesso: true, dados: dadosFinais });
-  } catch (erro) {
-    return NextResponse.json({ erro: "Erro ao processar entrega" }, { status: 500 });
+  } catch (erro: any) {
+    console.error("[entregar] Erro inesperado:", erro?.message, erro?.stack);
+    return NextResponse.json(
+      { erro: "Erro ao processar entrega", detalhes: erro?.message ?? String(erro) },
+      { status: 500 }
+    );
   }
 }
