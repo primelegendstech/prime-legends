@@ -69,7 +69,7 @@ export default function AlugueisContent() {
       const resposta = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ titulo, preco }),
+        body: JSON.stringify({ titulo, preco, ferramenta: ativo, duracao: nomePlano }),
       });
       const dados = await resposta.json();
       if (dados.url) {

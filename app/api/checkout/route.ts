@@ -7,7 +7,7 @@ const client = new MercadoPagoConfig({
 
 export async function POST(request: NextRequest) {
   try {
-    const { titulo, preco } = await request.json();
+    const { titulo, preco, ferramenta, duracao } = await request.json();
 
     const preference = new Preference(client);
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
           },
         ],
         back_urls: {
-          success: `${process.env.NEXT_PUBLIC_SITE_URL}/sucesso?servico=${encodeURIComponent(titulo)}&valor=${preco}`,
+          success: `${process.env.NEXT_PUBLIC_SITE_URL}/sucesso?servico=${encodeURIComponent(titulo)}&valor=${preco}&ferramenta=${encodeURIComponent(ferramenta || "")}&duracao=${encodeURIComponent(duracao || "")}`,
           failure: `${process.env.NEXT_PUBLIC_SITE_URL}/alugueis?status=falha`,
           pending: `${process.env.NEXT_PUBLIC_SITE_URL}/alugueis?status=pendente`,
         },

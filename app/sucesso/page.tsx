@@ -1,19 +1,53 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 
 function ConteudoSucesso() {
   const params = useSearchParams();
   const servico = params.get("servico") || "seu serviço";
   const valor = params.get("valor") || "";
-  const operacao = params.get("payment_id") || params.get("collection_id") || "";
+  const ferramenta = params.get("ferramenta") || "";
+  const duracao = params.get("duracao") || "";
+  const paymentId = params.get("payment_id") || params.get("collection_id") || "";
+
+  const [status, setStatus] = useState<"carregando" | "automatico" | "manual" | "erro">("carregando");
+  const [credenciais, setCredenciais] = useState<any>(null);
+
+  useEffect(() => {
+    async function entregar() {
+      if (!paymentId || !ferramenta || !duracao) {
+        setStatus("manual");
+        return;
+      }
+      try {
+        const resposta = await fetch("/api/entregar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId, ferramenta, duracao }),
+        });
+        const dados = await resposta.json();
+
+        if (dados.manual) {
+          setStatus("manual");
+        } else if (dados.sucesso) {
+          setCredenciais(dados.dados);
+          setStatus("automatico");
+        } else {
+          setStatus("manual");
+        }
+      } catch {
+        setStatus("manual");
+      }
+    }
+    entregar();
+  }, [paymentId, ferramenta, duracao]);
 
   const numeroWhatsApp = "5581995716227";
   const mensagem = `Olá! Acabei de pagar o *${servico}*${
     valor ? ` no valor de R$ ${valor}` : ""
-  }.${operacao ? ` Número da operação: ${operacao}.` : ""} Podem me enviar o acesso?`;
+  }.${paymentId ? ` Número da operação: ${paymentId}.` : ""} Podem me enviar o acesso?`;
 
   const linkWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
 
@@ -46,14 +80,31 @@ function ConteudoSucesso() {
             </span>
           </div>
         </div>
+
         <h1 className="text-2xl font-bold mb-2">Pagamento aprovado!</h1>
         <p className="text-gray-400 mb-2">
           Obrigado pela confiança! Seu pagamento de{" "}
           <span className="text-white font-semibold">{servico}</span> foi confirmado.
         </p>
-        <p className="text-gray-400 mb-6">
-          Clique no botão abaixo para falar com nosso suporte e receber seu acesso.
-        </p>
+
+        {status === "carregando" && (
+          <p className="text-amber-400 text-sm mb-6 animate-pulse">Liberando seu acesso...</p>
+        )}
+
+        {status === "automatico" && credenciais && (
+          <div className="bg-black/40 border border-yellow-500/30 rounded-xl p-4 mb-6 text-left text-sm space-y-1">
+            <p className="text-yellow-400 font-bold mb-2">✅ Acesso liberado:</p>
+            <pre className="text-gray-200 whitespace-pre-wrap break-words">
+              {JSON.stringify(credenciais, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        {status === "manual" && (
+          <p className="text-gray-400 mb-6">
+            Clique no botão abaixo para falar com nosso suporte e receber seu acesso.
+          </p>
+        )}
 
         <a
           href={linkWhatsApp}
