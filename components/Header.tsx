@@ -10,15 +10,16 @@ const textos = {
     alugueis: "Aluguéis",
     servico: "Serviço Remoto",
     sobre: "Sobre",
+    consultar: "Consultar Pedido",
   },
   en: {
     inicio: "Home",
     alugueis: "Rentals",
     servico: "Remote Service",
     sobre: "About",
+    consultar: "Track Order",
   },
 };
-
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { idioma, trocarIdioma } = useIdioma();
@@ -29,6 +30,7 @@ export default function Header() {
     { label: t.alugueis, href: "/alugueis" },
     { label: t.servico, href: "#servicos" },
     { label: t.sobre, href: "#sobre" },
+    { label: t.consultar, href: "/consultar" },
   ];
 
   return (
