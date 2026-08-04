@@ -1,50 +1,64 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 
 function ConteudoConsultar() {
   const params = useSearchParams();
-  const codigo = params.get("codigo") || "";
+  const router = useRouter();
+  const codigoUrl = params.get("codigo") || "";
 
-  const [status, setStatus] = useState<"carregando" | "sucesso" | "manual" | "erro">("carregando");
+  const [codigoDigitado, setCodigoDigitado] = useState(codigoUrl);
+  const [status, setStatus] = useState<"vazio" | "carregando" | "sucesso" | "manual" | "erro">(
+    codigoUrl ? "carregando" : "vazio"
+  );
   const [credenciais, setCredenciais] = useState<any>(null);
   const [servico, setServico] = useState<{ ferramenta?: string; duracao?: string } | null>(null);
   const [mensagem, setMensagem] = useState("");
 
-  useEffect(() => {
-    async function buscar() {
-      if (!codigo) {
-        setStatus("erro");
-        return;
-      }
-      try {
-        const resposta = await fetch(`/api/consultar?codigo=${encodeURIComponent(codigo)}`);
-        const dados = await resposta.json();
+  async function buscar(codigo: string) {
+    if (!codigo) return;
+    setStatus("carregando");
+    try {
+      const resposta = await fetch(`/api/consultar?codigo=${encodeURIComponent(codigo)}`);
+      const dados = await resposta.json();
 
-        if (dados.servico) setServico(dados.servico);
+      if (dados.servico) setServico(dados.servico);
 
-        if (dados.sucesso) {
-          setCredenciais(dados.dados);
-          setStatus("sucesso");
-        } else if (dados.manual) {
-          setMensagem(dados.mensagem || "");
-          setStatus("manual");
-        } else {
-          setStatus("erro");
-        }
-      } catch {
+      if (dados.sucesso) {
+        setCredenciais(dados.dados);
+        setStatus("sucesso");
+      } else if (dados.manual) {
+        setMensagem(dados.mensagem || "");
+        setStatus("manual");
+      } else {
         setStatus("erro");
       }
+    } catch {
+      setStatus("erro");
     }
-    buscar();
-  }, [codigo]);
+  }
+
+  useEffect(() => {
+    if (codigoUrl) buscar(codigoUrl);
+  }, [codigoUrl]);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const codigoLimpo = codigoDigitado.trim();
+    if (!codigoLimpo) return;
+    // Atualiza a URL também, assim o cliente pode salvar/compartilhar o link direto
+    router.push(`/consultar?codigo=${encodeURIComponent(codigoLimpo)}`);
+    buscar(codigoLimpo);
+  }
 
   const numeroWhatsApp = "5581995716227";
   const nomeServico = servico?.ferramenta ? `${servico.ferramenta} - Aluguel ${servico.duracao}` : "meu pedido";
   const linkWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(
-    `Olá! Estou consultando meu pedido de ${nomeServico} (código ${codigo}) e preciso de ajuda.`
+    `Olá! Estou consultando meu pedido de ${nomeServico}${
+      codigoDigitado ? ` (código ${codigoDigitado})` : ""
+    } e preciso de ajuda.`
   )}`;
 
   return (
@@ -58,6 +72,34 @@ function ConteudoConsultar() {
         </div>
 
         <h1 className="text-xl font-bold mb-4">Consulta do seu pedido</h1>
+
+        {/* Campo pra digitar o código manualmente, sempre visível */}
+        <form onSubmit={handleSubmit} className="mb-6">
+          <label className="block text-left text-sm text-gray-400 mb-2">
+            Cole aqui o código do seu pedido (você recebeu ele por e-mail):
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={codigoDigitado}
+              onChange={(e) => setCodigoDigitado(e.target.value)}
+              placeholder="ex: a8f3k29x-xxxx-xxxx"
+              className="flex-1 rounded-xl bg-black/40 border border-yellow-500/30 px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+            />
+            <button
+              type="submit"
+              className="rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 px-4 py-2 font-bold text-black text-sm hover:opacity-90 transition"
+            >
+              Buscar
+            </button>
+          </div>
+        </form>
+
+        {status === "vazio" && (
+          <p className="text-gray-500 text-sm mb-6">
+            Digite o código do seu pedido acima pra ver seu acesso.
+          </p>
+        )}
 
         {status === "carregando" && <p className="text-amber-400 text-sm mb-6 animate-pulse">Buscando...</p>}
 
@@ -83,17 +125,19 @@ function ConteudoConsultar() {
         )}
 
         {status === "erro" && (
-          <p className="text-gray-400 mb-6">Não encontramos esse pedido. Fale com nosso suporte.</p>
+          <p className="text-gray-400 mb-6">Não encontramos esse pedido. Confere se o código está certo, ou fale com nosso suporte.</p>
         )}
 
-        <a
-          href={linkWhatsApp}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 w-full rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-3 font-bold text-black transition hover:opacity-90"
-        >
-          💬 Falar no WhatsApp
-        </a>
+        {status !== "vazio" && (
+          <a
+            href={linkWhatsApp}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 w-full rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-3 font-bold text-black transition hover:opacity-90"
+          >
+            💬 Falar no WhatsApp
+          </a>
+        )}
 
         <Link
           href="/"
