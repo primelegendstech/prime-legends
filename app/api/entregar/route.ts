@@ -37,22 +37,28 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (pedidoExistente) {
+      const servico = {
+        ferramenta: pedidoExistente.ferramenta,
+        duracao: pedidoExistente.duracao,
+        preco: pedidoExistente.preco,
+      };
+
       if (!pedidoExistente.reference_id) {
         return NextResponse.json({
           erro: "gsmcheap_falhou",
           manual: true,
           mensagem: pedidoExistente.dados?.mensagem ?? "Pedido pendente de liberação manual",
+          servico,
         });
       }
       const resultado = await chamarGsmCheap("getimeiorderbulk", {
         "1": { ID: pedidoExistente.reference_id },
       });
-      return NextResponse.json({ sucesso: true, dados: resultado?.["1"] ?? resultado });
+      return NextResponse.json({ sucesso: true, dados: resultado?.["1"] ?? resultado, servico });
     }
 
     // 2. Confirma no Mercado Pago que o pagamento foi realmente aprovado,
     // e pega o external_reference que o PRÓPRIO Mercado Pago guardou
-    // (nunca confiamos em ferramenta/duracao vindos do navegador aqui)
     const pagamentoResp = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
       headers: { Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}` },
     });
@@ -90,18 +96,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ erro: "Valor pago não confere" }, { status: 400 });
     }
 
-    const { ferramenta, duracao } = checkout;
+    const { ferramenta, duracao, preco } = checkout;
+    const servico = { ferramenta, duracao, preco };
 
     // 4. Verifica se temos o serviço mapeado como automático
     const chave = `${ferramenta}|${duracao}`;
-    const servico = mapaServicos[chave];
-    if (!servico) {
-      return NextResponse.json({ manual: true });
+    const mapeado = mapaServicos[chave];
+    if (!mapeado) {
+      return NextResponse.json({ manual: true, servico });
     }
 
     // 5. Faz o pedido na GSM Cheap
     const pedido = await chamarGsmCheap("placebulkorder", {
-      "1": { ID: servico.serviceId, QNT: 1 },
+      "1": { ID: mapeado.serviceId, QNT: 1 },
     });
 
     // A GSM Cheap responde erros (ex: saldo insuficiente) DENTRO do bloco SUCCESS
@@ -117,13 +124,16 @@ export async function POST(request: NextRequest) {
       const { error: erroInsert } = await supabase.from("pedidos").insert({
         payment_id: paymentId,
         reference_id: null,
+        ferramenta,
+        duracao,
+        preco,
         dados: { status: "erro_gsmcheap", mensagem: mensagemErro, respostaCompleta: pedido },
       });
       if (erroInsert && erroInsert.code !== "23505") {
         console.error("[entregar] erro ao salvar pedido pendente:", erroInsert);
       }
 
-      return NextResponse.json({ erro: "gsmcheap_falhou", manual: true, mensagem: mensagemErro });
+      return NextResponse.json({ erro: "gsmcheap_falhou", manual: true, mensagem: mensagemErro, servico });
     }
 
     // 6. Consulta o resultado (instantâneo)
@@ -136,23 +146,25 @@ export async function POST(request: NextRequest) {
     const { error: erroInsertFinal } = await supabase.from("pedidos").insert({
       payment_id: paymentId,
       reference_id: referenceId,
+      ferramenta,
+      duracao,
+      preco,
       dados: dadosFinais,
     });
 
     if (erroInsertFinal) {
       if (erroInsertFinal.code === "23505") {
-        // Outra requisição já processou esse mesmo pagamento entre a checagem e agora
         const { data: jaExiste } = await supabase
           .from("pedidos")
           .select("*")
           .eq("payment_id", paymentId)
           .maybeSingle();
-        return NextResponse.json({ sucesso: true, dados: jaExiste?.dados ?? dadosFinais });
+        return NextResponse.json({ sucesso: true, dados: jaExiste?.dados ?? dadosFinais, servico });
       }
       console.error("[entregar] erro ao salvar pedido final:", erroInsertFinal);
     }
 
-    return NextResponse.json({ sucesso: true, dados: dadosFinais });
+    return NextResponse.json({ sucesso: true, dados: dadosFinais, servico });
   } catch (erro: any) {
     console.error("[entregar] Erro inesperado:", erro?.message, erro?.stack);
     return NextResponse.json(

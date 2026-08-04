@@ -6,48 +6,56 @@ import Link from "next/link";
 
 function ConteudoSucesso() {
   const params = useSearchParams();
-  const servico = params.get("servico") || "seu serviço";
-  const valor = params.get("valor") || "";
-  const ferramenta = params.get("ferramenta") || "";
-  const duracao = params.get("duracao") || "";
   const paymentId = params.get("payment_id") || params.get("collection_id") || "";
 
   const [status, setStatus] = useState<"carregando" | "automatico" | "manual" | "erro">("carregando");
   const [credenciais, setCredenciais] = useState<any>(null);
+  const [servico, setServico] = useState<{ ferramenta?: string; duracao?: string; preco?: number } | null>(
+    null
+  );
+  const [mensagemErro, setMensagemErro] = useState<string>("");
 
   useEffect(() => {
     async function entregar() {
-      if (!paymentId || !ferramenta || !duracao) {
-        setStatus("manual");
+      if (!paymentId) {
+        setStatus("erro");
         return;
       }
       try {
         const resposta = await fetch("/api/entregar", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paymentId, ferramenta, duracao }),
+          body: JSON.stringify({ paymentId }),
         });
         const dados = await resposta.json();
 
-        if (dados.manual) {
-          setStatus("manual");
-        } else if (dados.sucesso) {
+        if (dados.servico) setServico(dados.servico);
+
+        if (dados.sucesso) {
           setCredenciais(dados.dados);
           setStatus("automatico");
-        } else {
+        } else if (dados.manual) {
+          setMensagemErro(dados.mensagem || "");
           setStatus("manual");
+        } else {
+          setStatus("erro");
         }
       } catch {
-        setStatus("manual");
+        setStatus("erro");
       }
     }
     entregar();
-  }, [paymentId, ferramenta, duracao]);
+  }, [paymentId]);
 
   const numeroWhatsApp = "5581995716227";
-  const mensagem = `Olá! Acabei de pagar o *${servico}*${
-    valor ? ` no valor de R$ ${valor}` : ""
-  }.${paymentId ? ` Número da operação: ${paymentId}.` : ""} Podem me enviar o acesso?`;
+  const nomeServico = servico?.ferramenta ? `${servico.ferramenta} - Aluguel ${servico.duracao}` : "meu pedido";
+
+  const mensagem =
+    status === "manual" && mensagemErro
+      ? `Olá! Paguei o *${nomeServico}* (pedido ${paymentId}), mas o sistema não conseguiu liberar automaticamente (motivo: ${mensagemErro}). Podem liberar meu acesso manualmente?`
+      : `Olá! Acabei de pagar o *${nomeServico}*${
+          servico?.preco ? ` no valor de R$ ${servico.preco}` : ""
+        }.${paymentId ? ` Número da operação: ${paymentId}.` : ""} Podem me enviar o acesso?`;
 
   const linkWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
 
@@ -84,7 +92,7 @@ function ConteudoSucesso() {
         <h1 className="text-2xl font-bold mb-2">Pagamento aprovado!</h1>
         <p className="text-gray-400 mb-2">
           Obrigado pela confiança! Seu pagamento de{" "}
-          <span className="text-white font-semibold">{servico}</span> foi confirmado.
+          <span className="text-white font-semibold">{nomeServico}</span> foi confirmado.
         </p>
 
         {status === "carregando" && (
@@ -102,7 +110,15 @@ function ConteudoSucesso() {
 
         {status === "manual" && (
           <p className="text-gray-400 mb-6">
+            Seu pagamento foi aprovado, mas a liberação automática não está disponível no momento.
             Clique no botão abaixo para falar com nosso suporte e receber seu acesso.
+          </p>
+        )}
+
+        {status === "erro" && (
+          <p className="text-gray-400 mb-6">
+            Não conseguimos confirmar seu pedido automaticamente. Clique no botão abaixo para falar
+            com nosso suporte e receber seu acesso.
           </p>
         )}
 
