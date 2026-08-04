@@ -1,10 +1,10 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// IMPORTANTE: a conexão com o Resend só é criada dentro da função,
+// nunca fora dela — se criarmos no topo do arquivo, o Next.js tenta
+// carregar isso durante o processo de BUILD da Vercel, antes de ter
+// acesso às variáveis de ambiente, e quebra o build inteiro.
 
-// Remetente de teste do Resend — funciona sem precisar verificar domínio próprio.
-// Quando você tiver um domínio verificado no Resend, pode trocar pra algo tipo
-// "Prime Legends GSM <contato@seudominio.com>".
 const REMETENTE = process.env.RESEND_FROM_EMAIL || "Prime Legends GSM <onboarding@resend.dev>";
 
 export async function enviarEmailAcesso(params: {
@@ -19,6 +19,13 @@ export async function enviarEmailAcesso(params: {
     console.log("[email] sem e-mail do cliente, pulando envio");
     return;
   }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[email] RESEND_API_KEY não configurada, pulando envio");
+    return;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const assunto = manual
     ? `Pagamento confirmado - ${servico} (acesso em liberação)`
@@ -50,8 +57,6 @@ export async function enviarEmailAcesso(params: {
     });
     console.log(`[email] enviado com sucesso para ${destinatario}`);
   } catch (erro) {
-    // Falha no envio de e-mail não deve travar a entrega do acesso —
-    // só registramos no log pra você saber que precisa reenviar manualmente
     console.error("[email] falha ao enviar:", erro);
   }
 }
