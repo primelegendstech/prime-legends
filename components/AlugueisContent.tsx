@@ -47,12 +47,37 @@ const planosPorFerramenta: Record<
   ],
 };
 
+// 👉 Substitua cada URL_... pelo link real de cada ferramenta
+const linksPorFerramenta: Record<string, { modelos: string; download: string }> = {
+  UnlockTool: {
+    modelos: "https://unlocktool.net/models/",
+    download: "https://file.unlocktool.net/,
+  },
+  "TSM Tool": {
+    modelos: "https://tsm-tool.com/SupportedModels",
+    download: "https://tsm-tool.com/download",
+  },
+  "AMT Tool": {
+    modelos: "https://androidmultitool.com/supported_models/",
+    download: "https://androidmultitool.com/",
+  },
+  "Samsung Tool": {
+    modelos: "https://celltool.io/qcsupportmodel",
+    download: "https://celltool.io/",
+  },
+  "Griffin-Unlocker": {
+    modelos: "https://griffin-unlocker.com/models.html",
+    download: "https://griffin-unlocker.com/download.html",
+  },
+};
+
 export default function AlugueisContent() {
   const [ativo, setAtivo] = useState(ferramentas[0]);
   const [indiceImagem, setIndiceImagem] = useState(0);
   const [carregando, setCarregando] = useState<string | null>(null);
   const planos = planosPorFerramenta[ativo];
   const imagens = imagensPorFerramenta[ativo];
+  const links = linksPorFerramenta[ativo];
 
   useEffect(() => {
     setIndiceImagem(0);
@@ -130,10 +155,20 @@ export default function AlugueisContent() {
   )}
 </h3>
           <div className="flex flex-wrap gap-4 mb-6 text-sm">
-            <a href="#" className="text-yellow-400 hover:text-yellow-300 transition">
+            <a
+              href={links.modelos}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-yellow-400 hover:text-yellow-300 transition"
+            >
               Ver modelos suportados ➤
             </a>
-            <a href="#" className="text-yellow-400 hover:text-yellow-300 transition">
+            <a
+              href={links.download}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-yellow-400 hover:text-yellow-300 transition"
+            >
               Baixar {ativo} ➤
             </a>
           </div>
