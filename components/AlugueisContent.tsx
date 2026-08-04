@@ -51,7 +51,7 @@ const planosPorFerramenta: Record<
 const linksPorFerramenta: Record<string, { modelos: string; download: string }> = {
   UnlockTool: {
     modelos: "https://unlocktool.net/models/",
-    download: "https://file.unlocktool.net/,
+    download: "https://file.unlocktool.net/",
   },
   "TSM Tool": {
     modelos: "https://tsm-tool.com/SupportedModels",
