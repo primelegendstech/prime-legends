@@ -1,5 +1,7 @@
+import { randomUUID } from "crypto";
 import { mapaServicos } from "@/lib/gsmcheap-servicos";
 import { supabase } from "@/lib/supabase";
+import { enviarEmailAcesso } from "@/lib/enviar-email";
 
 async function chamarGsmCheap(action: string, parametros?: any) {
   const url = `${process.env.GSMCHEAP_URL}/public/api/index.php`;
@@ -20,14 +22,16 @@ async function chamarGsmCheap(action: string, parametros?: any) {
   return json;
 }
 
-// Função central de entrega — chamada tanto pela tela /sucesso quanto pelo webhook do Mercado Pago.
-// Assim os dois caminhos usam exatamente a mesma lógica e não podem ficar inconsistentes.
+function montarLinkConsulta(codigo: string) {
+  return `${process.env.NEXT_PUBLIC_SITE_URL}/consultar?codigo=${codigo}`;
+}
+
 export async function processarEntrega(paymentId: string) {
   if (!paymentId) {
     return { status: 400, body: { erro: "paymentId ausente" } };
   }
 
-  // 1. Verifica se já existe um pedido salvo pra esse pagamento (evita duplicar)
+  // 1. Verifica se já existe um pedido salvo pra esse pagamento (evita duplicar e reenviar e-mail)
   const { data: pedidoExistente } = await supabase
     .from("pedidos")
     .select("*")
@@ -49,16 +53,20 @@ export async function processarEntrega(paymentId: string) {
           manual: true,
           mensagem: pedidoExistente.dados?.mensagem ?? "Pedido pendente de liberação manual",
           servico,
+          codigo: pedidoExistente.codigo,
         },
       };
     }
     const resultado = await chamarGsmCheap("getimeiorderbulk", {
       "1": { ID: pedidoExistente.reference_id },
     });
-    return { status: 200, body: { sucesso: true, dados: resultado?.["1"] ?? resultado, servico } };
+    return {
+      status: 200,
+      body: { sucesso: true, dados: resultado?.["1"] ?? resultado, servico, codigo: pedidoExistente.codigo },
+    };
   }
 
-  // 2. Confirma no Mercado Pago que o pagamento foi realmente aprovado
+  // 2. Confirma no Mercado Pago que o pagamento foi realmente aprovado (e pega o e-mail de quem pagou)
   const pagamentoResp = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
     headers: { Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}` },
   });
@@ -68,7 +76,9 @@ export async function processarEntrega(paymentId: string) {
     return { status: 200, body: { erro: "Pagamento ainda não confirmado" } };
   }
 
+  const emailCliente: string | null = pagamento?.payer?.email ?? null;
   const externalReference = pagamento.external_reference;
+
   if (!externalReference) {
     console.error("[entrega] pagamento sem external_reference:", paymentId);
     return { status: 400, body: { erro: "Pedido não identificado" } };
@@ -87,22 +97,38 @@ export async function processarEntrega(paymentId: string) {
   }
 
   if (Number(pagamento.transaction_amount) < Number(checkout.preco)) {
-    console.error(
-      "[entrega] valor pago menor que o esperado:",
-      pagamento.transaction_amount,
-      checkout.preco
-    );
+    console.error("[entrega] valor pago menor que o esperado:", pagamento.transaction_amount, checkout.preco);
     return { status: 400, body: { erro: "Valor pago não confere" } };
   }
 
   const { ferramenta, duracao, preco } = checkout;
   const servico = { ferramenta, duracao, preco };
+  const nomeServico = `${ferramenta} - Aluguel ${duracao}`;
+  const codigo = randomUUID();
 
   // 4. Verifica se temos o serviço mapeado como automático
   const chave = `${ferramenta}|${duracao}`;
   const mapeado = mapaServicos[chave];
   if (!mapeado) {
-    return { status: 200, body: { manual: true, servico } };
+    await supabase.from("pedidos").insert({
+      payment_id: paymentId,
+      reference_id: null,
+      ferramenta,
+      duracao,
+      preco,
+      codigo,
+      email_cliente: emailCliente,
+      dados: { status: "manual", mensagem: "Serviço não automatizado" },
+    });
+    if (emailCliente) {
+      await enviarEmailAcesso({
+        destinatario: emailCliente,
+        servico: nomeServico,
+        linkConsulta: montarLinkConsulta(codigo),
+        manual: true,
+      });
+    }
+    return { status: 200, body: { manual: true, servico, codigo } };
   }
 
   // 5. Faz o pedido na GSM Cheap
@@ -125,13 +151,24 @@ export async function processarEntrega(paymentId: string) {
       ferramenta,
       duracao,
       preco,
+      codigo,
+      email_cliente: emailCliente,
       dados: { status: "erro_gsmcheap", mensagem: mensagemErro, respostaCompleta: pedido },
     });
     if (erroInsert && erroInsert.code !== "23505") {
       console.error("[entrega] erro ao salvar pedido pendente:", erroInsert);
     }
 
-    return { status: 200, body: { erro: "gsmcheap_falhou", manual: true, mensagem: mensagemErro, servico } };
+    if (emailCliente) {
+      await enviarEmailAcesso({
+        destinatario: emailCliente,
+        servico: nomeServico,
+        linkConsulta: montarLinkConsulta(codigo),
+        manual: true,
+      });
+    }
+
+    return { status: 200, body: { erro: "gsmcheap_falhou", manual: true, mensagem: mensagemErro, servico, codigo } };
   }
 
   // 6. Consulta o resultado (instantâneo)
@@ -147,6 +184,8 @@ export async function processarEntrega(paymentId: string) {
     ferramenta,
     duracao,
     preco,
+    codigo,
+    email_cliente: emailCliente,
     dados: dadosFinais,
   });
 
@@ -157,10 +196,22 @@ export async function processarEntrega(paymentId: string) {
         .select("*")
         .eq("payment_id", paymentId)
         .maybeSingle();
-      return { status: 200, body: { sucesso: true, dados: jaExiste?.dados ?? dadosFinais, servico } };
+      return {
+        status: 200,
+        body: { sucesso: true, dados: jaExiste?.dados ?? dadosFinais, servico, codigo: jaExiste?.codigo ?? codigo },
+      };
     }
     console.error("[entrega] erro ao salvar pedido final:", erroInsertFinal);
   }
 
-  return { status: 200, body: { sucesso: true, dados: dadosFinais, servico } };
+  if (emailCliente) {
+    await enviarEmailAcesso({
+      destinatario: emailCliente,
+      servico: nomeServico,
+      linkConsulta: montarLinkConsulta(codigo),
+      manual: false,
+    });
+  }
+
+  return { status: 200, body: { sucesso: true, dados: dadosFinais, servico, codigo } };
 }
