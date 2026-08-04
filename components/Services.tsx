@@ -4,8 +4,8 @@ const services = [
     description: "Ajuda especializada para resolver problemas de software e configuração à distância.",
   },
   {
-    name: "Suporte De Ativações de Licenças",
-    description: "Ativações de licenças com suporte técnico especializado.",
+    name: "Suporte De Aluguel de Licenças",
+    description: "Aluguel de licenças com suporte técnico especializado.",
   },
   {
     name: "Desbloqueio de Aparelhos",
