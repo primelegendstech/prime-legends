@@ -28,7 +28,7 @@ export default function Header() {
   const t = textos[idioma];
 
   const links = [
-    { label: t.inicio, href: "#home" },
+    { label: t.inicio, href: "/" },
     { label: t.alugueis, href: "/alugueis" },
     { label: t.ativacao, href: "/ativacao" },
     { label: t.servico, href: "#servicos" },
