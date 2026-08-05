@@ -8,6 +8,7 @@ const textos = {
   pt: {
     inicio: "Início",
     alugueis: "Aluguéis",
+    ativacao: "Ativação de Licença",
     servico: "Serviço Remoto",
     sobre: "Sobre",
     consultar: "Consultar Pedido",
@@ -15,6 +16,7 @@ const textos = {
   en: {
     inicio: "Home",
     alugueis: "Rentals",
+    ativacao: "License Activation",
     servico: "Remote Service",
     sobre: "About",
     consultar: "Track Order",
@@ -28,6 +30,7 @@ export default function Header() {
   const links = [
     { label: t.inicio, href: "#home" },
     { label: t.alugueis, href: "/alugueis" },
+    { label: t.ativacao, href: "/ativacao" },
     { label: t.servico, href: "#servicos" },
     { label: t.sobre, href: "#sobre" },
     { label: t.consultar, href: "/consultar" },
