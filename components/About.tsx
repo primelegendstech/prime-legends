@@ -1,75 +1,47 @@
 "use client";
 
-import { useIdioma } from "@/context/LanguageContext";
-
-const conteudo = {
-  pt: {
-    features: [
-      {
-        icon: "🛡️",
-        title: "100% Seguro",
-        description:
-          "Seus pagamentos e ativações estão protegidos. Operamos com total transparência, garantindo que você receba sua licença sem riscos.",
-      },
-      {
-        icon: "⚡",
-        title: "Entrega Rápida",
-        description:
-          "Sabemos que tempo é dinheiro. Processamos ativações em tempo recorde para que você não precise interromper seu trabalho.",
-      },
-      {
-        icon: "🤖",
-        title: "Gestão de Licenças",
-        description:
-          "Nosso suporte se concentra exclusivamente no acesso e uso da sua licença. Garantimos disponibilidade imediata e total estabilidade.",
-      },
-    ],
-  },
-  en: {
-    features: [
-      {
-        icon: "🛡️",
-        title: "100% Secure",
-        description:
-          "Your payments and activations are protected. We operate with full transparency, ensuring you receive your license risk-free.",
-      },
-      {
-        icon: "⚡",
-        title: "Fast Delivery",
-        description:
-          "We know time is money. We process activations in record time so you never have to stop working.",
-      },
-      {
-        icon: "🤖",
-        title: "License Management",
-        description:
-          "Our support focuses exclusively on access and use of your license. We guarantee immediate availability and full stability.",
-      },
-    ],
-  },
-};
-
 export default function About() {
-  const { idioma } = useIdioma();
-  const { features } = conteudo[idioma];
-
   return (
-    <section id="sobre" className="bg-[#0B0B0B] px-6 py-16 border-t border-yellow-500/10">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {features.map((f) => (
-          <div
-            key={f.title}
-            className="bg-[#121212] border border-yellow-500/20 rounded-xl p-8 text-center hover:border-yellow-400 transition"
-          >
-            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-300 via-amber-500 to-yellow-600 flex items-center justify-center text-2xl">
-              {f.icon}
-            </div>
-            <h3 className="text-white font-bold text-lg mb-2">{f.title}</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              {f.description}
-            </p>
-          </div>
-        ))}
+    <section
+      id="sobre"
+      className="max-w-3xl mx-auto px-6 py-20"
+    >
+      <div className="bg-white/[0.03] border border-yellow-500/20 rounded-2xl p-8 md:p-10">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 text-black font-bold text-sm">
+            i
+          </span>
+          <h2 className="text-xl md:text-2xl font-black text-white">
+            SOBRE O <span className="text-yellow-400">SERVIÇO</span>
+          </h2>
+        </div>
+
+        <p className="text-gray-300 text-sm md:text-base leading-relaxed mb-6">
+          Na <span className="font-bold text-yellow-400">Prime Legends GSM</span>,
+          especializamo-nos exclusivamente em{" "}
+          <span className="font-bold text-white">ativação e gestão de licenças</span>.
+          Este foco permite-nos garantir os tempos de resposta mais rápidos e eficazes
+          no setor técnico.
+        </p>
+
+        <div className="border-l-2 border-yellow-400 bg-black/30 rounded-r-lg px-4 py-3 mb-6">
+          <p className="text-gray-300 text-sm leading-relaxed">
+            Ao adquirir uma licença ou ativação, o cliente assume que possui o
+            conhecimento técnico necessário para usar a ferramenta. Nosso suporte
+            se limita estritamente a problemas com a ativação da conta.
+          </p>
+        </div>
+
+        <p className="text-gray-400 text-sm mb-8">
+          Operamos globalmente, garantindo o seu fluxo de trabalho técnico.
+        </p>
+
+        <a
+          href="#home"
+          className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-6 py-2.5 text-sm font-bold text-black transition hover:scale-105"
+        >
+          ENTENDIDO
+        </a>
       </div>
     </section>
   );
