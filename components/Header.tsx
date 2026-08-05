@@ -12,6 +12,8 @@ const textos = {
     servico: "Serviço Remoto",
     sobre: "Sobre",
     consultar: "Consultar Pedido",
+    mensagemServico:
+      "Olá! Tenho interesse no serviço remoto. Podem me passar mais informações?",
   },
   en: {
     inicio: "Home",
@@ -20,6 +22,8 @@ const textos = {
     servico: "Remote Service",
     sobre: "About",
     consultar: "Track Order",
+    mensagemServico:
+      "Hi! I'm interested in the remote service. Could you send me more information?",
   },
 };
 export default function Header() {
@@ -31,8 +35,12 @@ export default function Header() {
     { label: t.inicio, href: "/" },
     { label: t.alugueis, href: "/alugueis" },
     { label: t.ativacao, href: "/ativacao" },
-    { label: t.servico, href: "#servicos" },
-    { label: t.sobre, href: "#sobre" },
+    {
+      label: t.servico,
+      href: `https://wa.me/5581995716227?text=${encodeURIComponent(t.mensagemServico)}`,
+      externo: true,
+    },
+    { label: t.sobre, href: "/#sobre" },
     { label: t.consultar, href: "/consultar" },
   ];
 
@@ -55,6 +63,8 @@ export default function Header() {
             <a
               key={link.href}
               href={link.href}
+              target={link.externo ? "_blank" : undefined}
+              rel={link.externo ? "noopener noreferrer" : undefined}
               className="text-gray-300 hover:text-yellow-400 text-sm font-medium transition"
             >
               {link.label}
@@ -99,6 +109,8 @@ export default function Header() {
             <a
               key={link.href}
               href={link.href}
+              target={link.externo ? "_blank" : undefined}
+              rel={link.externo ? "noopener noreferrer" : undefined}
               className="text-gray-300 hover:text-yellow-400 text-sm"
               onClick={() => setMenuOpen(false)}
             >
