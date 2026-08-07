@@ -123,7 +123,7 @@ export async function processarEntrega(paymentId: string) {
   }
 
   // 5. Faz o pedido no fornecedor certo (GSM Cheap, ou qualquer outro cadastrado em lib/fornecedores)
-  const criacao = await adapter.criarPedido(mapeado.serviceId);
+  const criacao = await adapter.criarPedido(String(mapeado.serviceId));
 
   if (!criacao.referenceId) {
     const mensagemErro = criacao.mensagemErro ?? `Falha ao gerar acesso na ${mapeado.fornecedor}`;
