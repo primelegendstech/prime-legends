@@ -1,26 +1,8 @@
 import { randomUUID } from "crypto";
 import { mapaServicos } from "@/lib/gsmcheap-servicos";
+import { fornecedores } from "@/lib/fornecedores";
 import { supabase } from "@/lib/supabase";
 import { enviarEmailAcesso } from "@/lib/enviar-email";
-
-async function chamarGsmCheap(action: string, parametros?: any) {
-  const url = `${process.env.GSMCHEAP_URL}/public/api/index.php`;
-  const body = new URLSearchParams({
-    username: process.env.GSMCHEAP_USERNAME!,
-    apiaccesskey: process.env.GSMCHEAP_API_KEY!,
-    action,
-    requestformat: "JSON",
-    ...(parametros ? { parameters: Buffer.from(JSON.stringify(parametros)).toString("base64") } : {}),
-  });
-  const resposta = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
-  });
-  const json = await resposta.json();
-  console.log(`[GSM Cheap] action=${action} resposta:`, JSON.stringify(json));
-  return json;
-}
 
 function montarLinkConsulta(codigo: string) {
   return `${process.env.NEXT_PUBLIC_SITE_URL}/consultar?codigo=${codigo}`;
@@ -57,12 +39,19 @@ export async function processarEntrega(paymentId: string) {
         },
       };
     }
-    const resultado = await chamarGsmCheap("getimeiorderbulk", {
-      "1": { ID: pedidoExistente.reference_id },
-    });
+
+    // Descobre qual fornecedor foi usado nesse pedido, pra consultar no adaptador certo
+    const chaveExistente = `${pedidoExistente.ferramenta}|${pedidoExistente.duracao}`;
+    const mapeadoExistente = mapaServicos[chaveExistente];
+    const adapterExistente = mapeadoExistente ? fornecedores[mapeadoExistente.fornecedor] : undefined;
+
+    const dadosConsulta = adapterExistente
+      ? await adapterExistente.consultarPedido(pedidoExistente.reference_id)
+      : pedidoExistente.dados;
+
     return {
       status: 200,
-      body: { sucesso: true, dados: resultado?.["1"] ?? resultado, servico, codigo: pedidoExistente.codigo },
+      body: { sucesso: true, dados: dadosConsulta, servico, codigo: pedidoExistente.codigo },
     };
   }
 
@@ -106,10 +95,12 @@ export async function processarEntrega(paymentId: string) {
   const nomeServico = `${ferramenta} - Aluguel ${duracao}`;
   const codigo = randomUUID();
 
-  // 4. Verifica se temos o serviço mapeado como automático
+  // 4. Verifica se temos o serviço mapeado, e com qual fornecedor
   const chave = `${ferramenta}|${duracao}`;
   const mapeado = mapaServicos[chave];
-  if (!mapeado) {
+  const adapter = mapeado ? fornecedores[mapeado.fornecedor] : undefined;
+
+  if (!mapeado || !adapter) {
     await supabase.from("pedidos").insert({
       payment_id: paymentId,
       reference_id: null,
@@ -131,19 +122,15 @@ export async function processarEntrega(paymentId: string) {
     return { status: 200, body: { manual: true, servico, codigo } };
   }
 
-  // 5. Faz o pedido na GSM Cheap
-  const pedido = await chamarGsmCheap("placebulkorder", {
-    "1": { ID: mapeado.serviceId, QNT: 1 },
-  });
+  // 5. Faz o pedido no fornecedor certo (GSM Cheap, ou qualquer outro cadastrado em lib/fornecedores)
+  const criacao = await adapter.criarPedido(mapeado.serviceId);
 
-  const itemResposta = pedido?.SUCCESS?.["1"];
-  const deuErro = itemResposta?.status === "error";
-  const mensagemGsm = itemResposta?.message;
-  const referenceId = !deuErro ? itemResposta?.referenceid : undefined;
-
-  if (!referenceId) {
-    const mensagemErro = mensagemGsm ?? "Falha ao gerar acesso na GSM Cheap";
-    console.error("[entrega] GSM Cheap não retornou referenceId. Resposta completa:", JSON.stringify(pedido));
+  if (!criacao.referenceId) {
+    const mensagemErro = criacao.mensagemErro ?? `Falha ao gerar acesso na ${mapeado.fornecedor}`;
+    console.error(
+      `[entrega] ${mapeado.fornecedor} não retornou referenceId. Resposta completa:`,
+      JSON.stringify(criacao.respostaCompleta)
+    );
 
     const { error: erroInsert } = await supabase.from("pedidos").insert({
       payment_id: paymentId,
@@ -153,7 +140,11 @@ export async function processarEntrega(paymentId: string) {
       preco,
       codigo,
       email_cliente: emailCliente,
-      dados: { status: "erro_gsmcheap", mensagem: mensagemErro, respostaCompleta: pedido },
+      dados: {
+        status: `erro_${mapeado.fornecedor}`,
+        mensagem: mensagemErro,
+        respostaCompleta: criacao.respostaCompleta,
+      },
     });
     if (erroInsert && erroInsert.code !== "23505") {
       console.error("[entrega] erro ao salvar pedido pendente:", erroInsert);
@@ -168,19 +159,19 @@ export async function processarEntrega(paymentId: string) {
       });
     }
 
-    return { status: 200, body: { erro: "gsmcheap_falhou", manual: true, mensagem: mensagemErro, servico, codigo } };
+    return {
+      status: 200,
+      body: { erro: `${mapeado.fornecedor}_falhou`, manual: true, mensagem: mensagemErro, servico, codigo },
+    };
   }
 
-  // 6. Consulta o resultado (instantâneo)
-  const resultado = await chamarGsmCheap("getimeiorderbulk", {
-    "1": { ID: referenceId },
-  });
-  const dadosFinais = resultado?.["1"] ?? resultado;
+  // 6. Consulta o resultado (instantâneo, na maioria dos fornecedores)
+  const dadosFinais = await adapter.consultarPedido(criacao.referenceId);
 
   // 7. Salva no banco pra não duplicar depois
   const { error: erroInsertFinal } = await supabase.from("pedidos").insert({
     payment_id: paymentId,
-    reference_id: referenceId,
+    reference_id: criacao.referenceId,
     ferramenta,
     duracao,
     preco,
