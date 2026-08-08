@@ -8,6 +8,13 @@ function montarLinkConsulta(codigo: string) {
   return `${process.env.NEXT_PUBLIC_SITE_URL}/consultar?codigo=${codigo}`;
 }
 
+// O Mercado Pago às vezes retorna "XXXXXXXXXXX" no lugar do e-mail real
+// (comum em PIX ou pagador sem conta MP verificada). Isso não é um e-mail válido.
+function pareceEmailValido(email: string | null): email is string {
+  if (!email) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export async function processarEntrega(paymentId: string) {
   if (!paymentId) {
     return { status: 400, body: { erro: "paymentId ausente" } };
@@ -65,7 +72,11 @@ export async function processarEntrega(paymentId: string) {
     return { status: 200, body: { erro: "Pagamento ainda não confirmado" } };
   }
 
-  const emailCliente: string | null = pagamento?.payer?.email ?? null;
+  const emailBruto: string | null = pagamento?.payer?.email ?? null;
+  const emailCliente: string | null = pareceEmailValido(emailBruto) ? emailBruto : null;
+  if (emailBruto && !emailCliente) {
+    console.warn("[entrega] e-mail retornado pelo Mercado Pago não parece válido, ignorando:", emailBruto);
+  }
   const externalReference = pagamento.external_reference;
 
   if (!externalReference) {
@@ -123,8 +134,7 @@ export async function processarEntrega(paymentId: string) {
   }
 
   // 5. Faz o pedido no fornecedor certo (GSM Cheap, ou qualquer outro cadastrado em lib/fornecedores)
-  const criacao = await adapter.criarPedido(String(mapeado.serviceId));
-
+const criacao = await adapter.criarPedido(String(mapeado.serviceId));
   if (!criacao.referenceId) {
     const mensagemErro = criacao.mensagemErro ?? `Falha ao gerar acesso na ${mapeado.fornecedor}`;
     console.error(
