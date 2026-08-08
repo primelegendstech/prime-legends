@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import { formatarCredenciais } from "@/lib/formatar-credenciais";
 
 function ConteudoConsultar() {
   const params = useSearchParams();
@@ -14,7 +15,13 @@ function ConteudoConsultar() {
     codigoUrl ? "carregando" : "vazio"
   );
   const [credenciais, setCredenciais] = useState<any>(null);
-  const [servico, setServico] = useState<{ ferramenta?: string; duracao?: string } | null>(null);
+  const [servico, setServico] = useState<{
+    ferramenta?: string;
+    duracao?: string;
+    preco?: number;
+    codigo?: string;
+    criadoEm?: string;
+  } | null>(null);
   const [mensagem, setMensagem] = useState("");
 
   async function buscar(codigo: string) {
@@ -48,7 +55,6 @@ function ConteudoConsultar() {
     e.preventDefault();
     const codigoLimpo = codigoDigitado.trim();
     if (!codigoLimpo) return;
-    // Atualiza a URL também, assim o cliente pode salvar/compartilhar o link direto
     router.push(`/consultar?codigo=${encodeURIComponent(codigoLimpo)}`);
     buscar(codigoLimpo);
   }
@@ -60,6 +66,12 @@ function ConteudoConsultar() {
       codigoDigitado ? ` (código ${codigoDigitado})` : ""
     } e preciso de ajuda.`
   )}`;
+
+  const credenciaisFormatadas = credenciais ? formatarCredenciais(credenciais) : null;
+
+  const dataFormatada = servico?.criadoEm
+    ? new Date(servico.criadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })
+    : null;
 
   return (
     <main className="min-h-screen bg-[#0B0B0B] text-white flex items-center justify-center px-6">
@@ -73,10 +85,9 @@ function ConteudoConsultar() {
 
         <h1 className="text-xl font-bold mb-4">Consulta do seu pedido</h1>
 
-        {/* Campo pra digitar o código manualmente, sempre visível */}
         <form onSubmit={handleSubmit} className="mb-6">
           <label className="block text-left text-sm text-gray-400 mb-2">
-            Cole aqui o código do seu pedido (você recebeu ele por e-mail):
+            Cole aqui o código do seu pedido (você recebeu ele por e-mail ou na tela após o pagamento):
           </label>
           <div className="flex gap-2">
             <input
@@ -103,18 +114,58 @@ function ConteudoConsultar() {
 
         {status === "carregando" && <p className="text-amber-400 text-sm mb-6 animate-pulse">Buscando...</p>}
 
-        {status === "sucesso" && (
-          <>
-            <p className="text-gray-400 mb-2">
-              <span className="text-white font-semibold">{nomeServico}</span>
+        {(status === "sucesso" || status === "manual") && servico && (
+          <div className="bg-black/30 border border-yellow-500/10 rounded-xl p-4 mb-4 text-left text-xs space-y-1">
+            <p>
+              <span className="text-gray-400">Ferramenta:</span>{" "}
+              <span className="text-white">{servico.ferramenta}</span>
             </p>
-            <div className="bg-black/40 border border-yellow-500/30 rounded-xl p-4 mb-6 text-left text-sm">
-              <p className="text-yellow-400 font-bold mb-2">✅ Seu acesso:</p>
-              <pre className="text-gray-200 whitespace-pre-wrap break-words">
-                {JSON.stringify(credenciais, null, 2)}
-              </pre>
-            </div>
-          </>
+            <p>
+              <span className="text-gray-400">Duração:</span> <span className="text-white">{servico.duracao}</span>
+            </p>
+            {servico.preco != null && (
+              <p>
+                <span className="text-gray-400">Valor:</span>{" "}
+                <span className="text-white">R$ {servico.preco}</span>
+              </p>
+            )}
+            {dataFormatada && (
+              <p>
+                <span className="text-gray-400">Pedido em:</span> <span className="text-white">{dataFormatada}</span>
+              </p>
+            )}
+            {servico.codigo && (
+              <p className="break-all">
+                <span className="text-gray-400">Código:</span>{" "}
+                <span className="text-yellow-300 font-mono">{servico.codigo}</span>
+              </p>
+            )}
+          </div>
+        )}
+
+        {status === "sucesso" && credenciaisFormatadas && (
+          <div className="bg-black/40 border border-yellow-500/30 rounded-xl p-4 mb-6 text-left text-sm space-y-2">
+            <p className="text-yellow-400 font-bold mb-2">✅ Seu acesso:</p>
+
+            {credenciaisFormatadas.login && (
+              <p className="break-words">
+                <span className="text-gray-400">Login:</span>{" "}
+                <span className="text-white font-mono">{credenciaisFormatadas.login}</span>
+              </p>
+            )}
+            {credenciaisFormatadas.senha && (
+              <p className="break-words">
+                <span className="text-gray-400">Senha:</span>{" "}
+                <span className="text-white font-mono">{credenciaisFormatadas.senha}</span>
+              </p>
+            )}
+            {credenciaisFormatadas.linhas.map((linha, i) => (
+              <p key={i} className="break-words">
+                <span className="text-gray-400">{linha.label}:</span>{" "}
+                <span className="text-white font-mono">{linha.valor}</span>
+              </p>
+            ))}
+          </div>
         )}
 
         {status === "manual" && (

@@ -22,6 +22,8 @@ export async function GET(request: NextRequest) {
     ferramenta: pedido.ferramenta,
     duracao: pedido.duracao,
     preco: pedido.preco,
+    codigo: pedido.codigo,
+    criadoEm: pedido.created_at,
   };
 
   if (!pedido.reference_id) {
