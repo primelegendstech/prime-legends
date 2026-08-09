@@ -7,7 +7,7 @@ export const planosValidos: Record<string, number> = {
   "UnlockTool|48 horas": 18,
   "UnlockTool|120 horas": 30,
 
-  "TSM Tool|3 horas": 5,
+  "TSM Tool|3 horas": 5.5,
   "TSM Tool|12 horas": 9,
   "TSM Tool|48 horas": 18,
   "TSM Tool|168 horas": 35,
