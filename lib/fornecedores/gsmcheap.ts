@@ -27,7 +27,7 @@ async function chamarGsmCheap(action: string, parametros?: any) {
 
 export const gsmCheapAdapter: FornecedorAdapter = {
   async criarPedido(serviceId: string) {
-    const pedido = await chamarGsmCheap("placebulkorder", { "1": { ID: serviceId, QNT: 1 } });
+    const pedido = await chamarGsmCheap("placebulkorder", { "1": { ID: Number(serviceId), QNT: 1 } });
     const item = pedido?.SUCCESS?.["1"];
     const deuErro = item?.status === "error";
 

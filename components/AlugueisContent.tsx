@@ -23,7 +23,7 @@ const planosPorFerramenta: Record<
     { nome: "120 horas", preco: 30, destaque: false },
   ],
   "TSM Tool": [
-    { nome: "3 horas", preco: 5, destaque: false },
+    { nome: "3 horas", preco: 5.5, destaque: false },
     { nome: "12 horas", preco: 9, destaque: true },
     { nome: "48 horas", preco: 18, destaque: true },
     { nome: "168 horas", preco: 35, destaque: false },
