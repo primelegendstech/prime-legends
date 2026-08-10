@@ -110,8 +110,8 @@ export default function Home() {
             </Link>
           </div>
         </div>
+        <Destaques />
       </section>
-      <Destaques />
       <TrustBadges />
 <About />
 <Services />
