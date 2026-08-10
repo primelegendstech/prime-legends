@@ -31,3 +31,18 @@ body {
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
 }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+  width: max-content;
+}
+@keyframes drift {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 400px 400px; }
+}
+.animate-drift {
+  animation: drift 40s linear infinite;
+}

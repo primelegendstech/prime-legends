@@ -1,6 +1,7 @@
 "use client";
 
 import Header from "@/components/Header";
+import Destaques from "@/components/Destaques";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -43,7 +44,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#0B0B0B] text-white relative overflow-hidden">
       <div
-        className="fixed inset-0 opacity-40 pointer-events-none"
+  className="fixed inset-0 opacity-40 pointer-events-none animate-drift"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Cdefs%3E%3Cfilter id='glow' x='-50%25' y='-50%25' width='200%25' height='200%25'%3E%3CfeGaussianBlur stdDeviation='3' result='blur'/%3E%3CfeMerge%3E%3CfeMergeNode in='blur'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23glow)'%3E%3Cg stroke='%23ffb800' stroke-width='1.4' fill='none' stroke-linecap='round'%3E%3Cpath d='M-30 60L90 60L150 -10'/%3E%3Cpath d='M20 400L90 320L90 200L200 90L320 90'/%3E%3Cpath d='M-30 250L60 250L140 170'/%3E%3Cpath d='M250 -20L250 70L360 180L430 180'/%3E%3Cpath d='M400 340L300 340L220 260L220 180'/%3E%3Cpath d='M-30 150L40 150L100 90L100 30'/%3E%3Cpath d='M180 400L180 330L260 250'/%3E%3C/g%3E%3Cg fill='%23ffdd66'%3E%3Ccircle cx='90' cy='60' r='3'/%3E%3Ccircle cx='90' cy='200' r='2.5'/%3E%3Ccircle cx='200' cy='90' r='3'/%3E%3Ccircle cx='140' cy='170' r='2'/%3E%3Ccircle cx='250' cy='70' r='2.5'/%3E%3Ccircle cx='360' cy='180' r='3'/%3E%3Ccircle cx='220' cy='260' r='2.5'/%3E%3Ccircle cx='100' cy='90' r='2'/%3E%3Ccircle cx='260' cy='250' r='2.5'/%3E%3Ccircle cx='150' cy='-10' r='1.8'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           backgroundSize: "400px 400px",
@@ -110,6 +111,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <Destaques />
       <TrustBadges />
 <About />
 <Services />
