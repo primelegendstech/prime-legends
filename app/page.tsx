@@ -53,10 +53,9 @@ export default function Home() {
       />
       <div className="relative z-10">
         <Header />
-        <Destaques />
 
         <section
-          className="relative flex items-center px-6 md:px-16 pt-6 pb-10 md:pt-8 md:pb-14"
+          className="relative flex items-center px-6 md:px-16 pt-8 pb-10 md:pt-10 md:pb-14"
           style={{
             backgroundImage: `linear-gradient(to right, rgba(11,11,11,0.95) 0%, rgba(11,11,11,0.75) 35%, rgba(11,11,11,0.3) 60%, rgba(11,11,11,0.1) 100%), url('/hero-bg.png')`,
             backgroundSize: "cover",
@@ -108,6 +107,8 @@ export default function Home() {
                 🕐 {t.aluguelFerramentas}
               </Link>
             </div>
+
+            <Destaques />
           </div>
         </section>
 
