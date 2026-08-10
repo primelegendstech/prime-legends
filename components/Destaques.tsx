@@ -9,13 +9,12 @@ type Destaque = {
 };
 
 const destaques: Destaque[] = [
-  { ferramenta: "UnlockTool", precoDesde: 5, imagem: "/laptops/unlocktool-1.png" },
-  { ferramenta: "TSM Tool", precoDesde: 5.5, imagem: "/laptops/tsm-1.png" },
-  { ferramenta: "AMT Tool", precoDesde: 5, imagem: "/laptops/amt-1.png" },
-  { ferramenta: "Samsung Tool", precoDesde: 15, imagem: "/laptops/samsung-1.png" },
-  { ferramenta: "Griffin-Unlocker", precoDesde: 9, imagem: "/laptops/griffin-1.png" },
+  { ferramenta: "UnlockTool", precoDesde: 5, imagem: "/laptops/unlocktool-1-thumb.webp" },
+  { ferramenta: "TSM Tool", precoDesde: 5.5, imagem: "/laptops/tsm-1-thumb.webp" },
+  { ferramenta: "AMT Tool", precoDesde: 5, imagem: "/laptops/amt-1-thumb.webp" },
+  { ferramenta: "Samsung Tool", precoDesde: 15, imagem: "/laptops/samsung-1-thumb.webp" },
+  { ferramenta: "Griffin-Unlocker", precoDesde: 9, imagem: "/laptops/griffin-1-thumb.webp" },
 ];
-
 const loop = [...destaques, ...destaques, ...destaques];
 
 export default function Destaques() {
