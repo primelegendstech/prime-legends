@@ -73,12 +73,12 @@ export default function Home() {
             }}
           />
 
-          {/* Destaques deslizando por cima do Hero, no topo, sem invadir o texto (que começa mais abaixo) */}
-          <div className="absolute top-0 left-0 right-0 z-20 pt-4 md:pt-6">
+          {/* Destaques deslizando por cima do Hero, abaixo o suficiente pra não ficar atrás do Header */}
+          <div className="absolute top-16 md:top-20 left-0 right-0 z-20">
             <Destaques />
           </div>
 
-          <div className="max-w-2xl text-left relative z-10 animate-hero-in mt-32 md:mt-28">
+          <div className="max-w-2xl text-left relative z-10 animate-hero-in mt-52 md:mt-48">
             <div className="flex items-center gap-2 mb-3">
               <img src="/logo.png" alt="Prime Legends Tech" className="w-6 h-6 md:w-8 md:h-8 object-contain" />
               <span className="border border-amber-500/40 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-semibold text-amber-400">
@@ -99,20 +99,20 @@ export default function Home() {
               {t.paragrafoFim}
             </p>
 
-            <div className="mt-5 md:mt-6 flex flex-col sm:flex-row justify-start sm:justify-end gap-3 sm:gap-4">
-              <Link
-                href="/ativacao"
-                className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-6 py-3 md:px-7 md:py-3.5 text-sm md:text-base font-bold text-black transition hover:scale-105"
-              >
-                🛒 {t.comprarLicenca}
-              </Link>
-              <Link
-                href="/alugueis"
-                className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-6 py-3 md:px-7 md:py-3.5 text-sm md:text-base font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
-              >
-                🕐 {t.aluguelFerramentas}
-              </Link>
-            </div>
+            <div className="mt-1 flex flex-col sm:flex-row justify-start sm:justify-end gap-2.5 sm:gap-3 sm:pl-16 md:pl-24">
+  <Link
+    href="/ativacao"
+    className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-black transition hover:scale-105"
+  >
+    🛒 {t.comprarLicenca}
+  </Link>
+  <Link
+    href="/alugueis"
+    className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
+  >
+    🕐 {t.aluguelFerramentas}
+  </Link>
+</div>
           </div>
         </section>
 
