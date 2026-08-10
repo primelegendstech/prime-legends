@@ -54,6 +54,10 @@ export default function Home() {
       <div className="relative z-10">
         <Header />
 
+        {/* Faixa de destaques (marquee) logo abaixo do Header */}
+        <Destaques />
+
+        {/* Hero completo */}
         <section
           className="relative flex items-center px-6 md:px-16 pt-8 pb-10 md:pt-10 md:pb-14"
           style={{
@@ -107,8 +111,6 @@ export default function Home() {
                 🕐 {t.aluguelFerramentas}
               </Link>
             </div>
-
-            <Destaques />
           </div>
         </section>
 
