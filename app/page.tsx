@@ -54,7 +54,6 @@ export default function Home() {
       <div className="relative z-10">
         <Header />
 
-        {/* Hero completo, com Destaques flutuando por cima dele (lado direito, sem tocar no texto) */}
         <section
           className="relative flex items-start px-6 md:px-16 pt-6 pb-16 md:pt-8 md:pb-24"
           style={{
@@ -74,12 +73,12 @@ export default function Home() {
             }}
           />
 
-          {/* Painel de Destaques: no desktop fica flutuando no canto superior direito, sobre a imagem do hero; no mobile vira faixa normal acima do texto */}
-          <div className="md:absolute md:top-5 md:right-6 lg:right-16 md:w-[380px] z-20 mb-4 md:mb-0">
+          {/* Destaques deslizando por cima do Hero, no topo, sem invadir o texto (que começa mais abaixo) */}
+          <div className="absolute top-0 left-0 right-0 z-20 pt-4 md:pt-6">
             <Destaques />
           </div>
 
-          <div className="max-w-2xl text-left relative z-10 animate-hero-in mt-0 md:mt-16">
+          <div className="max-w-2xl text-left relative z-10 animate-hero-in mt-32 md:mt-28">
             <div className="flex items-center gap-2 mb-3">
               <img src="/logo.png" alt="Prime Legends Tech" className="w-6 h-6 md:w-8 md:h-8 object-contain" />
               <span className="border border-amber-500/40 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-semibold text-amber-400">
