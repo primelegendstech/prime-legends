@@ -55,7 +55,7 @@ export default function Home() {
         <Header />
 <Destaques />
         <section
-          className="relative flex min-h-screen items-center px-6 md:px-16 pt-24"
+          className="relative flex min-h-[80vh] items-center px-6 md:px-16 pt-24"
           style={{
             backgroundImage: `linear-gradient(to right, rgba(11,11,11,0.95) 0%, rgba(11,11,11,0.75) 35%, rgba(11,11,11,0.3) 60%, rgba(11,11,11,0.1) 100%), url('/hero-bg.png')`,
             backgroundSize: "cover",
@@ -90,22 +90,19 @@ export default function Home() {
               {t.tituloResto[1]}
             </h1>
 
-            <p className="mt-4 md:mt-6 text-sm md:text-lg text-zinc-400 max-w-xl">
-              {t.paragrafoInicio}{" "}
-              <span className="font-bold text-white">{t.paragrafoNegrito}</span>{" "}
+<p className="mt-3 md:mt-4 text-sm md:text-base text-zinc-400 max-w-xl">              <span className="font-bold text-white">{t.paragrafoNegrito}</span>{" "}
               {t.paragrafoFim}
             </p>
 
-            <div className="mt-4 md:mt-6 flex flex-col sm:flex-row justify-start sm:justify-end gap-3 sm:gap-4">
-              <Link
+<div className="mt-3 md:mt-4 flex flex-col sm:flex-row justify-start sm:justify-end gap-2 sm:gap-3">              <Link
                 href="/ativacao"
-                className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-black transition hover:scale-105"
+                className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-5 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-bold text-black transition hover:scale-105"
               >
                 🛒 {t.comprarLicenca}
               </Link>
               <Link
                 href="/alugueis"
-                className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
+                className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-5 py-2 md:px-5 md:py-2.5 text-xs md:text-sm font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
               >
                 🕐 {t.aluguelFerramentas}
               </Link>
