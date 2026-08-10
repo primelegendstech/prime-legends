@@ -61,3 +61,8 @@ body {
 .animate-drift {
   animation: drift 30s linear infinite;
 }
+@media (max-width: 768px) {
+  .animate-drift {
+    animation: none !important;
+  }
+}
