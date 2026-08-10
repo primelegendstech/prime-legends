@@ -53,7 +53,7 @@ export default function Home() {
       />
       <div className="relative z-10">
         <Header />
-
+<Destaques />
         <section
           className="relative flex min-h-screen items-center px-6 md:px-16 pt-24"
           style={{
@@ -80,7 +80,7 @@ export default function Home() {
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+            <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">
               <span className="bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
                 {t.tituloDestaque}
               </span>
@@ -90,7 +90,7 @@ export default function Home() {
               {t.tituloResto[1]}
             </h1>
 
-            <p className="mt-6 md:mt-8 text-base md:text-xl text-zinc-400 max-w-xl">
+            <p className="mt-4 md:mt-6 text-sm md:text-lg text-zinc-400 max-w-xl">
               {t.paragrafoInicio}{" "}
               <span className="font-bold text-white">{t.paragrafoNegrito}</span>{" "}
               {t.paragrafoFim}
@@ -113,7 +113,6 @@ export default function Home() {
           </div>
         </section>
 
-        <Destaques />
         <TrustBadges />
         <About />
         <Services />
