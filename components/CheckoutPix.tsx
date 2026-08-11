@@ -17,7 +17,7 @@ const PaymentBrick = memo(function PaymentBrick({
 }: {
   initialization: { amount: number };
   customization: any;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: any) => Promise<unknown>;
   onError: (erro: any) => void;
 }) {
   return (
