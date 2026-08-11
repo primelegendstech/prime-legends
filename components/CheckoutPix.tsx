@@ -1,10 +1,34 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 import { formatarCredenciais } from "@/lib/formatar-credenciais";
 
 initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY!, { locale: "pt-BR" });
+
+// Isolado com memo: só re-renderiza (e só recria o Brick) se initialization/customization/
+// onSubmit/onError mudarem de verdade. Protege contra re-renders do resto da tela
+// (ex: o carrossel de imagens do AlugueisContent atualizando a cada 3s).
+const PaymentBrick = memo(function PaymentBrick({
+  initialization,
+  customization,
+  onSubmit,
+  onError,
+}: {
+  initialization: { amount: number };
+  customization: any;
+  onSubmit: (data: any) => void;
+  onError: (erro: any) => void;
+}) {
+  return (
+    <Payment
+      initialization={initialization}
+      customization={customization}
+      onSubmit={onSubmit}
+      onError={onError}
+    />
+  );
+});
 
 type Props = {
   ferramenta: string;
@@ -151,7 +175,7 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
         </p>
 
         {status === "formulario" && (
-          <Payment
+          <PaymentBrick
             initialization={initialization}
             customization={customization}
             onSubmit={aoEnviar}
