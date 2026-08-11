@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import CheckoutPix from "@/components/CheckoutPix";
 
 const ferramentas = ["UnlockTool", "TSM Tool", "AMT Tool", "Samsung Tool", "Griffin-Unlocker"];
 
@@ -74,7 +75,7 @@ const linksPorFerramenta: Record<string, { modelos: string; download: string }> 
 export default function AlugueisContent() {
   const [ativo, setAtivo] = useState(ferramentas[0]);
   const [indiceImagem, setIndiceImagem] = useState(0);
-  const [carregando, setCarregando] = useState<string | null>(null);
+  const [planoSelecionado, setPlanoSelecionado] = useState<{ nome: string; preco: number } | null>(null);
   const planos = planosPorFerramenta[ativo];
   const imagens = imagensPorFerramenta[ativo];
   const links = linksPorFerramenta[ativo];
@@ -86,27 +87,6 @@ export default function AlugueisContent() {
     }, 3000);
     return () => clearInterval(intervalo);
   }, [ativo, imagens.length]);
-
-  async function pagar(nomePlano: string, preco: number) {
-    setCarregando(nomePlano);
-    try {
-      const resposta = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ferramenta: ativo, duracao: nomePlano }),
-      });
-      const dados = await resposta.json();
-      if (dados.url) {
-        window.location.href = dados.url;
-      } else {
-        alert("Erro ao gerar pagamento. Tente novamente.");
-        setCarregando(null);
-      }
-    } catch (erro) {
-      alert("Erro ao gerar pagamento. Tente novamente.");
-      setCarregando(null);
-    }
-  }
 
   return (
     <>
@@ -188,19 +168,25 @@ export default function AlugueisContent() {
                   <p className="text-gray-400 text-sm">Login e senha</p>
                 </div>
                 <button
-                  onClick={() => pagar(plano.nome, plano.preco)}
-                  disabled={carregando === plano.nome}
-                  className="px-5 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm whitespace-nowrap disabled:opacity-50"
+                  onClick={() => setPlanoSelecionado({ nome: plano.nome, preco: plano.preco })}
+                  className="px-5 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm whitespace-nowrap"
                 >
-                  {carregando === plano.nome
-                    ? "Aguarde..."
-                    : `R$ ${plano.preco.toFixed(2).replace(".", ",")}`}
+                  {`R$ ${plano.preco.toFixed(2).replace(".", ",")}`}
                 </button>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {planoSelecionado && (
+        <CheckoutPix
+          ferramenta={ativo}
+          duracao={planoSelecionado.nome}
+          preco={planoSelecionado.preco}
+          onFechar={() => setPlanoSelecionado(null)}
+        />
+      )}
     </>
   );
 }
