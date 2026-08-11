@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 import { formatarCredenciais } from "@/lib/formatar-credenciais";
 
@@ -67,40 +67,63 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
     }, 3000);
   }
 
-  async function aoEnviar({ formData }: any) {
-    try {
-      const resp = await fetch("/api/pagamento", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, ferramenta, duracao }),
-      });
-      const dados = await resp.json();
+  const aoEnviar = useCallback(
+    async ({ formData }: any) => {
+      try {
+        const resp = await fetch("/api/pagamento", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...formData, ferramenta, duracao }),
+        });
+        const dados = await resp.json();
 
-      if (dados.erro) {
+        if (dados.erro) {
+          setStatus("erro");
+          setMensagemErro(dados.erro);
+          return;
+        }
+
+        const qr = dados.point_of_interaction?.transaction_data;
+
+        if (qr?.qr_code_base64) {
+          setQrCodeBase64(qr.qr_code_base64);
+          setQrCode(qr.qr_code);
+          setStatus("aguardando");
+          iniciarPolling(String(dados.id));
+        } else if (dados.status === "approved") {
+          setStatus("aguardando");
+          iniciarPolling(String(dados.id));
+        } else {
+          setStatus("erro");
+          setMensagemErro("Não foi possível gerar o pagamento.");
+        }
+      } catch {
         setStatus("erro");
-        setMensagemErro(dados.erro);
-        return;
+        setMensagemErro("Erro ao processar pagamento.");
       }
+    },
+    [ferramenta, duracao]
+  );
 
-      const qr = dados.point_of_interaction?.transaction_data;
+  const aoDarErro = useCallback((erro: any) => {
+    console.error("[brick] erro:", erro);
+    setStatus("erro");
+    setMensagemErro("Erro ao carregar formulário de pagamento.");
+  }, []);
 
-      if (qr?.qr_code_base64) {
-        setQrCodeBase64(qr.qr_code_base64);
-        setQrCode(qr.qr_code);
-        setStatus("aguardando");
-        iniciarPolling(String(dados.id));
-      } else if (dados.status === "approved") {
-        setStatus("aguardando");
-        iniciarPolling(String(dados.id));
-      } else {
-        setStatus("erro");
-        setMensagemErro("Não foi possível gerar o pagamento.");
-      }
-    } catch {
-      setStatus("erro");
-      setMensagemErro("Erro ao processar pagamento.");
-    }
-  }
+  // Referências estáveis: sem isso, o Brick recria a cada render e entra em loop
+  const initialization = useMemo(() => ({ amount: preco }), [preco]);
+
+  const customization = useMemo(
+    () => ({
+      paymentMethods: {
+        bankTransfer: "all" as const,
+        creditCard: "all" as const,
+        maxInstallments: 1,
+      },
+    }),
+    []
+  );
 
   function copiarCodigoPix() {
     if (!qrCode) return;
@@ -129,20 +152,10 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
 
         {status === "formulario" && (
           <Payment
-            initialization={{ amount: preco }}
-            customization={{
-              paymentMethods: {
-                bankTransfer: "all",
-                creditCard: "all",
-                maxInstallments: 1,
-              },
-            }}
+            initialization={initialization}
+            customization={customization}
             onSubmit={aoEnviar}
-            onError={(erro) => {
-              console.error("[brick] erro:", erro);
-              setStatus("erro");
-              setMensagemErro("Erro ao carregar formulário de pagamento.");
-            }}
+            onError={aoDarErro}
           />
         )}
 
