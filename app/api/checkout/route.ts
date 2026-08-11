@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
           },
         ],
         external_reference: externalReference,
+        notification_url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/webhook/mercadopago`,
         back_urls: {
           success: `${process.env.NEXT_PUBLIC_SITE_URL}/sucesso`,
           failure: `${process.env.NEXT_PUBLIC_SITE_URL}/alugueis?status=falha`,
