@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import CheckoutAtivacao from "@/components/CheckoutAtivacao";
 
 const ferramentas = ["UnlockTool", "TSM Tool"];
 
@@ -43,8 +44,8 @@ export default function AtivacoesContent() {
   const [nome, setNome] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [carregando, setCarregando] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [planoSelecionado, setPlanoSelecionado] = useState<{ nome: string; preco: number } | null>(null);
 
   const planos = planosPorFerramenta[ativo];
   const imagens = imagensPorFerramenta[ativo];
@@ -52,36 +53,13 @@ export default function AtivacoesContent() {
 
   const dadosCompletos = nome.trim() !== "" && username.trim() !== "" && email.trim() !== "";
 
-  async function pagar(nomePlano: string, preco: number) {
+  function abrirCheckout(nomePlano: string, preco: number) {
     if (!dadosCompletos) {
       setErro("Preencha nome, username e e-mail cadastrados na ferramenta antes de continuar.");
       return;
     }
     setErro(null);
-    setCarregando(nomePlano);
-    try {
-      const resposta = await fetch("/api/checkout-ativacao", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ferramenta: ativo,
-          duracao: nomePlano,
-          nome,
-          username,
-          email,
-        }),
-      });
-      const dados = await resposta.json();
-      if (dados.url) {
-        window.location.href = dados.url;
-      } else {
-        alert("Erro ao gerar pagamento. Tente novamente.");
-        setCarregando(null);
-      }
-    } catch (erro) {
-      alert("Erro ao gerar pagamento. Tente novamente.");
-      setCarregando(null);
-    }
+    setPlanoSelecionado({ nome: nomePlano, preco });
   }
 
   return (
@@ -198,19 +176,28 @@ export default function AtivacoesContent() {
                   <p className="text-gray-400 text-sm">Licença completa</p>
                 </div>
                 <button
-                  onClick={() => pagar(plano.nome, plano.preco)}
-                  disabled={carregando === plano.nome}
-                  className="px-5 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm whitespace-nowrap disabled:opacity-50"
+                  onClick={() => abrirCheckout(plano.nome, plano.preco)}
+                  className="px-5 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm whitespace-nowrap"
                 >
-                  {carregando === plano.nome
-                    ? "Aguarde..."
-                    : `R$ ${plano.preco.toFixed(2).replace(".", ",")}`}
+                  {`R$ ${plano.preco.toFixed(2).replace(".", ",")}`}
                 </button>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      {planoSelecionado && (
+        <CheckoutAtivacao
+          ferramenta={ativo}
+          duracao={planoSelecionado.nome}
+          preco={planoSelecionado.preco}
+          nome={nome}
+          username={username}
+          email={email}
+          onFechar={() => setPlanoSelecionado(null)}
+        />
+      )}
     </>
   );
 }
