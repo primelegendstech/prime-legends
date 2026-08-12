@@ -94,8 +94,8 @@ export default function AlugueisContent() {
         <div className="flex items-center gap-3 mb-6">
           <span className="w-1.5 h-6 bg-yellow-400 rounded-full" />
           <h2 className="text-xl md:text-2xl font-bold text-white">
-            ALUGUÉIS <span className="text-yellow-400 italic">TEMPORÁRIOS</span>
-          </h2>
+  ALUGUEL DE FERRAMENTAS GSM <span className="text-yellow-400 italic">- TEMPORÁRIO</span>
+</h2>
         </div>
 
         <div className="flex flex-wrap gap-3">
