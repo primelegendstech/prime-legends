@@ -159,6 +159,13 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
 
   const credenciaisFormatadas = credenciais ? formatarCredenciais(credenciais) : null;
 
+  const linkWhatsAppManual = useMemo(() => {
+    const texto = `Olá! Paguei o aluguel do ${ferramenta} (${duracao} — R$ ${preco.toFixed(2).replace(".", ",")}).${
+      codigo ? ` Código do pedido: ${codigo}.` : ""
+    } Poderia liberar meu acesso manualmente?`;
+    return `https://wa.me/5581995716227?text=${encodeURIComponent(texto)}`;
+  }, [ferramenta, duracao, preco, codigo]);
+
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center px-4">
       <div className="bg-[#0B0B0B] border border-yellow-500/30 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative">
@@ -236,7 +243,17 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
             )}
 
             {!credenciaisFormatadas && mensagemErro && (
-              <p className="text-zinc-400 text-sm mb-3">{mensagemErro}</p>
+              <>
+                <p className="text-zinc-400 text-sm mb-3">{mensagemErro}</p>
+                <a
+                  href={linkWhatsAppManual}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 w-full rounded-full bg-emerald-500 px-5 py-3 text-sm font-bold text-black hover:bg-emerald-400 transition mb-3"
+                >
+                  📲 Enviar dados no WhatsApp
+                </a>
+              </>
             )}
 
             {codigo && <p className="text-zinc-500 text-xs">Código do pedido: {codigo}</p>}

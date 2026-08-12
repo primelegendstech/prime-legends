@@ -15,35 +15,35 @@ const imagensPorFerramenta: Record<string, string[]> = {
 
 const planosPorFerramenta: Record<
   string,
-  { nome: string; preco: number; destaque: boolean }[]
+  { nome: string; preco: number; destaque: boolean; instantaneo?: boolean }[]
 > = {
   UnlockTool: [
-    { nome: "6 horas", preco: 5, destaque: true },
-    { nome: "12 horas", preco: 9, destaque: false },
-    { nome: "48 horas", preco: 18, destaque: true },
+    { nome: "6 horas", preco: 5, destaque: true, instantaneo: true },
+    { nome: "12 horas", preco: 9, destaque: true },
+    { nome: "48 horas", preco: 18, destaque: false },
     { nome: "120 horas", preco: 30, destaque: false },
   ],
   "TSM Tool": [
-    { nome: "3 horas", preco: 5.5, destaque: false },
+    { nome: "3 horas", preco: 5.5, destaque: true, instantaneo: true },
     { nome: "12 horas", preco: 9, destaque: true },
-    { nome: "48 horas", preco: 18, destaque: true },
+    { nome: "48 horas", preco: 18, destaque: false },
     { nome: "168 horas", preco: 35, destaque: false },
   ],
   "AMT Tool": [
-    { nome: "2 horas", preco: 5, destaque: false },
+    { nome: "2 horas", preco: 5, destaque: true, instantaneo: true },
     { nome: "3 horas", preco: 6, destaque: true },
     { nome: "5 horas", preco: 8, destaque: false },
-    { nome: "12 horas", preco: 10, destaque: true },
+    { nome: "12 horas", preco: 10, destaque: false },
   ],
   "Samsung Tool": [
-    { nome: "12 horas", preco: 15, destaque: true },
-    { nome: "24 horas", preco: 20, destaque: true },
+    { nome: "12 horas", preco: 15, destaque: true, instantaneo: true },
+    { nome: "24 horas", preco: 20, destaque: false },
     { nome: "48 horas", preco: 30, destaque: false },
     { nome: "72 horas", preco: 35, destaque: false },
   ],
   "Griffin-Unlocker": [
-    { nome: "6 horas", preco: 9, destaque: true },
-    { nome: "12 horas", preco: 14, destaque: true },
+    { nome: "6 horas", preco: 9, destaque: true, instantaneo: true },
+    { nome: "12 horas", preco: 14, destaque: false },
     { nome: "24 horas", preco: 18, destaque: false },
   ],
 };
@@ -162,6 +162,11 @@ export default function AlugueisContent() {
                     {plano.destaque && (
                       <span className="ml-2 text-xs font-bold text-black bg-yellow-400 rounded-full px-2 py-0.5">
                         POPULAR
+                      </span>
+                    )}
+                    {plano.instantaneo && (
+                      <span className="ml-2 text-xs font-bold text-black bg-green-400 rounded-full px-2 py-0.5">
+                        ⚡ INSTANTÂNEO
                       </span>
                     )}
                   </p>
