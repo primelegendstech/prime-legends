@@ -19,7 +19,7 @@ const planosPorFerramenta: Record<
 > = {
   UnlockTool: [
     { nome: "6 horas", preco: 5, destaque: true, instantaneo: true },
-    { nome: "12 horas", preco: 9, destaque: true },
+    { nome: "12 horas", preco: 9, destaque: true, instantaneo: true},
     { nome: "48 horas", preco: 18, destaque: false },
     { nome: "120 horas", preco: 30, destaque: false },
   ],
@@ -31,7 +31,7 @@ const planosPorFerramenta: Record<
   ],
   "AMT Tool": [
     { nome: "2 horas", preco: 5, destaque: true, instantaneo: true },
-    { nome: "3 horas", preco: 6, destaque: true },
+    { nome: "3 horas", preco: 6, destaque: true, instantaneo: true },
     { nome: "5 horas", preco: 8, destaque: false },
     { nome: "12 horas", preco: 10, destaque: false },
   ],
