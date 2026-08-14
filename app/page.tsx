@@ -1,5 +1,5 @@
 "use client";
-import CategoriasGrid from "@/components/CategoriasGrid";
+
 import Header from "@/components/Header";
 import Destaques from "@/components/Destaques";
 import Services from "@/components/Services";
@@ -7,6 +7,7 @@ import Contact from "@/components/Contact";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import TrustBadges from "@/components/TrustBadges";
 import About from "@/components/About";
+import CategoriasGrid from "@/components/CategoriasGrid";
 import Link from "next/link";
 import { useIdioma } from "@/context/LanguageContext";
 
@@ -55,7 +56,7 @@ export default function Home() {
         <Header />
 
         <section
-          className="relative flex items-start px-6 md:px-16 pt-6 pb-16 md:pt-8 md:pb-24"
+          className="relative flex items-start px-6 md:px-16 pt-6 pb-0 md:pt-8"
           style={{
             backgroundImage: `linear-gradient(to right, rgba(11,11,11,0.95) 0%, rgba(11,11,11,0.75) 35%, rgba(11,11,11,0.3) 60%, rgba(11,11,11,0.1) 100%), url('/hero-bg.png')`,
             backgroundSize: "cover",
@@ -78,43 +79,69 @@ export default function Home() {
             <Destaques />
           </div>
 
-          <div className="max-w-2xl text-left relative z-10 animate-hero-in mt-52 md:mt-48">
-            <div className="flex items-center gap-2 mb-3">
-              <img src="/logo.png" alt="Prime Legends Tech" className="w-6 h-6 md:w-8 md:h-8 object-contain" />
-              <span className="border border-amber-500/40 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-semibold text-amber-400">
+          <div className="max-w-2xl text-left relative z-10 animate-hero-in mt-52 md:mt-48 pb-16 md:pb-20">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+              </span>
+              <span className="font-mono text-[11px] md:text-xs uppercase tracking-[0.2em] text-amber-400/90 border border-amber-500/30 rounded-full px-3 py-1.5">
                 {t.badge}
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.05] uppercase tracking-tight">
               <span className="bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
                 {t.tituloDestaque}
               </span>{" "}
-              {t.tituloResto[0]} {t.tituloResto[1]}
+              <span className="text-white">
+                {t.tituloResto[0]} {t.tituloResto[1]}
+              </span>
             </h1>
 
-            <p className="mt-3 md:mt-4 text-sm md:text-base text-zinc-400 max-w-xl">
+            <p className="mt-4 md:mt-5 text-sm md:text-base text-zinc-400 max-w-xl">
               {t.paragrafoInicio}{" "}
               <span className="font-bold text-white">{t.paragrafoNegrito}</span>{" "}
               {t.paragrafoFim}
             </p>
 
-            <div className="mt-1 flex flex-col sm:flex-row justify-start sm:justify-end gap-2.5 sm:gap-3 sm:pl-16 md:pl-24">
-  <Link
-    href="/ativacao"
-    className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-black transition hover:scale-105"
-  >
-    🛒 {t.comprarLicenca}
-  </Link>
-  <Link
-    href="/alugueis"
-    className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
-  >
-    🕐 {t.aluguelFerramentas}
-  </Link>
-</div>
+            <div className="mt-6 flex flex-col sm:flex-row justify-start gap-2.5 sm:gap-3">
+              <Link
+                href="/ativacao"
+                className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-black transition hover:scale-105"
+              >
+                🛒 {t.comprarLicenca}
+              </Link>
+              <Link
+                href="/alugueis"
+                className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
+              >
+                🕐 {t.aluguelFerramentas}
+              </Link>
+            </div>
           </div>
         </section>
+
+        {/* Ticker com as ferramentas reais que a Prime Legends trabalha */}
+        <div className="relative z-10 border-y border-yellow-500/10 bg-black/40 overflow-hidden py-3">
+          <div className="flex animate-marquee whitespace-nowrap font-mono text-xs md:text-sm text-zinc-500 tracking-wide">
+            {Array(2)
+              .fill([
+                "UnlockTool",
+                "TSM Tool",
+                "AMT Tool",
+                "Samsung Tool",
+                "Griffin-Unlocker",
+              ])
+              .flat()
+              .map((nome, i) => (
+                <span key={i} className="flex items-center">
+                  <span className="text-white/70">{nome}</span>
+                  <span className="mx-6 text-amber-500/50">◆</span>
+                </span>
+              ))}
+          </div>
+        </div>
 
         <TrustBadges />
         <CategoriasGrid />
