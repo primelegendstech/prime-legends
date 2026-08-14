@@ -2,6 +2,7 @@
 
 import Header from "@/components/Header";
 import Destaques from "@/components/Destaques";
+import HeroBanner from "@/components/HeroBanner";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -141,6 +142,11 @@ export default function Home() {
                 </span>
               ))}
           </div>
+        </div>
+
+        {/* Banner grande com transição automática de imagens (suas artes) */}
+        <div className="max-w-6xl mx-auto px-6 md:px-0 mt-10 md:mt-12 relative z-10">
+          <HeroBanner />
         </div>
 
         <TrustBadges />
