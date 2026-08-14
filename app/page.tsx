@@ -1,5 +1,5 @@
 "use client";
-
+import CategoriasGrid from "@/components/CategoriasGrid";
 import Header from "@/components/Header";
 import Destaques from "@/components/Destaques";
 import Services from "@/components/Services";
@@ -117,6 +117,7 @@ export default function Home() {
         </section>
 
         <TrustBadges />
+        <CategoriasGrid />
         <About />
         <Services />
         <Contact />
