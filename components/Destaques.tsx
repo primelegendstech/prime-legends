@@ -15,7 +15,7 @@ const destaques: Destaque[] = [
   { ferramenta: "Samsung Tool", precoDesde: 15, imagem: "/laptops/samsung-1-thumb.webp" },
   { ferramenta: "Griffin-Unlocker", precoDesde: 9, imagem: "/laptops/griffin-1-thumb.webp" },
 ];
-const loop = [...destaques, ...destaques, ...destaques];
+const loop = [...destaques, ...destaques];
 
 export default function Destaques() {
   return (
