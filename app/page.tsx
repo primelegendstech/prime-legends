@@ -46,7 +46,7 @@ export default function Home() {
         <Header />
 
         {/* Carrossel de produtos em destaque, logo abaixo do menu */}
-        <div className="pt-4 md:pt-6">
+        <div className="pt-6 md:pt-8 pb-1">
           <Destaques />
         </div>
 
@@ -57,18 +57,18 @@ export default function Home() {
             <CircuitGlow lado="direita" />
             <HeroBanner />
 
-            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-2.5 sm:gap-3">
+            <div className="mt-7 md:mt-8 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
               <Link
                 href="/ativacao"
-                className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-black transition hover:scale-105"
+                className="flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-7 py-3.5 md:px-9 md:py-4 text-sm md:text-base font-extrabold uppercase tracking-wide text-black shadow-[0_0_25px_rgba(251,191,36,0.35)] transition-transform duration-150 hover:scale-105 active:scale-95"
               >
-                🛒 {t.comprarLicenca}
+                <span className="text-lg md:text-xl">🛒</span> {t.comprarLicenca}
               </Link>
               <Link
                 href="/alugueis"
-                className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-amber-400 transition hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black"
+                className="flex items-center justify-center gap-2.5 rounded-full border-2 border-amber-500 px-7 py-3.5 md:px-9 md:py-4 text-sm md:text-base font-extrabold uppercase tracking-wide text-amber-400 transition-transform duration-150 hover:scale-105 hover:bg-gradient-to-r hover:from-yellow-300 hover:via-amber-500 hover:to-yellow-600 hover:text-black active:scale-95"
               >
-                🕐 {t.aluguelFerramentas}
+                <span className="text-lg md:text-xl">🕐</span> {t.aluguelFerramentas}
               </Link>
             </div>
           </div>
