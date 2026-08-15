@@ -46,12 +46,12 @@ export default function Home() {
         <Header />
 
         {/* Carrossel de produtos em destaque, logo abaixo do menu */}
-        <div className="pt-12 md:pt-16 pb-1">
+        <div className="pt-12 md:pt-20 pb-1">
           <Destaques />
         </div>
 
         {/* HERO = banner rotativo com suas artes, emoldurado pelas trilhas douradas */}
-        <section className="relative px-6 md:px-16 pt-6 md:pt-8 pb-10 md:pb-14">
+        <section className="relative px-6 md:px-16 pt-0 md:pt-1 pb-10 md:pb-14">
           <div className="max-w-6xl mx-auto relative">
             <CircuitGlow lado="esquerda" />
             <CircuitGlow lado="direita" />
