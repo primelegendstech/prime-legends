@@ -3,6 +3,7 @@
 import Header from "@/components/Header";
 import Destaques from "@/components/Destaques";
 import HeroBanner from "@/components/HeroBanner";
+import CircuitGlow from "@/components/CircuitGlow";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -14,24 +15,12 @@ import { useIdioma } from "@/context/LanguageContext";
 
 const textos = {
   pt: {
-    badge: "Serviço de Ativação Imediata",
-    tituloDestaque: "Ativações",
-    tituloResto: ["e aluguéis", "profissionais."],
-    paragrafoInicio: "Sua solução completa para serviços técnicos. Oferecemos",
-    paragrafoNegrito: "serviços remotos, ferramentas, licenças, downloads e suporte",
-    paragrafoFim: "especializado para manutenção de dispositivos Android e iPhone.",
     comprarLicenca: "COMPRAR LICENÇA",
     aluguelFerramentas: "ALUGUEL DE FERRAMENTAS",
     mensagemWhatsApp:
       "Olá! Tenho interesse em comprar uma licença (3, 6 ou 12 meses). Podem me passar mais informações?",
   },
   en: {
-    badge: "Immediate Activation Service",
-    tituloDestaque: "Activations",
-    tituloResto: ["and", "professional rentals."],
-    paragrafoInicio: "Your complete solution for technical services. We offer",
-    paragrafoNegrito: "remote services, tools, licenses, downloads and support",
-    paragrafoFim: "specialized in Android and iPhone device maintenance.",
     comprarLicenca: "BUY LICENSE",
     aluguelFerramentas: "TOOL RENTAL",
     mensagemWhatsApp:
@@ -56,57 +45,19 @@ export default function Home() {
       <div className="relative z-10">
         <Header />
 
-        <section
-          className="relative flex items-start px-6 md:px-16 pt-6 pb-0 md:pt-8"
-          style={{
-            backgroundImage: `linear-gradient(to right, rgba(11,11,11,0.95) 0%, rgba(11,11,11,0.75) 35%, rgba(11,11,11,0.3) 60%, rgba(11,11,11,0.1) 100%), url('/hero-bg.png')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <div
-            className="md:hidden absolute inset-0 opacity-25 pointer-events-none"
-            style={{
-              backgroundImage: `url('/hero-mobile-bg.png')`,
-              backgroundSize: "cover",
-              backgroundPosition: "top center",
-              backgroundRepeat: "no-repeat",
-            }}
-          />
+        {/* Carrossel de produtos em destaque, logo abaixo do menu */}
+        <div className="pt-4 md:pt-6">
+          <Destaques />
+        </div>
 
-          {/* Destaques deslizando por cima do Hero, abaixo o suficiente pra não ficar atrás do Header */}
-          <div className="absolute top-16 md:top-20 left-0 right-0 z-20">
-            <Destaques />
-          </div>
+        {/* HERO = banner rotativo com suas artes, emoldurado pelas trilhas douradas */}
+        <section className="relative px-6 md:px-16 pt-6 md:pt-8 pb-10 md:pb-14">
+          <div className="max-w-6xl mx-auto relative">
+            <CircuitGlow lado="esquerda" />
+            <CircuitGlow lado="direita" />
+            <HeroBanner />
 
-          <div className="max-w-2xl text-left relative z-10 animate-hero-in mt-52 md:mt-48 pb-16 md:pb-20">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
-              </span>
-              <span className="font-mono text-[11px] md:text-xs uppercase tracking-[0.2em] text-amber-400/90 border border-amber-500/30 rounded-full px-3 py-1.5">
-                {t.badge}
-              </span>
-            </div>
-
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.05] uppercase tracking-tight">
-              <span className="bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
-                {t.tituloDestaque}
-              </span>{" "}
-              <span className="text-white">
-                {t.tituloResto[0]} {t.tituloResto[1]}
-              </span>
-            </h1>
-
-            <p className="mt-4 md:mt-5 text-sm md:text-base text-zinc-400 max-w-xl">
-              {t.paragrafoInicio}{" "}
-              <span className="font-bold text-white">{t.paragrafoNegrito}</span>{" "}
-              {t.paragrafoFim}
-            </p>
-
-            <div className="mt-6 flex flex-col sm:flex-row justify-start gap-2.5 sm:gap-3">
+            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-2.5 sm:gap-3">
               <Link
                 href="/ativacao"
                 className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 px-5 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-bold text-black transition hover:scale-105"
@@ -142,11 +93,6 @@ export default function Home() {
                 </span>
               ))}
           </div>
-        </div>
-
-        {/* Banner grande com transição automática de imagens (suas artes) */}
-        <div className="max-w-6xl mx-auto px-6 md:px-0 mt-10 md:mt-12 relative z-10">
-          <HeroBanner />
         </div>
 
         <TrustBadges />
