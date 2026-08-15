@@ -7,7 +7,7 @@ import CircuitGlow from "@/components/CircuitGlow";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import TrustBadges from "@/components/TrustBadges";
+import TrustBadges from "@/components/MaisVendidos";
 import About from "@/components/About";
 import CategoriasGrid from "@/components/CategoriasGrid";
 import Link from "next/link";
