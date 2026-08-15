@@ -46,7 +46,7 @@ export default function Home() {
         <Header />
 
         {/* Carrossel de produtos em destaque, logo abaixo do menu */}
-        <div className="pt-6 md:pt-8 pb-1">
+        <div className="pt-12 md:pt-16 pb-1">
           <Destaques />
         </div>
 
