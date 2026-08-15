@@ -95,7 +95,7 @@ export default function Home() {
           </div>
         </div>
 
-        <TrustBadges />
+        <MaisVendidos />
         <CategoriasGrid />
         <About />
         <Services />

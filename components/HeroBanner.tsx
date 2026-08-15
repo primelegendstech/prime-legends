@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 // 👉 Vá adicionando mais banners aqui conforme criar novas artes
 const banners = [
   "/banners/banner-1.webp",
+  "/banners/banner-2.webp",
+  "/banners/banner-3.webp",
 ];
 
 const INTERVALO_MS = 5000;
