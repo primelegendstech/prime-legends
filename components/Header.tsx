@@ -13,6 +13,7 @@ const textos = {
     sobre: "Sobre",
     consultar: "Consultar Pedido",
     menuServicos: "Menu de Serviços",
+    arquivosMdm: "Arquivos MDM/PayJoy",
     mais: "Mais",
     mensagemServico:
       "Olá! Tenho interesse no serviço remoto. Podem me passar mais informações?",
@@ -27,6 +28,7 @@ const textos = {
     sobre: "About",
     consultar: "Track Order",
     menuServicos: "Services Menu",
+    arquivosMdm: "MDM/PayJoy Files",
     mais: "More",
     mensagemServico:
       "Hi! I'm interested in the remote service. Could you send me more information?",
@@ -57,12 +59,13 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", fecharAoClicarFora);
   }, []);
 
+  const arquivosMdmHref = `https://wa.me/5581995716227?text=${encodeURIComponent(t.mensagemMdm)}`;
+
   const servicos = [
     { emoji: "🔓", label: "Serviços de IMEI", href: "https://wa.me/5581995716227?text=Ol%C3%A1!%20Tenho%20interesse%20em%20servi%C3%A7os%20de%20IMEI.", externo: true },
     { emoji: "🔑", label: "Ativação de Licença", href: "/ativacao" },
     { emoji: "🕐", label: "Aluguel de Ferramentas", href: "/alugueis" },
     { emoji: "💳", label: "Créditos de Servidor", href: "https://wa.me/5581995716227?text=Ol%C3%A1!%20Tenho%20interesse%20em%20cr%C3%A9ditos%20de%20servidor.", externo: true },
-    { emoji: "📁", label: "Arquivos MDM/PayJoy", href: `https://wa.me/5581995716227?text=${encodeURIComponent(t.mensagemMdm)}`, externo: true },
   ];
 
   const mais = [
@@ -73,7 +76,11 @@ export default function Header() {
       externo: true,
     },
     { emoji: "ℹ️", label: t.sobre, href: "/#sobre" },
+    { emoji: "📦", label: t.consultar, href: "/consultar" },
   ];
+
+  const linkClass =
+    "relative uppercase text-gray-300 hover:text-yellow-400 text-sm font-semibold transition py-1.5 after:content-[''] after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-gradient-to-r after:from-yellow-300 after:to-amber-500 after:transition-all after:duration-300 hover:after:w-full";
 
   return (
     <header className="w-full bg-black/95 backdrop-blur-sm border-b border-yellow-500/30 shadow-[0_2px_20px_rgba(251,191,36,0.08)] fixed top-0 left-0 z-50">
@@ -88,28 +95,22 @@ export default function Header() {
             alt="Prime Legends Tech"
             className="w-9 h-9 md:w-11 md:h-11 object-contain transition-transform duration-300 group-hover:scale-105"
           />
-          <div className="flex flex-col leading-none">
+          <div className="flex items-center gap-1.5 leading-none">
             <span className="bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent text-xs md:text-base font-extrabold tracking-wide">
               PRIME LEGENDS
             </span>
-            <span className="text-[8px] md:text-[9px] font-semibold tracking-[0.35em] text-amber-500/70 mt-0.5">
+            <span className="text-sm md:text-lg font-black tracking-wide text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)] border-l-2 border-amber-500/50 pl-1.5">
               GSM
             </span>
           </div>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
-          <a
-            href="/"
-            className="relative text-gray-300 hover:text-yellow-400 text-sm font-semibold transition py-1.5 after:content-[''] after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-gradient-to-r after:from-yellow-300 after:to-amber-500 after:transition-all after:duration-300 hover:after:w-full"
-          >
+          <a href="/" className={linkClass}>
             {t.inicio}
           </a>
 
-          <a
-            href="/alugueis"
-            className="relative text-gray-300 hover:text-yellow-400 text-sm font-semibold transition py-1.5 after:content-[''] after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-gradient-to-r after:from-yellow-300 after:to-amber-500 after:transition-all after:duration-300 hover:after:w-full"
-          >
+          <a href="/alugueis" className={linkClass}>
             🕐 {t.alugueis}
           </a>
 
@@ -117,7 +118,7 @@ export default function Header() {
           <div className="relative" ref={servicosRef}>
             <button
               onClick={() => setServicosOpen((v) => !v)}
-              className={`flex items-center gap-1.5 text-sm font-semibold transition py-1.5 ${
+              className={`flex items-center gap-1.5 uppercase text-sm font-semibold transition py-1.5 ${
                 servicosOpen ? "text-yellow-400" : "text-gray-300 hover:text-yellow-400"
               }`}
             >
@@ -140,7 +141,7 @@ export default function Header() {
                     target={s.externo ? "_blank" : undefined}
                     rel={s.externo ? "noopener noreferrer" : undefined}
                     onClick={() => setServicosOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5 last:border-b-0"
+                    className="flex items-center gap-3 px-4 py-3 uppercase text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5 last:border-b-0"
                   >
                     <span className="text-base">{s.emoji}</span>
                     {s.label}
@@ -151,17 +152,19 @@ export default function Header() {
           </div>
 
           <a
-            href="/consultar"
-            className="relative text-gray-300 hover:text-yellow-400 text-sm font-semibold transition py-1.5 after:content-[''] after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-gradient-to-r after:from-yellow-300 after:to-amber-500 after:transition-all after:duration-300 hover:after:w-full"
+            href={arquivosMdmHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={linkClass}
           >
-            {t.consultar}
+            📁 {t.arquivosMdm}
           </a>
 
-          {/* Serviço Remoto + Sobre agrupados em "Mais" */}
+          {/* Serviço Remoto + Sobre + Consultar Pedido agrupados em "Mais" */}
           <div className="relative" ref={maisRef}>
             <button
               onClick={() => setMaisOpen((v) => !v)}
-              className={`flex items-center gap-1.5 text-sm font-semibold transition py-1.5 ${
+              className={`flex items-center gap-1.5 uppercase text-sm font-semibold transition py-1.5 ${
                 maisOpen ? "text-yellow-400" : "text-gray-300 hover:text-yellow-400"
               }`}
             >
@@ -184,7 +187,7 @@ export default function Header() {
                     target={m.externo ? "_blank" : undefined}
                     rel={m.externo ? "noopener noreferrer" : undefined}
                     onClick={() => setMaisOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5 last:border-b-0"
+                    className="flex items-center gap-3 px-4 py-3 uppercase text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5 last:border-b-0"
                   >
                     <span className="text-base">{m.emoji}</span>
                     {m.label}
@@ -230,7 +233,7 @@ export default function Header() {
         <nav className="md:hidden flex flex-col bg-black border-t border-yellow-500/20 px-6 py-4 gap-4">
           <a
             href="/"
-            className="text-gray-300 hover:text-yellow-400 text-sm"
+            className="uppercase text-gray-300 hover:text-yellow-400 text-sm"
             onClick={() => setMenuOpen(false)}
           >
             {t.inicio}
@@ -238,7 +241,7 @@ export default function Header() {
 
           <a
             href="/alugueis"
-            className="text-gray-300 hover:text-yellow-400 text-sm"
+            className="uppercase text-gray-300 hover:text-yellow-400 text-sm"
             onClick={() => setMenuOpen(false)}
           >
             🕐 {t.alugueis}
@@ -254,7 +257,7 @@ export default function Header() {
                 href={s.href}
                 target={s.externo ? "_blank" : undefined}
                 rel={s.externo ? "noopener noreferrer" : undefined}
-                className="flex items-center gap-2 text-gray-300 hover:text-yellow-400 text-sm"
+                className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
                 onClick={() => setMenuOpen(false)}
               >
                 <span>{s.emoji}</span> {s.label}
@@ -263,11 +266,13 @@ export default function Header() {
           </div>
 
           <a
-            href="/consultar"
-            className="text-gray-300 hover:text-yellow-400 text-sm"
+            href={arquivosMdmHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="uppercase text-gray-300 hover:text-yellow-400 text-sm"
             onClick={() => setMenuOpen(false)}
           >
-            {t.consultar}
+            📁 {t.arquivosMdm}
           </a>
 
           <div className="flex flex-col gap-2 pl-2 border-l border-yellow-500/20">
@@ -280,7 +285,7 @@ export default function Header() {
                 href={m.href}
                 target={m.externo ? "_blank" : undefined}
                 rel={m.externo ? "noopener noreferrer" : undefined}
-                className="flex items-center gap-2 text-gray-300 hover:text-yellow-400 text-sm"
+                className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
                 onClick={() => setMenuOpen(false)}
               >
                 <span>{m.emoji}</span> {m.label}
