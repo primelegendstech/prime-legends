@@ -1,192 +1,237 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import CheckoutPix from "@/components/CheckoutPix";
+import { ferramentas } from "@/data/ferramentas";
+import { useIdioma } from "@/context/LanguageContext";
 
-const ferramentas = ["UnlockTool", "TSM Tool", "AMT Tool", "Samsung Tool", "Griffin-Unlocker"];
+function normalizar(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
 
-const imagensPorFerramenta: Record<string, string[]> = {
-  UnlockTool: ["/laptops/unlocktool-1.png", "/laptops/unlocktool-2.png"],
-  "TSM Tool": ["/laptops/tsm-1.png", "/laptops/tsm-2.png"],
-  "AMT Tool": ["/laptops/amt-1.png", "/laptops/amt-2.png"],
-  "Samsung Tool": ["/laptops/samsung-1.png", "/laptops/samsung-2.png"],
- "Griffin-Unlocker": ["/laptops/griffin-1.png", "/laptops/griffin-2.png"],
+type Listagem = {
+  ferramentaNome: string;
+  badge?: string;
+  imagem: string;
+  planoNome: string;
+  preco: number;
+  destaque?: boolean;
+  instantaneo?: boolean;
 };
 
-const planosPorFerramenta: Record<
-  string,
-  { nome: string; preco: number; destaque: boolean; instantaneo?: boolean }[]
-> = {
-  UnlockTool: [
-    { nome: "6 horas", preco: 5, destaque: true, instantaneo: true },
-    { nome: "12 horas", preco: 9, destaque: true, instantaneo: true},
-    { nome: "48 horas", preco: 18, destaque: false },
-    { nome: "120 horas", preco: 30, destaque: false },
-  ],
-  "TSM Tool": [
-    { nome: "3 horas", preco: 5.5, destaque: true, instantaneo: true },
-    { nome: "12 horas", preco: 9, destaque: true },
-    { nome: "48 horas", preco: 18, destaque: false },
-    { nome: "168 horas", preco: 35, destaque: false },
-  ],
-  "AMT Tool": [
-    { nome: "2 horas", preco: 5, destaque: true, instantaneo: true },
-    { nome: "3 horas", preco: 6, destaque: true, instantaneo: true },
-    { nome: "5 horas", preco: 8, destaque: false },
-    { nome: "12 horas", preco: 10, destaque: false },
-  ],
-  "Samsung Tool": [
-    { nome: "12 horas", preco: 15, destaque: true, instantaneo: true },
-    { nome: "24 horas", preco: 20, destaque: false },
-    { nome: "48 horas", preco: 30, destaque: false },
-    { nome: "72 horas", preco: 35, destaque: false },
-  ],
-  "Griffin-Unlocker": [
-    { nome: "6 horas", preco: 9, destaque: true, instantaneo: true },
-    { nome: "12 horas", preco: 14, destaque: false },
-    { nome: "24 horas", preco: 18, destaque: false },
-  ],
-};
+type Filtro = "todos" | "instantaneo" | "barato";
 
-// 👉 Substitua cada URL_... pelo link real de cada ferramenta
-const linksPorFerramenta: Record<string, { modelos: string; download: string }> = {
-  UnlockTool: {
-    modelos: "https://unlocktool.net/models/",
-    download: "https://file.unlocktool.net/",
+const textos = {
+  pt: {
+    titulo: "ALUGUEL DE FERRAMENTAS GSM",
+    subtitulo: "- TEMPORÁRIO",
+    breadcrumb: "Início › Aluguel de Ferramentas",
+    buscarPlaceholder: "Buscar serviço...",
+    filtroTodos: "Todos",
+    filtroInstantaneo: "⚡ Instantâneo",
+    filtroBarato: "💰 Mais baratos",
+    alugar: "Alugar",
+    instantaneo: "⚡ INSTANTÂNEO",
+    minutos: "🕐 MINUTOS",
+    popular: "POPULAR",
+    vazio: (busca: string) => `Nenhum serviço encontrado para "${busca}".`,
   },
-  "TSM Tool": {
-    modelos: "https://tsm-tool.com/SupportedModels",
-    download: "https://tsm-tool.com/download",
-  },
-  "AMT Tool": {
-    modelos: "https://androidmultitool.com/supported_models/",
-    download: "https://androidmultitool.com/",
-  },
-  "Samsung Tool": {
-    modelos: "https://celltool.io/qcsupportmodel",
-    download: "https://celltool.io/",
-  },
-  "Griffin-Unlocker": {
-    modelos: "https://griffin-unlocker.com/models.html",
-    download: "https://griffin-unlocker.com/download.html",
+  en: {
+    titulo: "GSM TOOL RENTALS",
+    subtitulo: "- TEMPORARY",
+    breadcrumb: "Home › Tool Rentals",
+    buscarPlaceholder: "Search service...",
+    filtroTodos: "All",
+    filtroInstantaneo: "⚡ Instant",
+    filtroBarato: "💰 Cheapest",
+    alugar: "Rent",
+    instantaneo: "⚡ INSTANT",
+    minutos: "🕐 MINUTES",
+    popular: "POPULAR",
+    vazio: (busca: string) => `No service found for "${busca}".`,
   },
 };
 
 export default function AlugueisContent() {
-  const [ativo, setAtivo] = useState(ferramentas[0]);
-  const [indiceImagem, setIndiceImagem] = useState(0);
-  const [planoSelecionado, setPlanoSelecionado] = useState<{ nome: string; preco: number } | null>(null);
-  const planos = planosPorFerramenta[ativo];
-  const imagens = imagensPorFerramenta[ativo];
-  const links = linksPorFerramenta[ativo];
+  const { idioma } = useIdioma();
+  const t = textos[idioma];
 
-  useEffect(() => {
-    setIndiceImagem(0);
-    const intervalo = setInterval(() => {
-      setIndiceImagem((prev) => (prev + 1) % imagens.length);
-    }, 3000);
-    return () => clearInterval(intervalo);
-  }, [ativo, imagens.length]);
+  const [busca, setBusca] = useState("");
+  const [filtro, setFiltro] = useState<Filtro>("todos");
+  const [planoSelecionado, setPlanoSelecionado] = useState<{
+    ferramenta: string;
+    nome: string;
+    preco: number;
+  } | null>(null);
+
+  const listagens: Listagem[] = useMemo(() => {
+    return ferramentas.flatMap((f) =>
+      f.planos.map((p) => ({
+        ferramentaNome: f.nome,
+        badge: f.badge,
+        imagem: f.imagens[0],
+        planoNome: p.nome,
+        preco: p.preco,
+        destaque: p.destaque,
+        instantaneo: p.instantaneo,
+      }))
+    );
+  }, []);
+
+  const listagensFiltradas = useMemo(() => {
+    let resultado = listagens;
+
+    if (busca.trim()) {
+      const termo = normalizar(busca);
+      resultado = resultado.filter(
+        (l) =>
+          normalizar(l.ferramentaNome).includes(termo) ||
+          normalizar(l.planoNome).includes(termo)
+      );
+    }
+
+    if (filtro === "instantaneo") {
+      resultado = resultado.filter((l) => l.instantaneo);
+    }
+
+    if (filtro === "barato") {
+      resultado = [...resultado].sort((a, b) => a.preco - b.preco);
+    }
+
+    return resultado;
+  }, [busca, filtro, listagens]);
+
+  const chips: { key: Filtro; label: string }[] = [
+    { key: "todos", label: t.filtroTodos },
+    { key: "instantaneo", label: t.filtroInstantaneo },
+    { key: "barato", label: t.filtroBarato },
+  ];
 
   return (
     <>
-      <div className="max-w-5xl mx-auto mb-8">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="w-1.5 h-6 bg-yellow-400 rounded-full" />
-          <h2 className="text-xl md:text-2xl font-bold text-white">
-  Aluguel de Ferramentas GSM <span className="text-yellow-400 italic">- Temporário</span>
-</h2>
+      <div className="max-w-6xl mx-auto mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div className="flex items-center gap-3">
+            <span className="w-1.5 h-6 bg-yellow-400 rounded-full" />
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-white">
+                {t.titulo} <span className="text-yellow-400 italic">{t.subtitulo}</span>
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">{t.breadcrumb}</p>
+            </div>
+          </div>
+
+          <div className="relative w-full sm:w-72">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+            <input
+              type="text"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder={t.buscarPlaceholder}
+              className="w-full bg-white/[0.04] border border-yellow-500/20 rounded-full pl-11 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/60 transition"
+            />
+            {busca && (
+              <button
+                onClick={() => setBusca("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-yellow-400 text-sm"
+                aria-label="Limpar busca"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          {ferramentas.map((nome) => (
+        {/* Chips de filtro rápido */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {chips.map((c) => (
             <button
-              key={nome}
-              onClick={() => setAtivo(nome)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                ativo === nome
-                  ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-black"
-                  : "text-gray-300 hover:text-yellow-400"
+              key={c.key}
+              onClick={() => setFiltro(c.key)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition border ${
+                filtro === c.key
+                  ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-black border-transparent"
+                  : "text-gray-300 border-yellow-500/20 hover:border-yellow-400/50 hover:text-yellow-400"
               }`}
             >
-              {nome}
+              {c.label}
             </button>
           ))}
         </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center mb-12">
-        <div className="flex justify-start">
-          <img
-            key={`${ativo}-${indiceImagem}`}
-            src={imagens[indiceImagem]}
-            alt={`Tela do ${ativo}`}
-            className="fade-in w-full max-w-md rounded-xl"
-          />
-        </div>
+        {listagensFiltradas.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {listagensFiltradas.map((l, i) => (
+              <div
+                key={`${l.ferramentaNome}-${l.planoNome}-${i}`}
+                className="flex items-center gap-4 bg-white/[0.03] border border-yellow-500/15 rounded-xl p-4 hover:border-yellow-400/50 transition"
+              >
+                <div className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10">
+                  <img
+                    src={l.imagem}
+                    alt={l.ferramentaNome}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
 
-        <div className="bg-white/[0.03] border border-yellow-500/20 rounded-2xl p-6">
-          <h3 className="text-2xl font-black text-white mb-3 flex items-center gap-2">
-  {ativo}
-  {ativo === "Samsung Tool" && (
-    <span className="text-sm font-semibold text-yellow-400 border border-yellow-400 px-2 py-0.5 rounded">
-      CellTool
-    </span>
-  )}
-</h3>
-          <div className="flex flex-wrap gap-4 mb-6 text-sm">
-            <a
-              href={links.modelos}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-yellow-400 hover:text-yellow-300 transition"
-            >
-              Ver modelos suportados ➤
-            </a>
-            <a
-              href={links.download}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-yellow-400 hover:text-yellow-300 transition"
-            >
-              Baixar {ativo} ➤
-            </a>
-          </div>
-
-          <div className="divide-y divide-white/10">
-            {planos.map((plano) => (
-              <div key={plano.nome} className="flex items-center justify-between py-4">
-                <div>
-                  <p className="text-white font-semibold">
-                    Alugar {plano.nome}
-                    {plano.destaque && (
-                      <span className="ml-2 text-xs font-bold text-black bg-yellow-400 rounded-full px-2 py-0.5">
-                        POPULAR
-                      </span>
-                    )}
-                    {plano.instantaneo && (
-                      <span className="ml-2 text-xs font-bold text-black bg-green-400 rounded-full px-2 py-0.5">
-                        ⚡ INSTANTÂNEO
+                <div className="min-w-0 flex-1">
+                  <p className="text-white font-bold text-sm md:text-base leading-tight">
+                    # {l.ferramentaNome}
+                    {l.badge && (
+                      <span className="ml-2 text-[10px] font-semibold text-yellow-400 border border-yellow-400/50 px-1.5 py-0.5 rounded">
+                        {l.badge}
                       </span>
                     )}
                   </p>
-                  <p className="text-gray-400 text-sm">Login e senha</p>
+                  <p className="text-gray-400 text-xs md:text-sm">{l.planoNome}</p>
+
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <span className="text-sm font-extrabold bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
+                      R$ {l.preco.toFixed(2).replace(".", ",")}
+                    </span>
+                    {l.instantaneo ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-emerald-400 border-emerald-400/40 bg-emerald-400/10">
+                        {t.instantaneo}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-amber-400 border-amber-400/40 bg-amber-400/10">
+                        {t.minutos}
+                      </span>
+                    )}
+                    {l.destaque && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-400 text-black">
+                        {t.popular}
+                      </span>
+                    )}
+                  </div>
                 </div>
+
                 <button
-                  onClick={() => setPlanoSelecionado({ nome: plano.nome, preco: plano.preco })}
-                  className="px-5 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm whitespace-nowrap"
+                  onClick={() =>
+                    setPlanoSelecionado({
+                      ferramenta: l.ferramentaNome,
+                      nome: l.planoNome,
+                      preco: l.preco,
+                    })
+                  }
+                  className="flex-shrink-0 px-4 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-xs md:text-sm whitespace-nowrap"
                 >
-                  {`R$ ${plano.preco.toFixed(2).replace(".", ",")}`}
+                  {t.alugar}
                 </button>
               </div>
             ))}
           </div>
-        </div>
+        ) : (
+          <p className="text-gray-500 text-sm py-8 text-center">{t.vazio(busca)}</p>
+        )}
       </div>
 
       {planoSelecionado && (
         <CheckoutPix
-          ferramenta={ativo}
+          ferramenta={planoSelecionado.ferramenta}
           duracao={planoSelecionado.nome}
           preco={planoSelecionado.preco}
           onFechar={() => setPlanoSelecionado(null)}
