@@ -164,7 +164,18 @@ export async function processarEntrega(paymentId: string) {
 
   // 5. Faz o pedido no fornecedor certo (GSM Cheap, ou qualquer outro cadastrado em lib/fornecedores)
   // A essa altura, temos GARANTIA de que somos a única chamada processando esse payment_id.
-  const criacao = await adapter.criarPedido(String(mapeado.serviceId));
+  // Envolvido em try/catch: qualquer falha inesperada aqui SEMPRE finaliza o pedido com um
+  // status de erro registrado — nunca deixa a linha travada em "reservando" para sempre.
+  let criacao: { referenceId?: string; mensagemErro?: string; respostaCompleta?: any };
+  try {
+    criacao = await adapter.criarPedido(String(mapeado.serviceId));
+  } catch (erroInesperado: any) {
+    console.error("[entrega] exceção inesperada ao chamar o fornecedor:", erroInesperado?.message, erroInesperado?.stack);
+    criacao = {
+      mensagemErro: `Erro inesperado: ${erroInesperado?.message ?? "desconhecido"}`,
+      respostaCompleta: null,
+    };
+  }
   if (!criacao.referenceId) {
     const mensagemErro = criacao.mensagemErro ?? `Falha ao gerar acesso na ${mapeado.fornecedor}`;
     console.error(
