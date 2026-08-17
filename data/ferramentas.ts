@@ -4,20 +4,22 @@
 // nenhum outro arquivo — o site atualiza sozinho.
 
 export type Plano = {
-  nome: string;        // ex: "6 horas"
-  preco: number;       // ex: 5 (= R$ 5,00)
-  destaque?: boolean;  // mostra a tag "POPULAR"
-  instantaneo?: boolean; // mostra a tag "⚡ INSTANTÂNEO"
+  nome: string;
+  preco: number;
+  destaque?: boolean;
+  instantaneo?: boolean;
 };
 
 export type Ferramenta = {
   nome: string;
-  badge?: string;           // ex: "CellTool" (aparece do lado do nome)
-  imagens: string[];        // fotos grandes que ficam trocando
+  badge?: string;
+  imagens: string[];
   links: {
     modelos: string;
     download: string;
   };
+  video?: string;   // link do YouTube (ex: "https://www.youtube.com/embed/XXXXXXXX")
+  obs?: string;      // mensagem personalizada exibida na tela de detalhe
   planos: Plano[];
 };
 
@@ -29,6 +31,8 @@ export const ferramentas: Ferramenta[] = [
       modelos: "https://unlocktool.net/models/",
       download: "https://file.unlocktool.net/",
     },
+    video: "",
+    obs: "Após o pagamento, o login e senha são liberados automaticamente. Baixe a ferramenta pelo link acima antes de usar.",
     planos: [
       { nome: "6 horas", preco: 5, destaque: true, instantaneo: true },
       { nome: "12 horas", preco: 9, destaque: true, instantaneo: true },
@@ -43,6 +47,8 @@ export const ferramentas: Ferramenta[] = [
       modelos: "https://tsm-tool.com/SupportedModels",
       download: "https://tsm-tool.com/download",
     },
+    video: "",
+    obs: "Após o pagamento, o login e senha são liberados automaticamente. Baixe a ferramenta pelo link acima antes de usar.",
     planos: [
       { nome: "3 horas", preco: 5.5, destaque: true, instantaneo: true },
       { nome: "12 horas", preco: 9, destaque: true },
@@ -57,6 +63,8 @@ export const ferramentas: Ferramenta[] = [
       modelos: "https://androidmultitool.com/supported_models/",
       download: "https://androidmultitool.com/",
     },
+    video: "",
+    obs: "Após o pagamento, o login e senha são liberados automaticamente. Baixe a ferramenta pelo link acima antes de usar.",
     planos: [
       { nome: "2 horas", preco: 5, destaque: true, instantaneo: true },
       { nome: "3 horas", preco: 6, destaque: true },
@@ -72,6 +80,8 @@ export const ferramentas: Ferramenta[] = [
       modelos: "https://celltool.io/qcsupportmodel",
       download: "https://celltool.io/",
     },
+    video: "",
+    obs: "Após o pagamento, o login e senha são liberados automaticamente. Baixe a ferramenta pelo link acima antes de usar.",
     planos: [
       { nome: "12 horas", preco: 15, destaque: true, instantaneo: true },
       { nome: "24 horas", preco: 20 },
@@ -86,6 +96,8 @@ export const ferramentas: Ferramenta[] = [
       modelos: "https://griffin-unlocker.com/models.html",
       download: "https://griffin-unlocker.com/download.html",
     },
+    video: "",
+    obs: "Após o pagamento, o login e senha são liberados automaticamente. Baixe a ferramenta pelo link acima antes de usar.",
     planos: [
       { nome: "6 horas", preco: 9, destaque: true, instantaneo: true },
       { nome: "12 horas", preco: 14 },
@@ -101,6 +113,8 @@ export const ferramentas: Ferramenta[] = [
   //     modelos: "https://site-da-ferramenta.com/models",
   //     download: "https://site-da-ferramenta.com/download",
   //   },
+  //   video: "https://www.youtube.com/embed/XXXXXXXX",
+  //   obs: "Escreva aqui uma observação específica dessa ferramenta.",
   //   planos: [
   //     { nome: "6 horas", preco: 5, destaque: true, instantaneo: true },
   //     { nome: "24 horas", preco: 15 },

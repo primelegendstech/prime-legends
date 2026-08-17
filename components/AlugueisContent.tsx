@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from "react";
 import CheckoutPix from "@/components/CheckoutPix";
-import { ferramentas } from "@/data/ferramentas";
+import DetalheServicoModal from "@/components/DetalheServicoModal";
+import { ferramentas, type Ferramenta, type Plano } from "@/data/ferramentas";
 import { useIdioma } from "@/context/LanguageContext";
 
 function normalizar(texto: string) {
@@ -13,13 +14,8 @@ function normalizar(texto: string) {
 }
 
 type Listagem = {
-  ferramentaNome: string;
-  badge?: string;
-  imagem: string;
-  planoNome: string;
-  preco: number;
-  destaque?: boolean;
-  instantaneo?: boolean;
+  ferramenta: Ferramenta;
+  plano: Plano;
 };
 
 type Filtro = "todos" | "instantaneo" | "barato";
@@ -61,6 +57,7 @@ export default function AlugueisContent() {
 
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<Filtro>("todos");
+  const [detalheAberto, setDetalheAberto] = useState<Listagem | null>(null);
   const [planoSelecionado, setPlanoSelecionado] = useState<{
     ferramenta: string;
     nome: string;
@@ -68,17 +65,7 @@ export default function AlugueisContent() {
   } | null>(null);
 
   const listagens: Listagem[] = useMemo(() => {
-    return ferramentas.flatMap((f) =>
-      f.planos.map((p) => ({
-        ferramentaNome: f.nome,
-        badge: f.badge,
-        imagem: f.imagens[0],
-        planoNome: p.nome,
-        preco: p.preco,
-        destaque: p.destaque,
-        instantaneo: p.instantaneo,
-      }))
-    );
+    return ferramentas.flatMap((f) => f.planos.map((p) => ({ ferramenta: f, plano: p })));
   }, []);
 
   const listagensFiltradas = useMemo(() => {
@@ -88,17 +75,17 @@ export default function AlugueisContent() {
       const termo = normalizar(busca);
       resultado = resultado.filter(
         (l) =>
-          normalizar(l.ferramentaNome).includes(termo) ||
-          normalizar(l.planoNome).includes(termo)
+          normalizar(l.ferramenta.nome).includes(termo) ||
+          normalizar(l.plano.nome).includes(termo)
       );
     }
 
     if (filtro === "instantaneo") {
-      resultado = resultado.filter((l) => l.instantaneo);
+      resultado = resultado.filter((l) => l.plano.instantaneo);
     }
 
     if (filtro === "barato") {
-      resultado = [...resultado].sort((a, b) => a.preco - b.preco);
+      resultado = [...resultado].sort((a, b) => a.plano.preco - b.plano.preco);
     }
 
     return resultado;
@@ -109,6 +96,20 @@ export default function AlugueisContent() {
     { key: "instantaneo", label: t.filtroInstantaneo },
     { key: "barato", label: t.filtroBarato },
   ];
+
+  function abrirCheckoutDireto(l: Listagem) {
+    setPlanoSelecionado({
+      ferramenta: l.ferramenta.nome,
+      nome: l.plano.nome,
+      preco: l.plano.preco,
+    });
+  }
+
+  function confirmarAluguelDoModal() {
+    if (!detalheAberto) return;
+    abrirCheckoutDireto(detalheAberto);
+    setDetalheAberto(null);
+  }
 
   return (
     <>
@@ -145,7 +146,6 @@ export default function AlugueisContent() {
           </div>
         </div>
 
-        {/* Chips de filtro rápido */}
         <div className="flex flex-wrap gap-2 mb-6">
           {chips.map((c) => (
             <button
@@ -165,34 +165,35 @@ export default function AlugueisContent() {
         {listagensFiltradas.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {listagensFiltradas.map((l, i) => (
-              <div
-                key={`${l.ferramentaNome}-${l.planoNome}-${i}`}
-                className="flex items-center gap-4 bg-white/[0.03] border border-yellow-500/15 rounded-xl p-4 hover:border-yellow-400/50 transition"
+              <button
+                key={`${l.ferramenta.nome}-${l.plano.nome}-${i}`}
+                onClick={() => setDetalheAberto(l)}
+                className="flex items-center gap-4 bg-white/[0.03] border border-yellow-500/15 rounded-xl p-4 hover:border-yellow-400/50 transition text-left"
               >
                 <div className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10">
                   <img
-                    src={l.imagem}
-                    alt={l.ferramentaNome}
+                    src={l.ferramenta.imagens[0]}
+                    alt={l.ferramenta.nome}
                     className="w-full h-full object-cover"
                   />
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <p className="text-white font-bold text-sm md:text-base leading-tight">
-                    # {l.ferramentaNome}
-                    {l.badge && (
+                    # {l.ferramenta.nome}
+                    {l.ferramenta.badge && (
                       <span className="ml-2 text-[10px] font-semibold text-yellow-400 border border-yellow-400/50 px-1.5 py-0.5 rounded">
-                        {l.badge}
+                        {l.ferramenta.badge}
                       </span>
                     )}
                   </p>
-                  <p className="text-gray-400 text-xs md:text-sm">{l.planoNome}</p>
+                  <p className="text-gray-400 text-xs md:text-sm">{l.plano.nome}</p>
 
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <span className="text-sm font-extrabold bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
-                      R$ {l.preco.toFixed(2).replace(".", ",")}
+                      R$ {l.plano.preco.toFixed(2).replace(".", ",")}
                     </span>
-                    {l.instantaneo ? (
+                    {l.plano.instantaneo ? (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-emerald-400 border-emerald-400/40 bg-emerald-400/10">
                         {t.instantaneo}
                       </span>
@@ -201,7 +202,7 @@ export default function AlugueisContent() {
                         {t.minutos}
                       </span>
                     )}
-                    {l.destaque && (
+                    {l.plano.destaque && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-400 text-black">
                         {t.popular}
                       </span>
@@ -209,25 +210,31 @@ export default function AlugueisContent() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() =>
-                    setPlanoSelecionado({
-                      ferramenta: l.ferramentaNome,
-                      nome: l.planoNome,
-                      preco: l.preco,
-                    })
-                  }
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    abrirCheckoutDireto(l);
+                  }}
                   className="flex-shrink-0 px-4 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-xs md:text-sm whitespace-nowrap"
                 >
                   {t.alugar}
-                </button>
-              </div>
+                </span>
+              </button>
             ))}
           </div>
         ) : (
           <p className="text-gray-500 text-sm py-8 text-center">{t.vazio(busca)}</p>
         )}
       </div>
+
+      {detalheAberto && (
+        <DetalheServicoModal
+          ferramenta={detalheAberto.ferramenta}
+          plano={detalheAberto.plano}
+          onFechar={() => setDetalheAberto(null)}
+          onAlugar={confirmarAluguelDoModal}
+        />
+      )}
 
       {planoSelecionado && (
         <CheckoutPix
