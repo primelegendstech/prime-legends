@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://primelegendsgsm.vercel.app"),
+  metadataBase: new URL("https://primelegendsgsm.com.br"),
   title: "Prime Legends GSM | Ativações e Aluguéis Profissionais",
   description:
     "Sua solução completa para serviços técnicos. Ferramentas, licenças, downloads e suporte remoto especializado para manutenção de dispositivos Android e iPhone.",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: "Prime Legends GSM | Ativações e Aluguéis Profissionais",
     description:
       "Ferramentas, licenças, downloads e suporte remoto especializado para técnicos em smartphones.",
-    url: "https://primelegendsgsm.vercel.app",
+    url: "https://primelegendsgsm.com.br",
     siteName: "Prime Legends GSM",
     images: [
       {
