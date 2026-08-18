@@ -61,6 +61,54 @@ export async function enviarEmailAcesso(params: {
   }
 }
 
+// Avisa VOCÊ (o admin) por e-mail quando um pedido de ALUGUEL precisa de
+// atenção manual (falhou de verdade na GSM Cheap, ou ficou processando por
+// tempo demais). Assim você fica sabendo ANTES do cliente reclamar, em vez
+// de descobrir só quando ele manda mensagem irritado.
+export async function enviarEmailAlertaPedido(params: {
+  motivo: string;
+  ferramenta: string;
+  duracao: string;
+  codigo: string;
+  paymentId: string;
+  detalhes?: string;
+}) {
+  const { motivo, ferramenta, duracao, codigo, paymentId, detalhes } = params;
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[email] RESEND_API_KEY não configurada, pulando alerta de pedido");
+    return;
+  }
+
+  const destinatario = process.env.ADMIN_NOTIFICATION_EMAIL || "primelegendsx@gmail.com";
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  const corpoHtml = `
+    <p><strong>⚠️ Pedido de aluguel precisa de atenção</strong></p>
+    <table cellpadding="6" style="border-collapse: collapse;">
+      <tr><td><strong>Motivo:</strong></td><td>${motivo}</td></tr>
+      <tr><td><strong>Ferramenta:</strong></td><td>${ferramenta}</td></tr>
+      <tr><td><strong>Plano:</strong></td><td>${duracao}</td></tr>
+      <tr><td><strong>Código do pedido:</strong></td><td>${codigo}</td></tr>
+      <tr><td><strong>Payment ID:</strong></td><td>${paymentId}</td></tr>
+      ${detalhes ? `<tr><td><strong>Detalhes:</strong></td><td>${detalhes}</td></tr>` : ""}
+    </table>
+    <p>Confira o painel da GSM Cheap e finalize manualmente se necessário.</p>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "Prime Legends GSM <onboarding@resend.dev>",
+      to: destinatario,
+      subject: `⚠️ Pedido precisa de atenção — ${ferramenta} ${duracao}`,
+      html: corpoHtml,
+    });
+    console.log(`[email] alerta de pedido enviado para ${destinatario}`);
+  } catch (erro) {
+    console.error("[email] falha ao enviar alerta de pedido:", erro);
+  }
+}
+
 // Avisa VOCÊ (o admin) por e-mail assim que uma ativação é paga — não depende
 // do cliente clicar em nada. O destinatário é o seu e-mail, configurado em
 // ADMIN_NOTIFICATION_EMAIL na Vercel (cai pro contato do site se não configurar).

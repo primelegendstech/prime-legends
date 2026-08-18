@@ -19,11 +19,19 @@ function ConteudoSucesso() {
   const [mensagemErro, setMensagemErro] = useState<string>("");
 
   useEffect(() => {
-    async function entregar() {
-      if (!paymentId) {
-        setStatus("erro");
-        return;
-      }
+    if (!paymentId) {
+      setStatus("erro");
+      return;
+    }
+
+    let cancelado = false;
+    const MAX_TENTATIVAS = 12; // ~12 x 3s = 36s de tolerância antes do fallback manual
+
+    // /api/entregar é idempotente (nunca recria pedido já existente), então é
+    // seguro chamar de novo — é assim que resolvemos o pedido enquanto ele
+    // ainda está "reservando" (corrida com o webhook) ou "processando"
+    // (fornecedor ainda gerando o código), sem mostrar erro cedo demais.
+    async function entregar(tentativa: number) {
       try {
         const resposta = await fetch("/api/entregar", {
           method: "POST",
@@ -31,6 +39,7 @@ function ConteudoSucesso() {
           body: JSON.stringify({ paymentId }),
         });
         const dados = await resposta.json();
+        if (cancelado) return;
 
         if (dados.servico) setServico(dados.servico);
         if (dados.codigo) setCodigo(dados.codigo);
@@ -38,17 +47,46 @@ function ConteudoSucesso() {
         if (dados.sucesso) {
           setCredenciais(dados.dados);
           setStatus("automatico");
-        } else if (dados.manual) {
+          return;
+        }
+
+        if (dados.manual) {
           setMensagemErro(dados.mensagem || "");
           setStatus("manual");
+          return;
+        }
+
+        if (dados.reservando || dados.processando) {
+          if (tentativa < MAX_TENTATIVAS) {
+            setTimeout(() => entregar(tentativa + 1), 3000);
+          } else {
+            setMensagemErro(
+              "Seu acesso está sendo gerado e pode levar mais alguns instantes. Você também vai receber por e-mail assim que ficar pronto."
+            );
+            setStatus("manual");
+          }
+          return;
+        }
+
+        if (tentativa < MAX_TENTATIVAS) {
+          setTimeout(() => entregar(tentativa + 1), 3000);
         } else {
           setStatus("erro");
         }
       } catch {
-        setStatus("erro");
+        if (cancelado) return;
+        if (tentativa < MAX_TENTATIVAS) {
+          setTimeout(() => entregar(tentativa + 1), 3000);
+        } else {
+          setStatus("erro");
+        }
       }
     }
-    entregar();
+    entregar(1);
+
+    return () => {
+      cancelado = true;
+    };
   }, [paymentId]);
 
   const numeroWhatsApp = "5581995716227";

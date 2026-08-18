@@ -53,6 +53,75 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
     };
   }, []);
 
+  // Chama /api/entregar e trata a resposta. Como o backend é idempotente
+  // (nunca cria um pedido novo se já existe um em andamento), é sempre seguro
+  // chamar de novo — é assim que "destravamos" pedidos que ainda estão
+  // "reservando" (corrida com o webhook) ou "processando" (GSM Cheap ainda
+  // gerando o código) sem duplicar nada e sem mostrar erro cedo demais.
+  async function tentarEntrega(id: string, tentativa: number) {
+    const MAX_TENTATIVAS = 12; // ~12 x 3s = 36s de tolerância antes de cair pro fallback manual
+
+    try {
+      const entrega = await fetch("/api/entregar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId: id }),
+      });
+      const dadosEntrega = await entrega.json();
+
+      if (dadosEntrega.codigo) setCodigo(dadosEntrega.codigo);
+
+      if (dadosEntrega.sucesso) {
+        setCredenciais(dadosEntrega.dados);
+        setStatus("aprovado");
+        return;
+      }
+
+      if (dadosEntrega.manual) {
+        // Liberação manual definitiva (serviço não automatizado ou falha real
+        // já reportada pra nossa equipe) — não adianta insistir mais.
+        setMensagemErro(dadosEntrega.mensagem || "");
+        setStatus("aprovado");
+        return;
+      }
+
+      if (dadosEntrega.reservando || dadosEntrega.processando) {
+        // Ainda em andamento (webhook processando em paralelo, ou GSM Cheap
+        // gerando o código) — normal, não é erro. Tenta de novo em breve.
+        if (tentativa < MAX_TENTATIVAS) {
+          setTimeout(() => tentarEntrega(id, tentativa + 1), 3000);
+        } else {
+          // Demorou demais — mesmo assim NÃO é uma falha confirmada, então
+          // não usamos o card de erro. Mostra que está a caminho + WhatsApp.
+          setMensagemErro(
+            "Seu acesso está sendo gerado e pode levar mais alguns instantes. Você também vai receber por e-mail assim que ficar pronto."
+          );
+          setStatus("aprovado");
+        }
+        return;
+      }
+
+      // Resposta inesperada (sem sucesso/manual/reservando/processando) —
+      // trata como falha pontual e tenta de novo antes de desistir de vez.
+      if (tentativa < MAX_TENTATIVAS) {
+        setTimeout(() => tentarEntrega(id, tentativa + 1), 3000);
+      } else {
+        setStatus("erro");
+        setMensagemErro("Pagamento aprovado, mas houve um problema na liberação. Fale com o suporte.");
+      }
+    } catch {
+      // Falha de rede na própria chamada — também tenta de novo em vez de
+      // desistir silenciosamente (o bug antigo: aqui o polling já tinha
+      // parado e a tela ficava travada pra sempre em "Confirmando...").
+      if (tentativa < MAX_TENTATIVAS) {
+        setTimeout(() => tentarEntrega(id, tentativa + 1), 3000);
+      } else {
+        setStatus("erro");
+        setMensagemErro("Pagamento aprovado, mas houve um problema na liberação. Fale com o suporte.");
+      }
+    }
+  }
+
   async function iniciarPolling(id: string) {
     intervaloRef.current = setInterval(async () => {
       try {
@@ -61,25 +130,7 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
 
         if (dados.status === "approved") {
           if (intervaloRef.current) clearInterval(intervaloRef.current);
-
-          const entrega = await fetch("/api/entregar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ paymentId: id }),
-          });
-          const dadosEntrega = await entrega.json();
-
-          if (dadosEntrega.codigo) setCodigo(dadosEntrega.codigo);
-          if (dadosEntrega.sucesso) {
-            setCredenciais(dadosEntrega.dados);
-            setStatus("aprovado");
-          } else if (dadosEntrega.manual) {
-            setMensagemErro(dadosEntrega.mensagem || "");
-            setStatus("aprovado");
-          } else {
-            setStatus("erro");
-            setMensagemErro("Pagamento aprovado, mas houve um problema na liberação. Fale com o suporte.");
-          }
+          tentarEntrega(id, 1);
         } else if (dados.status === "rejected" || dados.status === "cancelled") {
           if (intervaloRef.current) clearInterval(intervaloRef.current);
           setStatus("erro");

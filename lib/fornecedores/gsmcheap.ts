@@ -11,7 +11,12 @@
 
 import type { FornecedorAdapter } from "./tipos";
 
-const TIMEOUT_MS = 15000; // 15s — se a GSM Cheap não responder nesse tempo, desistimos com erro controlado
+// 6s — no plano gratuito da Vercel a função inteira (Mercado Pago + GSM Cheap
+// criar + GSM Cheap consultar) tem só 10s de orçamento total. Com 15s aqui,
+// uma única chamada já estourava o limite sozinha, e a Vercel matava a função
+// no meio do caminho — mesmo quando o pedido já tinha sido criado com sucesso
+// do lado da GSM Cheap. 6s deixa espaço pra todas as outras etapas rodarem.
+const TIMEOUT_MS = 6000;
 
 async function chamarGsmCheap(action: string, parametros?: any) {
   const url = `${process.env.GSMCHEAP_URL}/public/api/index.php`;
