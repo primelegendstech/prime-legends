@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { processarEntrega } from "@/lib/processar-entrega";
+import { processarEntregaAtivacao } from "@/lib/processar-entrega-ativacao";
 
 // O Mercado Pago chama essa rota automaticamente quando o status de um pagamento muda —
 // independente do cliente ter chegado ou não na tela /sucesso.
@@ -15,10 +16,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ recebido: true }, { status: 200 });
     }
 
-    // Processa a entrega usando a mesma lógica da tela de sucesso.
-    // Não repassamos o resultado pro Mercado Pago em detalhe — só confirmamos que recebemos,
-    // pra ele não ficar tentando reenviar a notificação várias vezes.
-    await processarEntrega(String(paymentId));
+    // Primeiro checa se é um pagamento de Ativação de Licença — se for, já dispara
+    // o e-mail automático pra você e para por aqui, sem tentar o fluxo de aluguel.
+    const resultadoAtivacao = await processarEntregaAtivacao(String(paymentId));
+
+    if (!resultadoAtivacao.encontrado) {
+      // Não é ativação — processa a entrega usando a mesma lógica da tela de sucesso (aluguel).
+      // Não repassamos o resultado pro Mercado Pago em detalhe — só confirmamos que recebemos,
+      // pra ele não ficar tentando reenviar a notificação várias vezes.
+      await processarEntrega(String(paymentId));
+    }
 
     return NextResponse.json({ recebido: true }, { status: 200 });
   } catch (erro: any) {

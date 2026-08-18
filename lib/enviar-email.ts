@@ -60,3 +60,50 @@ export async function enviarEmailAcesso(params: {
     console.error("[email] falha ao enviar:", erro);
   }
 }
+
+// Avisa VOCÊ (o admin) por e-mail assim que uma ativação é paga — não depende
+// do cliente clicar em nada. O destinatário é o seu e-mail, configurado em
+// ADMIN_NOTIFICATION_EMAIL na Vercel (cai pro contato do site se não configurar).
+export async function enviarEmailNotificacaoAtivacao(params: {
+  ferramenta: string;
+  duracao: string;
+  preco: number;
+  nome: string;
+  username: string;
+  email: string;
+}) {
+  const { ferramenta, duracao, preco, nome, username, email } = params;
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[email] RESEND_API_KEY não configurada, pulando notificação de ativação");
+    return;
+  }
+
+  const destinatario = process.env.ADMIN_NOTIFICATION_EMAIL || "primelegendsx@gmail.com";
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  const corpoHtml = `
+    <p><strong>💰 Nova ativação paga — precisa liberar</strong></p>
+    <table cellpadding="6" style="border-collapse: collapse;">
+      <tr><td><strong>Ferramenta:</strong></td><td>${ferramenta}</td></tr>
+      <tr><td><strong>Plano:</strong></td><td>${duracao}</td></tr>
+      <tr><td><strong>Valor:</strong></td><td>R$ ${preco.toFixed(2).replace(".", ",")}</td></tr>
+      <tr><td><strong>Nome do cliente:</strong></td><td>${nome}</td></tr>
+      <tr><td><strong>Username na ferramenta:</strong></td><td>${username}</td></tr>
+      <tr><td><strong>E-mail do cliente:</strong></td><td>${email}</td></tr>
+    </table>
+    <p>Pagamento confirmado pelo Mercado Pago — pode ativar direto na ferramenta.</p>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "Prime Legends GSM <onboarding@resend.dev>",
+      to: destinatario,
+      subject: `🔔 Ativação paga: ${ferramenta} ${duracao} — ${nome}`,
+      html: corpoHtml,
+    });
+    console.log(`[email] notificação de ativação enviada para ${destinatario}`);
+  } catch (erro) {
+    console.error("[email] falha ao notificar ativação:", erro);
+  }
+}
