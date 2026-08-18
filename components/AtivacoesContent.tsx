@@ -1,200 +1,207 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import CheckoutAtivacao from "@/components/CheckoutAtivacao";
+import DetalheAtivacaoModal from "@/components/DetalheAtivacaoModal";
+import { ativacoes, type Ativacao, type PlanoAtivacao } from "@/data/ativacoes";
 
-const ferramentas = ["UnlockTool", "TSM Tool"];
+function normalizar(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
 
-const imagensPorFerramenta: Record<string, string[]> = {
-  UnlockTool: ["/laptops/unlocktool-1.png", "/laptops/unlocktool-2.png"],
-  "TSM Tool": ["/laptops/tsm-1.png", "/laptops/tsm-2.png"],
+type Listagem = {
+  ativacao: Ativacao;
+  plano: PlanoAtivacao;
 };
 
-const planosPorFerramenta: Record<
-  string,
-  { nome: string; preco: number; destaque: boolean }[]
-> = {
-  UnlockTool: [
-    { nome: "3 meses", preco: 109.9, destaque: false },
-    { nome: "6 meses", preco: 149.9, destaque: true },
-    { nome: "12 meses", preco: 234.9, destaque: true },
-  ],
-  "TSM Tool": [
-    { nome: "3 meses", preco: 149.9, destaque: false },
-    { nome: "6 meses", preco: 199.9, destaque: true },
-    { nome: "12 meses", preco: 254.9, destaque: true },
-  ],
-};
-
-const linksPorFerramenta: Record<string, { modelos: string; download: string; registro: string }> = {
-  UnlockTool: {
-    modelos: "https://unlocktool.net/models/",
-    download: "https://file.unlocktool.net/",
-    registro: "https://unlocktool.net/register/",
-  },
-  "TSM Tool": {
-    modelos: "URL_MODELOS_TSM",
-    download: "URL_DOWNLOAD_TSM",
-    registro: "URL_REGISTRO_TSM",
-  },
-};
+type Filtro = "todos" | "barato";
 
 export default function AtivacoesContent() {
-  const [ativo, setAtivo] = useState(ferramentas[0]);
-  const [nome, setNome] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [erro, setErro] = useState<string | null>(null);
-  const [planoSelecionado, setPlanoSelecionado] = useState<{ nome: string; preco: number } | null>(null);
+  const [busca, setBusca] = useState("");
+  const [filtro, setFiltro] = useState<Filtro>("todos");
+  const [detalheAberto, setDetalheAberto] = useState<Listagem | null>(null);
+  const [planoSelecionado, setPlanoSelecionado] = useState<{
+    ferramenta: string;
+    nome: string;
+    preco: number;
+    nomeCliente: string;
+    username: string;
+    email: string;
+  } | null>(null);
 
-  const planos = planosPorFerramenta[ativo];
-  const imagens = imagensPorFerramenta[ativo];
-  const links = linksPorFerramenta[ativo];
+  const listagens: Listagem[] = useMemo(() => {
+    return ativacoes.flatMap((a) => a.planos.map((p) => ({ ativacao: a, plano: p })));
+  }, []);
 
-  const dadosCompletos = nome.trim() !== "" && username.trim() !== "" && email.trim() !== "";
+  const listagensFiltradas = useMemo(() => {
+    let resultado = listagens;
 
-  function abrirCheckout(nomePlano: string, preco: number) {
-    if (!dadosCompletos) {
-      setErro("Preencha nome, username e e-mail cadastrados na ferramenta antes de continuar.");
-      return;
+    if (busca.trim()) {
+      const termo = normalizar(busca);
+      resultado = resultado.filter(
+        (l) =>
+          normalizar(l.ativacao.nome).includes(termo) ||
+          normalizar(l.plano.nome).includes(termo)
+      );
     }
-    setErro(null);
-    setPlanoSelecionado({ nome: nomePlano, preco });
+
+    if (filtro === "barato") {
+      resultado = [...resultado].sort((a, b) => a.plano.preco - b.plano.preco);
+    }
+
+    return resultado;
+  }, [busca, filtro, listagens]);
+
+  const chips: { key: Filtro; label: string }[] = [
+    { key: "todos", label: "Todos" },
+    { key: "barato", label: "💰 Mais baratos" },
+  ];
+
+  function abrirCheckoutDireto(l: Listagem, dados: { nome: string; username: string; email: string }) {
+    setPlanoSelecionado({
+      ferramenta: l.ativacao.nome,
+      nome: l.plano.nome,
+      preco: l.plano.preco,
+      nomeCliente: dados.nome,
+      username: dados.username,
+      email: dados.email,
+    });
+  }
+
+  function confirmarAtivacaoDoModal(dados: { nome: string; username: string; email: string }) {
+    if (!detalheAberto) return;
+    abrirCheckoutDireto(detalheAberto, dados);
+    setDetalheAberto(null);
   }
 
   return (
     <>
-      <div className="max-w-5xl mx-auto mb-8">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="w-1.5 h-6 bg-yellow-400 rounded-full" />
-          <h2 className="text-xl md:text-2xl font-bold text-white">
-            ATIVAÇÃO <span className="text-yellow-400 italic">DE LICENÇA</span>
-          </h2>
+      <div className="max-w-6xl mx-auto mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div className="flex items-center gap-3">
+            <span className="w-1.5 h-6 bg-yellow-400 rounded-full" />
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-white">
+                ATIVAÇÃO <span className="text-yellow-400 italic">DE LICENÇA</span>
+              </h2>
+              <p className="text-xs text-gray-500 mt-1">Início › Ativação de Licença</p>
+            </div>
+          </div>
+
+          <div className="relative w-full sm:w-72">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">🔍</span>
+            <input
+              type="text"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar serviço..."
+              className="w-full bg-white/[0.04] border border-yellow-500/20 rounded-full pl-11 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/60 transition"
+            />
+            {busca && (
+              <button
+                onClick={() => setBusca("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-yellow-400 text-sm"
+                aria-label="Limpar busca"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          {ferramentas.map((nomeFerramenta) => (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {chips.map((c) => (
             <button
-              key={nomeFerramenta}
-              onClick={() => setAtivo(nomeFerramenta)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
-                ativo === nomeFerramenta
-                  ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-black"
-                  : "text-gray-300 hover:text-yellow-400"
+              key={c.key}
+              onClick={() => setFiltro(c.key)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition border ${
+                filtro === c.key
+                  ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-black border-transparent"
+                  : "text-gray-300 border-yellow-500/20 hover:border-yellow-400/50 hover:text-yellow-400"
               }`}
             >
-              {nomeFerramenta}
+              {c.label}
             </button>
           ))}
         </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start mb-12">
-        <div className="flex justify-start">
-          <img
-            src={imagens[0]}
-            alt={`Tela do ${ativo}`}
-            className="w-full max-w-md rounded-xl"
-          />
-        </div>
-
-        <div className="bg-white/[0.03] border border-yellow-500/20 rounded-2xl p-6">
-          <h3 className="text-2xl font-black text-white mb-3">{ativo}</h3>
-
-          <div className="flex flex-wrap gap-4 mb-6 text-sm">
-            <a
-              href={links.modelos}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-yellow-400 hover:text-yellow-300 transition"
-            >
-              Ver modelos suportados ➤
-            </a>
-            <a
-              href={links.download}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-yellow-400 hover:text-yellow-300 transition"
-            >
-              Baixar {ativo} ➤
-            </a>
-          </div>
-
-          <div className="bg-black/30 border border-yellow-500/10 rounded-xl p-4 mb-6">
-            <p className="text-sm text-gray-300 mb-3">
-              Antes de ativar, você precisa ter uma conta criada no site oficial do{" "}
-              {ativo}.{" "}
-              <a
-                href={links.registro}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-yellow-400 hover:text-yellow-300 underline"
+        {listagensFiltradas.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {listagensFiltradas.map((l, i) => (
+              <button
+                key={`${l.ativacao.nome}-${l.plano.nome}-${i}`}
+                onClick={() => setDetalheAberto(l)}
+                className="flex items-center gap-4 bg-white/[0.03] border border-yellow-500/15 rounded-xl p-4 hover:border-yellow-400/50 transition text-left"
               >
-                Registre-se aqui ➤
-              </a>
-            </p>
+                <div className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10">
+                  <img
+                    src={l.ativacao.imagens[0]}
+                    alt={l.ativacao.nome}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
 
-            <div className="grid grid-cols-1 gap-3">
-              <input
-                type="text"
-                placeholder="Seu nome"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-              />
-              <input
-                type="text"
-                placeholder={`Username cadastrado no ${ativo}`}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-              />
-              <input
-                type="email"
-                placeholder="E-mail cadastrado na ferramenta"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-              />
-            </div>
-
-            {erro && <p className="text-red-400 text-xs mt-2">{erro}</p>}
-          </div>
-
-          <div className="divide-y divide-white/10">
-            {planos.map((plano) => (
-              <div key={plano.nome} className="flex items-center justify-between py-4">
-                <div>
-                  <p className="text-white font-semibold">
-                    {plano.nome}
-                    {plano.destaque && (
-                      <span className="ml-2 text-xs font-bold text-black bg-yellow-400 rounded-full px-2 py-0.5">
-                        POPULAR
+                <div className="min-w-0 flex-1">
+                  <p className="text-white font-bold text-sm md:text-base leading-tight">
+                    # {l.ativacao.nome}
+                    {l.ativacao.badge && (
+                      <span className="ml-2 text-[10px] font-semibold text-yellow-400 border border-yellow-400/50 px-1.5 py-0.5 rounded">
+                        {l.ativacao.badge}
                       </span>
                     )}
                   </p>
-                  <p className="text-gray-400 text-sm">Licença completa</p>
+                  <p className="text-gray-400 text-xs md:text-sm">{l.plano.nome}</p>
+
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <span className="text-sm font-extrabold bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
+                      R$ {l.plano.preco.toFixed(2).replace(".", ",")}
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-amber-400 border-amber-400/40 bg-amber-400/10">
+                      🕐 MINUTOS
+                    </span>
+                    {l.plano.destaque && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-400 text-black">
+                        POPULAR
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <button
-                  onClick={() => abrirCheckout(plano.nome, plano.preco)}
-                  className="px-5 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm whitespace-nowrap"
+
+                <span
+                  className="flex-shrink-0 px-4 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-xs md:text-sm whitespace-nowrap"
                 >
-                  {`R$ ${plano.preco.toFixed(2).replace(".", ",")}`}
-                </button>
-              </div>
+                  Ativar
+                </span>
+              </button>
             ))}
           </div>
-        </div>
+        ) : (
+          <p className="text-gray-500 text-sm py-8 text-center">
+            Nenhum serviço encontrado para &quot;{busca}&quot;.
+          </p>
+        )}
       </div>
+
+      {detalheAberto && (
+        <DetalheAtivacaoModal
+          ativacao={detalheAberto.ativacao}
+          plano={detalheAberto.plano}
+          onFechar={() => setDetalheAberto(null)}
+          onAtivar={confirmarAtivacaoDoModal}
+        />
+      )}
 
       {planoSelecionado && (
         <CheckoutAtivacao
-          ferramenta={ativo}
+          ferramenta={planoSelecionado.ferramenta}
           duracao={planoSelecionado.nome}
           preco={planoSelecionado.preco}
-          nome={nome}
-          username={username}
-          email={email}
+          nome={planoSelecionado.nomeCliente}
+          username={planoSelecionado.username}
+          email={planoSelecionado.email}
           onFechar={() => setPlanoSelecionado(null)}
         />
       )}
