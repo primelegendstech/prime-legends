@@ -47,6 +47,12 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
   const [copiado, setCopiado] = useState(false);
   const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Capturado ANTES do formulário de pagamento, direto do cliente — não
+  // depende mais do que o Mercado Pago retorna (que às vezes vem vazio). É
+  // esse e-mail que garante o envio do login/senha por e-mail sempre.
+  const [emailCliente, setEmailCliente] = useState("");
+  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailCliente);
+
   useEffect(() => {
     return () => {
       if (intervaloRef.current) clearInterval(intervaloRef.current);
@@ -148,7 +154,7 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
         const resp = await fetch("/api/pagamento", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...formData, ferramenta, duracao }),
+          body: JSON.stringify({ ...formData, ferramenta, duracao, emailCliente }),
         });
         const dados = await resp.json();
 
@@ -177,7 +183,7 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
         setMensagemErro("Erro ao processar pagamento.");
       }
     },
-    [ferramenta, duracao]
+    [ferramenta, duracao, emailCliente]
   );
 
   const aoDarErro = useCallback((erro: any) => {
@@ -233,12 +239,38 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
         </p>
 
         {status === "formulario" && (
-          <PaymentBrick
-            initialization={initialization}
-            customization={customization}
-            onSubmit={aoEnviar}
-            onError={aoDarErro}
-          />
+          <>
+            <div className="mb-4">
+              <label className="block text-zinc-400 text-xs font-semibold mb-1.5">
+                Seu e-mail (pra receber o acesso por lá também)
+              </label>
+              <input
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                value={emailCliente}
+                onChange={(e) => setEmailCliente(e.target.value.trim())}
+                placeholder="seuemail@exemplo.com"
+                className="w-full rounded-lg bg-black/40 border border-yellow-500/30 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-yellow-400"
+              />
+              {emailCliente.length > 0 && !emailValido && (
+                <p className="text-red-400 text-xs mt-1">Digite um e-mail válido.</p>
+              )}
+            </div>
+
+            {emailValido ? (
+              <PaymentBrick
+                initialization={initialization}
+                customization={customization}
+                onSubmit={aoEnviar}
+                onError={aoDarErro}
+              />
+            ) : (
+              <p className="text-zinc-500 text-xs text-center py-6">
+                Preencha seu e-mail acima pra continuar com o pagamento.
+              </p>
+            )}
+          </>
         )}
 
         {status === "aguardando" && qrCodeBase64 && (

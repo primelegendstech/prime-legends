@@ -198,6 +198,13 @@ export async function processarEntrega(paymentId: string) {
   const nomeServico = `${ferramenta} - Aluguel ${duracao}`;
   const codigo = randomUUID();
 
+  // Prioriza o e-mail que o cliente digitou no checkout (mais confiável) — só
+  // cai pro e-mail devolvido pelo Mercado Pago se por algum motivo o checkout
+  // não tiver um salvo (pedidos feitos antes dessa correção).
+  const emailFinal: string | null = pareceEmailValido(checkout.email_cliente)
+    ? checkout.email_cliente
+    : emailCliente;
+
   // 3.5. TRAVA DE SEGURANÇA (idempotência real):
   // Antes de chamar QUALQUER fornecedor, tenta "reservar" esse payment_id no banco.
   // Se outra chamada (webhook duplicado do Mercado Pago, ou a tela do cliente
@@ -211,7 +218,7 @@ export async function processarEntrega(paymentId: string) {
     duracao,
     preco,
     codigo,
-    email_cliente: emailCliente,
+    email_cliente: emailFinal,
     dados: { estado: "reservando" },
   });
 
@@ -235,9 +242,9 @@ export async function processarEntrega(paymentId: string) {
       .from("pedidos")
       .update({ dados: { estado: "manual", mensagem: "Serviço não automatizado" } })
       .eq("payment_id", paymentId);
-    if (emailCliente) {
+    if (emailFinal) {
       await enviarEmailAcesso({
-        destinatario: emailCliente,
+        destinatario: emailFinal,
         servico: nomeServico,
         linkConsulta: montarLinkConsulta(codigo),
         manual: true,
@@ -273,9 +280,9 @@ export async function processarEntrega(paymentId: string) {
       })
       .eq("payment_id", paymentId);
 
-    if (emailCliente) {
+    if (emailFinal) {
       await enviarEmailAcesso({
-        destinatario: emailCliente,
+        destinatario: emailFinal,
         servico: nomeServico,
         linkConsulta: montarLinkConsulta(codigo),
         manual: true,
@@ -329,9 +336,9 @@ export async function processarEntrega(paymentId: string) {
     console.error("[entrega] erro ao salvar resultado final do pedido:", erroUpdateFinal);
   }
 
-  if (estadoFinal === "concluido" && emailCliente) {
+  if (estadoFinal === "concluido" && emailFinal) {
     await enviarEmailAcesso({
-      destinatario: emailCliente,
+      destinatario: emailFinal,
       servico: nomeServico,
       linkConsulta: montarLinkConsulta(codigo),
       manual: false,

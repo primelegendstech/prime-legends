@@ -11,10 +11,20 @@ const client = new MercadoPagoConfig({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ferramenta, duracao, ...formData } = body;
+    const { ferramenta, duracao, emailCliente, ...formData } = body;
 
     if (!ferramenta || !duracao) {
       return NextResponse.json({ erro: "Dados do plano ausentes" }, { status: 400 });
+    }
+
+    // O e-mail agora vem digitado pelo próprio cliente ANTES do pagamento —
+    // não depende mais do que o Brick/Mercado Pago retorna (que às vezes vem
+    // vazio). Validação simples de formato, defensiva.
+    const emailValido =
+      typeof emailCliente === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailCliente);
+
+    if (!emailValido) {
+      return NextResponse.json({ erro: "E-mail inválido" }, { status: 400 });
     }
 
     // O preço NUNCA vem do navegador — só da nossa lista confiável no servidor
@@ -28,12 +38,14 @@ export async function POST(request: NextRequest) {
     const externalReference = randomUUID();
 
     // Grava o que foi REALMENTE contratado antes de criar o pagamento,
-    // pra depois o /api/entregar e o webhook confiarem nisso
+    // pra depois o /api/entregar e o webhook confiarem nisso — agora
+    // incluindo o e-mail que o cliente digitou, como fonte confiável.
     const { error: erroSupabase } = await supabase.from("checkouts").insert({
       external_reference: externalReference,
       ferramenta,
       duracao,
       preco,
+      email_cliente: emailCliente,
     });
 
     if (erroSupabase) {
@@ -50,7 +62,10 @@ export async function POST(request: NextRequest) {
         payment_method_id: formData.payment_method_id,
         token: formData.token,
         installments: formData.installments ?? 1,
-        payer: formData.payer,
+        // Usa o e-mail digitado pelo cliente como principal — só cai pro que
+        // o Brick devolveu se por algum motivo o nosso não tiver passado
+        // (não deveria acontecer, já validamos acima).
+        payer: { ...formData.payer, email: emailCliente || formData.payer?.email },
         external_reference: externalReference,
         // Mesmo webhook que já usamos no Checkout Pro — cuida da entrega automática
         notification_url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/webhook/mercadopago`,
