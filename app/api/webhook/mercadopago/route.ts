@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { processarEntrega } from "@/lib/processar-entrega";
 import { processarEntregaAtivacao } from "@/lib/processar-entrega-ativacao";
 
+// Mesmo motivo do /api/entregar: dá folga suficiente pro fluxo completo
+// (Mercado Pago + GSM Cheap) rodar sem ser cortado no meio do caminho.
+export const maxDuration = 30;
+
 // O Mercado Pago chama essa rota automaticamente quando o status de um pagamento muda —
 // independente do cliente ter chegado ou não na tela /sucesso.
 export async function POST(request: NextRequest) {
