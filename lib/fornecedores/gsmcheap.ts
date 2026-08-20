@@ -59,8 +59,15 @@ async function chamarGsmCheap(action: string, parametros?: any) {
 }
 
 export const gsmCheapAdapter: FornecedorAdapter = {
-  async criarPedido(serviceId: string) {
-    const pedido = await chamarGsmCheap("placebulkorder", { "1": { ID: Number(serviceId), QNT: 1 } });
+  async criarPedido(serviceId: string, dadoExtra?: string) {
+    // Alguns serviços (ex: recarga de crédito em conta existente) precisam
+    // saber a conta do cliente. Painéis nesse estilo (DHRU) usam o campo
+    // "IMEI" como campo genérico pra isso, seja IMEI de verdade, HWID ou
+    // e-mail — depende do que o serviço específico pede.
+    const itemPedido: any = { ID: Number(serviceId), QNT: 1 };
+    if (dadoExtra) itemPedido.IMEI = dadoExtra;
+
+    const pedido = await chamarGsmCheap("placebulkorder", { "1": itemPedido });
 
     if (pedido?.ERROR) {
       return {

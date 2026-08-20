@@ -113,7 +113,14 @@ export const ativacoes: Ativacao[] = [
           email: { label: "E-mail cadastrado na Moto M Tool" },
         },
       },
-      { nome: "Créditos (usuário existente)", preco: 7.48, tipo: "credito" },
+      {
+        nome: "Créditos (usuário existente)",
+        preco: 7.48,
+        tipo: "credito",
+        // Liberação automática via GSM Cheap — só precisa do e-mail cadastrado
+        // na ferramenta pra saber em qual conta creditar. Sem username/senha.
+        campos: { username: false },
+      },
     ],
   },
   {

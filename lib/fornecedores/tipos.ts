@@ -13,7 +13,10 @@ export interface ResultadoCriacao {
 export interface FornecedorAdapter {
   // Faz o pedido no fornecedor. Se der certo, retorna referenceId.
   // Se der erro, retorna mensagemErro (e opcionalmente a resposta crua pra log).
-  criarPedido(serviceId: string): Promise<ResultadoCriacao>;
+  // dadoExtra: usado só pelos serviços que precisam identificar a conta do
+  // cliente (ex: e-mail cadastrado, pra creditar a conta certa) — a maioria
+  // dos serviços não usa isso.
+  criarPedido(serviceId: string, dadoExtra?: string): Promise<ResultadoCriacao>;
 
   // Consulta o status/dados de um pedido já criado, usando o referenceId.
   consultarPedido(referenceId: string): Promise<any>;

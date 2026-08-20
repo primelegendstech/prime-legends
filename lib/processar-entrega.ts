@@ -257,7 +257,10 @@ export async function processarEntrega(paymentId: string) {
   // A essa altura, temos GARANTIA de que somos a única chamada processando esse payment_id.
   let criacao: { referenceId?: string; mensagemErro?: string; respostaCompleta?: any };
   try {
-    criacao = await adapter.criarPedido(String(mapeado.serviceId));
+    criacao = await adapter.criarPedido(
+      String(mapeado.serviceId),
+      mapeado.precisaDadoExtra ? emailFinal ?? undefined : undefined
+    );
   } catch (erroInesperado: any) {
     console.error("[entrega] exceção inesperada ao chamar o fornecedor:", erroInesperado?.message, erroInesperado?.stack);
     criacao = {

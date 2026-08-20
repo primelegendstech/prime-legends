@@ -8,4 +8,9 @@ export const planosAtivacaoValidos: Record<string, number> = {
   "Chimera Tool|1 ano (Basic)": 509.9,
   "Chimera Tool|1 ano (Professional)": 768.9,
   // "Chimera Tool|1 ano (Premium)": 964.9, // sem estoque no fornecedor por enquanto
+  "Moto M Tool|Ativação 1 ano - (Novos Usuários)": 109.9,
+  "Moto M Tool|Renovação 1 ano (Usuário Existente)": 109.9,
+  // "Moto M Tool|Créditos (usuário existente)" NÃO fica aqui — esse plano é
+  // liberado automático e usa a tabela lib/planos.ts em vez desta (ver
+  // app/api/pagamento-ativacao/route.ts)
 };

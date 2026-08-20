@@ -17,6 +17,12 @@ type Listagem = {
   plano: PlanoAtivacao;
 };
 
+// Único plano hoje com liberação automática (GSM Cheap) — todo o resto
+// continua no fluxo manual de sempre.
+function ehCreditoAutomatico(l: Listagem) {
+  return l.ativacao.nome === "Moto M Tool" && l.plano.nome === "Créditos (usuário existente)";
+}
+
 type Filtro = "todos" | "ativacao" | "credito" | "barato";
 
 export default function AtivacoesContent() {
@@ -31,6 +37,7 @@ export default function AtivacoesContent() {
     username: string;
     senha: string;
     email: string;
+    automatico: boolean;
   } | null>(null);
 
   const listagens: Listagem[] = useMemo(() => {
@@ -80,6 +87,7 @@ export default function AtivacoesContent() {
       username: dados.username,
       senha: dados.senha,
       email: dados.email,
+      automatico: ehCreditoAutomatico(l),
     });
   }
 
@@ -215,6 +223,7 @@ export default function AtivacoesContent() {
           username={planoSelecionado.username}
           senha={planoSelecionado.senha}
           email={planoSelecionado.email}
+          automatico={planoSelecionado.automatico}
           onFechar={() => setPlanoSelecionado(null)}
         />
       )}

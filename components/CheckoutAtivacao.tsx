@@ -37,6 +37,9 @@ type Props = {
   senha?: string;
   email: string;
   onFechar: () => void;
+  // true só pro plano de Créditos do Moto M Tool — liberação automática via
+  // GSM Cheap. Todo o resto continua no fluxo manual (WhatsApp) de sempre.
+  automatico?: boolean;
 };
 
 export default function CheckoutAtivacao({
@@ -48,6 +51,7 @@ export default function CheckoutAtivacao({
   senha,
   email,
   onFechar,
+  automatico = false,
 }: Props) {
   const [qrCodeBase64, setQrCodeBase64] = useState<string | null>(null);
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -62,6 +66,59 @@ export default function CheckoutAtivacao({
     };
   }, []);
 
+  // Só usado no plano automático: chama /api/entregar (mesma rota/lógica dos
+  // aluguéis) até a GSM Cheap confirmar o crédito, ou desistir depois de um
+  // tempo e cair pro aviso de "liberação em andamento, chega por e-mail".
+  async function tentarEntrega(id: string, tentativa: number) {
+    const MAX_TENTATIVAS = 12; // ~12 x 3s = 36s de tolerância
+
+    try {
+      const entrega = await fetch("/api/entregar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId: id }),
+      });
+      const dadosEntrega = await entrega.json();
+
+      if (dadosEntrega.sucesso || dadosEntrega.manual) {
+        setStatus("aprovado");
+        if (dadosEntrega.manual) {
+          setMensagemErro(
+            dadosEntrega.mensagem ||
+              "Pagamento aprovado. Seu crédito está sendo liberado, você recebe a confirmação por e-mail."
+          );
+        }
+        return;
+      }
+
+      if (dadosEntrega.reservando || dadosEntrega.processando) {
+        if (tentativa < MAX_TENTATIVAS) {
+          setTimeout(() => tentarEntrega(id, tentativa + 1), 3000);
+        } else {
+          setMensagemErro(
+            "Seu crédito está sendo liberado e pode levar mais alguns instantes. Você recebe a confirmação por e-mail assim que ficar pronto."
+          );
+          setStatus("aprovado");
+        }
+        return;
+      }
+
+      if (tentativa < MAX_TENTATIVAS) {
+        setTimeout(() => tentarEntrega(id, tentativa + 1), 3000);
+      } else {
+        setStatus("aprovado");
+        setMensagemErro("Pagamento aprovado, mas houve um problema na liberação. Fale com o suporte.");
+      }
+    } catch {
+      if (tentativa < MAX_TENTATIVAS) {
+        setTimeout(() => tentarEntrega(id, tentativa + 1), 3000);
+      } else {
+        setStatus("aprovado");
+        setMensagemErro("Pagamento aprovado, mas houve um problema na liberação. Fale com o suporte.");
+      }
+    }
+  }
+
   function iniciarPolling(id: string) {
     intervaloRef.current = setInterval(async () => {
       try {
@@ -70,9 +127,14 @@ export default function CheckoutAtivacao({
 
         if (dados.status === "approved") {
           if (intervaloRef.current) clearInterval(intervaloRef.current);
-          // Liberação é manual (GSM Africa) — o pagamento já ficou registrado
-          // no Supabase pela rota /api/pagamento-ativacao
-          setStatus("aprovado");
+          if (automatico) {
+            // Liberação automática (GSM Cheap) — chama /api/entregar de verdade
+            tentarEntrega(id, 1);
+          } else {
+            // Liberação é manual — o pagamento já ficou registrado no Supabase
+            // pela rota /api/pagamento-ativacao
+            setStatus("aprovado");
+          }
         } else if (dados.status === "rejected" || dados.status === "cancelled") {
           if (intervaloRef.current) clearInterval(intervaloRef.current);
           setStatus("erro");
@@ -110,7 +172,11 @@ export default function CheckoutAtivacao({
           iniciarPolling(String(dados.id));
         } else if (dados.status === "approved") {
           // Cartão aprovado na hora — aí sim já foi confirmado de verdade
-          setStatus("aprovado");
+          if (automatico) {
+            tentarEntrega(String(dados.id), 1);
+          } else {
+            setStatus("aprovado");
+          }
         } else if (dados.status === "in_process" || dados.status === "pending") {
           // Cartão em análise: espera confirmação, NÃO é aprovado ainda
           setStatus("aguardando");
@@ -124,7 +190,7 @@ export default function CheckoutAtivacao({
         setMensagemErro("Erro ao processar pagamento.");
       }
     },
-    [ferramenta, duracao, nome, username, senha, email]
+    [ferramenta, duracao, nome, username, senha, email, automatico]
   );
 
   const aoDarErro = useCallback((erro: any) => {
@@ -211,7 +277,32 @@ export default function CheckoutAtivacao({
           <p className="text-amber-400 text-sm text-center animate-pulse">Confirmando pagamento...</p>
         )}
 
-        {status === "aprovado" && (
+        {status === "aprovado" && automatico && (
+          <div className="text-center">
+            <div className="text-4xl mb-2">✅</div>
+            <p className="text-white font-bold mb-3">Pagamento aprovado!</p>
+            <p className="text-zinc-400 text-sm mb-4">
+              {mensagemErro ||
+                "Seu crédito foi liberado automaticamente na conta cadastrada. Você também recebe a confirmação por e-mail."}
+            </p>
+            <div className="bg-black/40 border border-yellow-500/30 rounded-xl p-4 text-left text-sm space-y-2">
+              <p className="break-words">
+                <span className="text-gray-400">Ferramenta:</span>{" "}
+                <span className="text-white font-semibold">{ferramenta}</span>
+              </p>
+              <p className="break-words">
+                <span className="text-gray-400">Plano:</span>{" "}
+                <span className="text-white font-semibold">{duracao}</span>
+              </p>
+              <p className="break-words">
+                <span className="text-gray-400">E-mail:</span>{" "}
+                <span className="text-white font-mono">{email}</span>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {status === "aprovado" && !automatico && (
           <div className="text-center">
             <div className="text-4xl mb-2">✅</div>
             <p className="text-white font-bold mb-3">Pagamento aprovado!</p>

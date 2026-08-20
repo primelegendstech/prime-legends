@@ -25,4 +25,9 @@ export const planosValidos: Record<string, number> = {
   "Griffin-Unlocker|6 horas": 9,
   "Griffin-Unlocker|12 horas": 14,
   "Griffin-Unlocker|24 horas": 18,
+
+  // Plano de Licenças • Créditos que é liberado automático via GSM Cheap
+  // (rota /api/pagamento-ativacao usa essa tabela só pra esse plano específico —
+  // os outros planos de ativação usam lib/planosAtivacao.ts, que é manual)
+  "Moto M Tool|Créditos (usuário existente)": 7.48,
 };

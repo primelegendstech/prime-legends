@@ -1,6 +1,6 @@
 export const mapaServicos: Record<
   string,
-  { serviceId: number; creditos: number; fornecedor: string }
+  { serviceId: number; creditos: number; fornecedor: string; precisaDadoExtra?: boolean }
 > = {
   "UnlockTool|6 horas": { serviceId: 571, creditos: 0.45, fornecedor: "gsmcheap" },
   "UnlockTool|12 horas": { serviceId: 1120, creditos: 0.78, fornecedor: "gsmcheap" },
@@ -18,7 +18,14 @@ export const mapaServicos: Record<
   // liberada manualmente (não chama a API automaticamente).
   "Moto M Tool|Ativação 1 ano - (Novos Usuários)": { serviceId: 1288, creditos: 15.85, fornecedor: "gsmcheap" },
   "Moto M Tool|Renovação 1 ano (Usuário Existente)": { serviceId: 1289, creditos: 15.85, fornecedor: "gsmcheap" },
-  "Moto M Tool|Créditos (usuário existente)": { serviceId: 1290, creditos: 1.05, fornecedor: "gsmcheap" },
+  // precisaDadoExtra: true -> manda o e-mail do cliente pra GSM Cheap saber
+  // em qual conta creditar (é o único serviço automatizado que precisa disso hoje).
+  "Moto M Tool|Créditos (usuário existente)": {
+    serviceId: 1290,
+    creditos: 1.05,
+    fornecedor: "gsmcheap",
+    precisaDadoExtra: true,
+  },
   "Alien Tool|3 meses": { serviceId: 1322, creditos: 20.59, fornecedor: "gsmcheap" },
   "Alien Tool|6 meses": { serviceId: 1323, creditos: 29.1, fornecedor: "gsmcheap" },
   "Alien Tool|12 meses": { serviceId: 1321, creditos: 39.1, fornecedor: "gsmcheap" },
