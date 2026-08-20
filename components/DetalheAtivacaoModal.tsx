@@ -19,16 +19,13 @@ export default function DetalheAtivacaoModal({ ativacao, plano, onFechar, onAtiv
 
   const campos = plano.campos ?? {};
   const mostrarUsername = campos.username !== false;
-  const usernameLabel =
-    campos.username && campos.username !== false
-      ? campos.username.label
-      : `Username cadastrado no ${ativacao.nome}`;
+  const usernameLabel = campos.username
+    ? campos.username.label
+    : `Username cadastrado no ${ativacao.nome}`;
   const mostrarSenha = ativacao.precisaSenha === true && campos.senha !== false;
-  const senhaLabel =
-    campos.senha && campos.senha !== false ? campos.senha.label : `Senha cadastrada no ${ativacao.nome}`;
+  const senhaLabel = campos.senha ? campos.senha.label : `Senha cadastrada no ${ativacao.nome}`;
   const mostrarEmail = campos.email !== false;
-  const emailLabel =
-    campos.email && campos.email !== false ? campos.email.label : "E-mail cadastrado na ferramenta";
+  const emailLabel = campos.email ? campos.email.label : "E-mail cadastrado na ferramenta";
 
   function confirmar() {
     if (
