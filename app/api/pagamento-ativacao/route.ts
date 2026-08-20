@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { ferramenta, duracao, nome, username, senha, email, ...formData } = body;
 
-    if (!ferramenta || !duracao || !nome || !username || !email) {
+    if (!ferramenta || !duracao || !nome || (!username && !email)) {
       return NextResponse.json({ erro: "Dados do plano ou do cliente ausentes" }, { status: 400 });
     }
 

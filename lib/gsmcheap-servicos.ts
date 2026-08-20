@@ -16,7 +16,8 @@ export const mapaServicos: Record<
   // Chimera Tool (Basic)|1 ano" e "Chimera Tool (Professional)|1 ano" acima
   // são só referência de custo — a página de Licenças • Créditos ainda é
   // liberada manualmente (não chama a API automaticamente).
-  "Moto M Tool|Ativação/Renovação 1 ano": { serviceId: 1288, creditos: 15.85, fornecedor: "gsmcheap" },
+  "Moto M Tool|Ativação 1 ano - (Novos Usuários)": { serviceId: 1288, creditos: 15.85, fornecedor: "gsmcheap" },
+  "Moto M Tool|Renovação 1 ano (Usuário Existente)": { serviceId: 1289, creditos: 15.85, fornecedor: "gsmcheap" },
   "Moto M Tool|Créditos (usuário existente)": { serviceId: 1290, creditos: 1.05, fornecedor: "gsmcheap" },
   "Alien Tool|3 meses": { serviceId: 1322, creditos: 20.59, fornecedor: "gsmcheap" },
   "Alien Tool|6 meses": { serviceId: 1323, creditos: 29.1, fornecedor: "gsmcheap" },

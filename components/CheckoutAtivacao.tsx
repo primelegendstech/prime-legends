@@ -148,8 +148,10 @@ export default function CheckoutAtivacao({
   );
 
   const linkWhatsApp = useMemo(() => {
+    const linhaUsername = username ? `\nUsername/HWID: ${username}` : "";
     const linhaSenha = senha ? `\nSenha: ${senha}` : "";
-    const texto = `Olá! Fiz o pagamento da ativação:\n\nFerramenta: ${ferramenta}\nPlano: ${duracao}\nNome: ${nome}\nUsername: ${username}${linhaSenha}\nE-mail: ${email}`;
+    const linhaEmail = email ? `\nE-mail: ${email}` : "";
+    const texto = `Olá! Fiz o pagamento da ativação:\n\nFerramenta: ${ferramenta}\nPlano: ${duracao}\nNome: ${nome}${linhaUsername}${linhaSenha}${linhaEmail}`;
     return `https://wa.me/5581995716227?text=${encodeURIComponent(texto)}`;
   }, [ferramenta, duracao, nome, username, senha, email]);
 
@@ -230,20 +232,24 @@ export default function CheckoutAtivacao({
                 <span className="text-gray-400">Nome:</span>{" "}
                 <span className="text-white font-mono">{nome}</span>
               </p>
-              <p className="break-words">
-                <span className="text-gray-400">Username:</span>{" "}
-                <span className="text-white font-mono">{username}</span>
-              </p>
+              {username && (
+                <p className="break-words">
+                  <span className="text-gray-400">Username/HWID:</span>{" "}
+                  <span className="text-white font-mono">{username}</span>
+                </p>
+              )}
               {senha && (
                 <p className="break-words">
                   <span className="text-gray-400">Senha:</span>{" "}
                   <span className="text-white font-mono">{senha}</span>
                 </p>
               )}
-              <p className="break-words">
-                <span className="text-gray-400">E-mail:</span>{" "}
-                <span className="text-white font-mono">{email}</span>
-              </p>
+              {email && (
+                <p className="break-words">
+                  <span className="text-gray-400">E-mail:</span>{" "}
+                  <span className="text-white font-mono">{email}</span>
+                </p>
+              )}
             </div>
 
             <a

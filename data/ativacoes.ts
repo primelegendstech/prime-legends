@@ -3,11 +3,21 @@
 // e cole no final do array, ajustando os dados. Não precisa mexer em mais
 // nenhum outro arquivo — o site atualiza sozinho.
 
+export type CampoConfig = { label: string } | false; // false = ocultar esse campo nesse plano
+
 export type PlanoAtivacao = {
   nome: string;
   preco: number;
   destaque?: boolean;
   tipo?: "ativacao" | "credito"; // "credito" = recarga p/ usuário já ativo. Se não informar, é tratado como "ativacao".
+  // Por padrão o formulário pede: nome, username (ou senha, se precisaSenha) e email.
+  // Use "campos" pra mudar isso NESSE plano específico: troque o rótulo do campo
+  // (ex: username → "HWID") ou oculte um campo passando false.
+  campos?: {
+    username?: CampoConfig;
+    senha?: CampoConfig;
+    email?: CampoConfig;
+  };
 };
 
 export type Ativacao = {
@@ -84,9 +94,25 @@ export const ativacoes: Ativacao[] = [
       download: "https://motopatchfirm.nyc3.cdn.digitaloceanspaces.com/App-Updates/Moto-M%20Tool%20Setup.exe",
     },
     video: "",
-    obs: "Ativação nova: informe o HWID do aparelho no campo de usuário abaixo. Renovação ou compra de créditos (usuário já cadastrado): informe o e-mail cadastrado na ferramenta.",
+    obs: "Ativação nova: informe o HWID do aparelho. Renovação ou compra de créditos (usuário já cadastrado): informe o e-mail cadastrado na ferramenta.",
     planos: [
-      { nome: "Ativação/Renovação 1 ano", preco: 109.9, destaque: true },
+      {
+        nome: "Ativação 1 ano - (Novos Usuários)",
+        preco: 109.9,
+        destaque: true,
+        campos: {
+          username: { label: "HWID do aparelho" },
+          email: false,
+        },
+      },
+      {
+        nome: "Renovação 1 ano (Usuário Existente)",
+        preco: 109.9,
+        campos: {
+          username: false,
+          email: { label: "E-mail cadastrado na Moto M Tool" },
+        },
+      },
       { nome: "Créditos (usuário existente)", preco: 7.48, tipo: "credito" },
     ],
   },

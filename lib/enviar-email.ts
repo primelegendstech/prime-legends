@@ -138,9 +138,9 @@ export async function enviarEmailNotificacaoAtivacao(params: {
       <tr><td><strong>Plano:</strong></td><td>${duracao}</td></tr>
       <tr><td><strong>Valor:</strong></td><td>R$ ${preco.toFixed(2).replace(".", ",")}</td></tr>
       <tr><td><strong>Nome do cliente:</strong></td><td>${nome}</td></tr>
-      <tr><td><strong>Username na ferramenta:</strong></td><td>${username}</td></tr>
+      ${username ? `<tr><td><strong>Username/HWID:</strong></td><td>${username}</td></tr>` : ""}
       ${senha ? `<tr><td><strong>Senha na ferramenta:</strong></td><td>${senha}</td></tr>` : ""}
-      <tr><td><strong>E-mail do cliente:</strong></td><td>${email}</td></tr>
+      ${email ? `<tr><td><strong>E-mail do cliente:</strong></td><td>${email}</td></tr>` : ""}
     </table>
     <p>Pagamento confirmado pelo Mercado Pago — pode ativar direto na ferramenta.</p>
   `;

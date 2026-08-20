@@ -17,20 +17,27 @@ export default function DetalheAtivacaoModal({ ativacao, plano, onFechar, onAtiv
   const [email, setEmail] = useState("");
   const [erro, setErro] = useState<string | null>(null);
 
-  function confirmar() {
-    const precisaSenha = ativacao.precisaSenha === true;
+  const campos = plano.campos ?? {};
+  const mostrarUsername = campos.username !== false;
+  const usernameLabel =
+    campos.username && campos.username !== false
+      ? campos.username.label
+      : `Username cadastrado no ${ativacao.nome}`;
+  const mostrarSenha = ativacao.precisaSenha === true && campos.senha !== false;
+  const senhaLabel =
+    campos.senha && campos.senha !== false ? campos.senha.label : `Senha cadastrada no ${ativacao.nome}`;
+  const mostrarEmail = campos.email !== false;
+  const emailLabel =
+    campos.email && campos.email !== false ? campos.email.label : "E-mail cadastrado na ferramenta";
 
+  function confirmar() {
     if (
       nome.trim() === "" ||
-      username.trim() === "" ||
-      email.trim() === "" ||
-      (precisaSenha && senha.trim() === "")
+      (mostrarUsername && username.trim() === "") ||
+      (mostrarEmail && email.trim() === "") ||
+      (mostrarSenha && senha.trim() === "")
     ) {
-      setErro(
-        precisaSenha
-          ? "Preencha nome, username, senha e e-mail cadastrados na ferramenta antes de continuar."
-          : "Preencha nome, username e e-mail cadastrados na ferramenta antes de continuar."
-      );
+      setErro("Preencha todos os campos antes de continuar.");
       return;
     }
     setErro(null);
@@ -129,29 +136,33 @@ export default function DetalheAtivacaoModal({ ativacao, plano, onFechar, onAtiv
               onChange={(e) => setNome(e.target.value)}
               className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
             />
-            <input
-              type="text"
-              placeholder={`Username cadastrado no ${ativacao.nome}`}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-            />
-            {ativacao.precisaSenha && (
+            {mostrarUsername && (
               <input
                 type="text"
-                placeholder={`Senha cadastrada no ${ativacao.nome}`}
+                placeholder={usernameLabel}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+              />
+            )}
+            {mostrarSenha && (
+              <input
+                type="text"
+                placeholder={senhaLabel}
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
               />
             )}
-            <input
-              type="email"
-              placeholder="E-mail cadastrado na ferramenta"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
-            />
+            {mostrarEmail && (
+              <input
+                type="email"
+                placeholder={emailLabel}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+              />
+            )}
           </div>
           {erro && <p className="text-red-400 text-xs mt-2">{erro}</p>}
         </div>
