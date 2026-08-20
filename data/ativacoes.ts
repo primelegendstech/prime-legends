@@ -7,6 +7,7 @@ export type PlanoAtivacao = {
   nome: string;
   preco: number;
   destaque?: boolean;
+  tipo?: "ativacao" | "credito"; // "credito" = recarga p/ usuário já ativo. Se não informar, é tratado como "ativacao".
 };
 
 export type Ativacao = {
@@ -14,9 +15,9 @@ export type Ativacao = {
   badge?: string;
   imagens: string[];
   links: {
-    modelos: string;
+    modelos?: string;
     download: string;
-    registro: string;
+    registro?: string;
   };
   video?: string; // link do YouTube (ex: "https://www.youtube.com/embed/XXXXXXXX")
   obs?: string; // mensagem personalizada exibida na tela de detalhe
@@ -76,4 +77,34 @@ export const ativacoes: Ativacao[] = [
       // { nome: "1 ano (Premium)", preco: 964.9 },
     ],
   },
+  {
+    nome: "Moto M Tool",
+    imagens: ["/laptops/moto-m-tool-1.webp"],
+    links: {
+      download: "https://motopatchfirm.nyc3.cdn.digitaloceanspaces.com/App-Updates/Moto-M%20Tool%20Setup.exe",
+    },
+    video: "",
+    obs: "Ativação nova: informe o HWID do aparelho no campo de usuário abaixo. Renovação ou compra de créditos (usuário já cadastrado): informe o e-mail cadastrado na ferramenta.",
+    planos: [
+      { nome: "Ativação/Renovação 1 ano", preco: 109.9, destaque: true },
+      { nome: "Créditos (usuário existente)", preco: 7.48, tipo: "credito" },
+    ],
+  },
+  {
+    nome: "Alien Tool",
+    imagens: ["/laptops/alien-tool-1.webp"],
+    links: {
+      modelos: "URL_MODELOS_ALIEN_TOOL",
+      download: "https://alientool.app/",
+      registro: "URL_REGISTRO_ALIEN_TOOL",
+    },
+    video: "",
+    obs: "Antes de ativar, você precisa ter uma conta criada no site oficial do Alien Tool. A ativação é feita no e-mail cadastrado na ferramenta — confira se está correto antes de pagar.",
+    planos: [
+      { nome: "3 meses", preco: 121.54 },
+      { nome: "6 meses", preco: 164.9, destaque: true },
+      { nome: "12 meses", preco: 217.2, destaque: true },
+    ],
+  },
 ];
+

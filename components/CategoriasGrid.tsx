@@ -18,7 +18,7 @@ const categorias: Categoria[] = [
     href: "/alugueis",
   },
   {
-    nome: "Ativação de Licença",
+    nome: "Licenças • Créditos",
     descricao: "Licenças de ferramentas profissionais",
     emoji: "🛒",
     href: "/ativacao",

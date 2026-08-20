@@ -78,14 +78,16 @@ export default function DetalheAtivacaoModal({ ativacao, plano, onFechar, onAtiv
         )}
 
         <div className="flex flex-wrap gap-4 mb-5 text-sm">
-          <a
-            href={ativacao.links.modelos}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-yellow-400 hover:text-yellow-300 transition"
-          >
-            📋 Ver modelos suportados ➤
-          </a>
+          {ativacao.links.modelos && (
+            <a
+              href={ativacao.links.modelos}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-yellow-400 hover:text-yellow-300 transition"
+            >
+              📋 Ver modelos suportados ➤
+            </a>
+          )}
           <a
             href={ativacao.links.download}
             target="_blank"
@@ -94,14 +96,16 @@ export default function DetalheAtivacaoModal({ ativacao, plano, onFechar, onAtiv
           >
             ⬇️ Baixar {ativacao.nome} ➤
           </a>
-          <a
-            href={ativacao.links.registro}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-yellow-400 hover:text-yellow-300 transition"
-          >
-            📝 Registre-se ➤
-          </a>
+          {ativacao.links.registro && (
+            <a
+              href={ativacao.links.registro}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-yellow-400 hover:text-yellow-300 transition"
+            >
+              📝 Registre-se ➤
+            </a>
+          )}
         </div>
 
         {ativacao.obs && (

@@ -47,7 +47,7 @@ const itens: Item[] = [
     href: "/alugueis",
   },
   {
-    nome: "Ativação de Licença",
+    nome: "Licenças • Créditos",
     descricao: "Licenças de 3, 6 ou 12 meses",
     imagem: "/laptops/unlocktool-1-thumb.webp",
     tag: "Minutos",

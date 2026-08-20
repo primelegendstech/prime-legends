@@ -17,7 +17,7 @@ type Listagem = {
   plano: PlanoAtivacao;
 };
 
-type Filtro = "todos" | "barato";
+type Filtro = "todos" | "ativacao" | "credito" | "barato";
 
 export default function AtivacoesContent() {
   const [busca, setBusca] = useState("");
@@ -49,6 +49,14 @@ export default function AtivacoesContent() {
       );
     }
 
+    if (filtro === "ativacao") {
+      resultado = resultado.filter((l) => (l.plano.tipo ?? "ativacao") === "ativacao");
+    }
+
+    if (filtro === "credito") {
+      resultado = resultado.filter((l) => l.plano.tipo === "credito");
+    }
+
     if (filtro === "barato") {
       resultado = [...resultado].sort((a, b) => a.plano.preco - b.plano.preco);
     }
@@ -58,6 +66,8 @@ export default function AtivacoesContent() {
 
   const chips: { key: Filtro; label: string }[] = [
     { key: "todos", label: "Todos" },
+    { key: "ativacao", label: "🔑 Ativação" },
+    { key: "credito", label: "💳 Créditos" },
     { key: "barato", label: "💰 Mais baratos" },
   ];
 
@@ -87,9 +97,9 @@ export default function AtivacoesContent() {
             <span className="w-1.5 h-6 bg-yellow-400 rounded-full" />
             <div>
               <h2 className="text-xl md:text-2xl font-bold text-white">
-                ATIVAÇÃO <span className="text-yellow-400 italic">DE LICENÇA</span>
+                LICENÇAS <span className="text-yellow-400 italic">• CRÉDITOS</span>
               </h2>
-              <p className="text-xs text-gray-500 mt-1">Início › Ativação de Licença</p>
+              <p className="text-xs text-gray-500 mt-1">Início › Licenças • Créditos</p>
             </div>
           </div>
 
