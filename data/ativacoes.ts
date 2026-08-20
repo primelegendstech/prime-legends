@@ -59,11 +59,11 @@ export const ativacoes: Ativacao[] = [
   },
   {
     nome: "Chimera Tool",
-    imagens: ["/logo.png"], // TROCAR: suba uma imagem real em /public/laptops/chimera-1.png e ajuste aqui
+    imagens: ["/laptops/chimera-1.webp"], // suba o arquivo em public/laptops/chimera-1.png (veja instruções)
     links: {
-      modelos: "URL_MODELOS_CHIMERA",
-      download: "URL_DOWNLOAD_CHIMERA",
-      registro: "URL_REGISTRO_CHIMERA",
+      modelos: "https://chimeratool.com/en/models",
+      download: "https://chimeratool.com/en/download",
+      registro: "https://chimeratool.com/en/signup",
     },
     video: "",
     obs: "Antes de ativar, você precisa ter uma conta criada no site oficial do Chimera Tool. A ativação é feita no username e senha informados abaixo — confira se estão corretos antes de pagar.",
