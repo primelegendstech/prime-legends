@@ -118,9 +118,10 @@ export async function enviarEmailNotificacaoAtivacao(params: {
   preco: number;
   nome: string;
   username: string;
+  senha?: string;
   email: string;
 }) {
-  const { ferramenta, duracao, preco, nome, username, email } = params;
+  const { ferramenta, duracao, preco, nome, username, senha, email } = params;
 
   if (!process.env.RESEND_API_KEY) {
     console.error("[email] RESEND_API_KEY não configurada, pulando notificação de ativação");
@@ -138,6 +139,7 @@ export async function enviarEmailNotificacaoAtivacao(params: {
       <tr><td><strong>Valor:</strong></td><td>R$ ${preco.toFixed(2).replace(".", ",")}</td></tr>
       <tr><td><strong>Nome do cliente:</strong></td><td>${nome}</td></tr>
       <tr><td><strong>Username na ferramenta:</strong></td><td>${username}</td></tr>
+      ${senha ? `<tr><td><strong>Senha na ferramenta:</strong></td><td>${senha}</td></tr>` : ""}
       <tr><td><strong>E-mail do cliente:</strong></td><td>${email}</td></tr>
     </table>
     <p>Pagamento confirmado pelo Mercado Pago — pode ativar direto na ferramenta.</p>

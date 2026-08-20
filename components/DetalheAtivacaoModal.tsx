@@ -7,22 +7,34 @@ type Props = {
   ativacao: Ativacao;
   plano: PlanoAtivacao;
   onFechar: () => void;
-  onAtivar: (dados: { nome: string; username: string; email: string }) => void;
+  onAtivar: (dados: { nome: string; username: string; senha: string; email: string }) => void;
 };
 
 export default function DetalheAtivacaoModal({ ativacao, plano, onFechar, onAtivar }: Props) {
   const [nome, setNome] = useState("");
   const [username, setUsername] = useState("");
+  const [senha, setSenha] = useState("");
   const [email, setEmail] = useState("");
   const [erro, setErro] = useState<string | null>(null);
 
   function confirmar() {
-    if (nome.trim() === "" || username.trim() === "" || email.trim() === "") {
-      setErro("Preencha nome, username e e-mail cadastrados na ferramenta antes de continuar.");
+    const precisaSenha = ativacao.precisaSenha === true;
+
+    if (
+      nome.trim() === "" ||
+      username.trim() === "" ||
+      email.trim() === "" ||
+      (precisaSenha && senha.trim() === "")
+    ) {
+      setErro(
+        precisaSenha
+          ? "Preencha nome, username, senha e e-mail cadastrados na ferramenta antes de continuar."
+          : "Preencha nome, username e e-mail cadastrados na ferramenta antes de continuar."
+      );
       return;
     }
     setErro(null);
-    onAtivar({ nome: nome.trim(), username: username.trim(), email: email.trim() });
+    onAtivar({ nome: nome.trim(), username: username.trim(), senha: senha.trim(), email: email.trim() });
   }
 
   return (
@@ -120,6 +132,15 @@ export default function DetalheAtivacaoModal({ ativacao, plano, onFechar, onAtiv
               onChange={(e) => setUsername(e.target.value)}
               className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
             />
+            {ativacao.precisaSenha && (
+              <input
+                type="text"
+                placeholder={`Senha cadastrada no ${ativacao.nome}`}
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                className="bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-yellow-400"
+              />
+            )}
             <input
               type="email"
               placeholder="E-mail cadastrado na ferramenta"

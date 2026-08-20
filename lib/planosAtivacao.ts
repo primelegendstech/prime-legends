@@ -5,4 +5,7 @@ export const planosAtivacaoValidos: Record<string, number> = {
   "TSM Tool|3 meses": 149.9,
   "TSM Tool|6 meses": 199.9,
   "TSM Tool|12 meses": 254.9,
+  "Chimera Tool|1 ano (Basic)": 509.9,
+  "Chimera Tool|1 ano (Professional)": 768.9,
+  // "Chimera Tool|1 ano (Premium)": 964.9, // sem estoque no fornecedor por enquanto
 };

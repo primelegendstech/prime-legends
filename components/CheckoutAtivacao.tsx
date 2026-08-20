@@ -34,6 +34,7 @@ type Props = {
   preco: number;
   nome: string;
   username: string;
+  senha?: string;
   email: string;
   onFechar: () => void;
 };
@@ -44,6 +45,7 @@ export default function CheckoutAtivacao({
   preco,
   nome,
   username,
+  senha,
   email,
   onFechar,
 }: Props) {
@@ -88,7 +90,7 @@ export default function CheckoutAtivacao({
         const resp = await fetch("/api/pagamento-ativacao", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...formData, ferramenta, duracao, nome, username, email }),
+          body: JSON.stringify({ ...formData, ferramenta, duracao, nome, username, senha, email }),
         });
         const dados = await resp.json();
 
@@ -122,7 +124,7 @@ export default function CheckoutAtivacao({
         setMensagemErro("Erro ao processar pagamento.");
       }
     },
-    [ferramenta, duracao, nome, username, email]
+    [ferramenta, duracao, nome, username, senha, email]
   );
 
   const aoDarErro = useCallback((erro: any) => {
@@ -146,9 +148,10 @@ export default function CheckoutAtivacao({
   );
 
   const linkWhatsApp = useMemo(() => {
-    const texto = `Olá! Fiz o pagamento da ativação:\n\nFerramenta: ${ferramenta}\nPlano: ${duracao}\nNome: ${nome}\nUsername: ${username}\nE-mail: ${email}`;
+    const linhaSenha = senha ? `\nSenha: ${senha}` : "";
+    const texto = `Olá! Fiz o pagamento da ativação:\n\nFerramenta: ${ferramenta}\nPlano: ${duracao}\nNome: ${nome}\nUsername: ${username}${linhaSenha}\nE-mail: ${email}`;
     return `https://wa.me/5581995716227?text=${encodeURIComponent(texto)}`;
-  }, [ferramenta, duracao, nome, username, email]);
+  }, [ferramenta, duracao, nome, username, senha, email]);
 
   function copiarCodigoPix() {
     if (!qrCode) return;
@@ -231,6 +234,12 @@ export default function CheckoutAtivacao({
                 <span className="text-gray-400">Username:</span>{" "}
                 <span className="text-white font-mono">{username}</span>
               </p>
+              {senha && (
+                <p className="break-words">
+                  <span className="text-gray-400">Senha:</span>{" "}
+                  <span className="text-white font-mono">{senha}</span>
+                </p>
+              )}
               <p className="break-words">
                 <span className="text-gray-400">E-mail:</span>{" "}
                 <span className="text-white font-mono">{email}</span>

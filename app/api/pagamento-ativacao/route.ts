@@ -11,7 +11,7 @@ const client = new MercadoPagoConfig({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { ferramenta, duracao, nome, username, email, ...formData } = body;
+    const { ferramenta, duracao, nome, username, senha, email, ...formData } = body;
 
     if (!ferramenta || !duracao || !nome || !username || !email) {
       return NextResponse.json({ erro: "Dados do plano ou do cliente ausentes" }, { status: 400 });
@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       preco,
       nome,
       username,
+      senha: senha || null,
       email,
     });
 

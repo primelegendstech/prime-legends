@@ -20,6 +20,7 @@ export type Ativacao = {
   };
   video?: string; // link do YouTube (ex: "https://www.youtube.com/embed/XXXXXXXX")
   obs?: string; // mensagem personalizada exibida na tela de detalhe
+  precisaSenha?: boolean; // true = pede senha além de username (ex: Chimera Tool)
   planos: PlanoAtivacao[];
 };
 
@@ -54,6 +55,25 @@ export const ativacoes: Ativacao[] = [
       { nome: "3 meses", preco: 149.9 },
       { nome: "6 meses", preco: 199.9, destaque: true },
       { nome: "12 meses", preco: 254.9, destaque: true },
+    ],
+  },
+  {
+    nome: "Chimera Tool",
+    imagens: ["/logo.png"], // TROCAR: suba uma imagem real em /public/laptops/chimera-1.png e ajuste aqui
+    links: {
+      modelos: "URL_MODELOS_CHIMERA",
+      download: "URL_DOWNLOAD_CHIMERA",
+      registro: "URL_REGISTRO_CHIMERA",
+    },
+    video: "",
+    obs: "Antes de ativar, você precisa ter uma conta criada no site oficial do Chimera Tool. A ativação é feita no username e senha informados abaixo — confira se estão corretos antes de pagar.",
+    precisaSenha: true,
+    planos: [
+      { nome: "1 ano (Basic)", preco: 509.9 },
+      { nome: "1 ano (Professional)", preco: 768.9, destaque: true },
+      // Plano Premium fica de fora por enquanto: fornecedor (GSM Cheap) está
+      // sem estoque nesse serviço (MAXQNT 0). Reative quando voltar:
+      // { nome: "1 ano (Premium)", preco: 964.9 },
     ],
   },
 ];

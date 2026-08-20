@@ -80,6 +80,7 @@ export async function processarEntregaAtivacao(paymentId: string) {
     preco: checkout.preco,
     nome: checkout.nome,
     username: checkout.username,
+    senha: checkout.senha ?? undefined,
     email: checkout.email,
   });
 

@@ -10,4 +10,7 @@ export const mapaServicos: Record<
   "AMT Tool|12 horas": { serviceId: 1121, creditos: 0.78, fornecedor: "gsmcheap" },
   "Samsung Tool|12 horas": { serviceId: 1061, creditos: 2.5, fornecedor: "gsmcheap" },
   "Griffin-Unlocker|6 horas": { serviceId: 271, creditos: 1.2, fornecedor: "gsmcheap" },
+  "Chimera Tool (Basic)|1 ano": { serviceId: 29, creditos: 96, fornecedor: "gsmcheap" },
+  "Chimera Tool (Professional)|1 ano": { serviceId: 31, creditos: 144, fornecedor: "gsmcheap" },
+  // "Chimera Tool (Premium)|1 ano": { serviceId: 30, creditos: 181, fornecedor: "gsmcheap" }, // indisponível no fornecedor (MAXQNT 0) — deixei comentado, ativar quando voltar estoque
 };

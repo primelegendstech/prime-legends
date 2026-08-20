@@ -29,6 +29,7 @@ export default function AtivacoesContent() {
     preco: number;
     nomeCliente: string;
     username: string;
+    senha: string;
     email: string;
   } | null>(null);
 
@@ -60,18 +61,19 @@ export default function AtivacoesContent() {
     { key: "barato", label: "💰 Mais baratos" },
   ];
 
-  function abrirCheckoutDireto(l: Listagem, dados: { nome: string; username: string; email: string }) {
+  function abrirCheckoutDireto(l: Listagem, dados: { nome: string; username: string; senha: string; email: string }) {
     setPlanoSelecionado({
       ferramenta: l.ativacao.nome,
       nome: l.plano.nome,
       preco: l.plano.preco,
       nomeCliente: dados.nome,
       username: dados.username,
+      senha: dados.senha,
       email: dados.email,
     });
   }
 
-  function confirmarAtivacaoDoModal(dados: { nome: string; username: string; email: string }) {
+  function confirmarAtivacaoDoModal(dados: { nome: string; username: string; senha: string; email: string }) {
     if (!detalheAberto) return;
     abrirCheckoutDireto(detalheAberto, dados);
     setDetalheAberto(null);
@@ -201,6 +203,7 @@ export default function AtivacoesContent() {
           preco={planoSelecionado.preco}
           nome={planoSelecionado.nomeCliente}
           username={planoSelecionado.username}
+          senha={planoSelecionado.senha}
           email={planoSelecionado.email}
           onFechar={() => setPlanoSelecionado(null)}
         />
