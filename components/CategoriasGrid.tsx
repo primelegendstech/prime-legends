@@ -44,13 +44,6 @@ const categorias: Categoria[] = [
     href: "https://wa.me/5581995716227?text=Ol%C3%A1!%20Tenho%20interesse%20em%20consulta%20de%20IMEI.%20Podem%20me%20passar%20mais%20informa%C3%A7%C3%B5es%3F",
     externo: true,
   },
-  {
-    nome: "Créditos de Servidor",
-    descricao: "Recarga de créditos para painéis e servidores",
-    emoji: "💳",
-    href: "https://wa.me/5581995716227?text=Ol%C3%A1!%20Tenho%20interesse%20em%20cr%C3%A9ditos%20de%20servidor.%20Podem%20me%20passar%20mais%20informa%C3%A7%C3%B5es%3F",
-    externo: true,
-  },
 ];
 
 export default function CategoriasGrid() {

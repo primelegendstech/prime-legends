@@ -65,7 +65,6 @@ export default function Header() {
     { emoji: "🔓", label: "Serviços de IMEI", href: "https://wa.me/5581995716227?text=Ol%C3%A1!%20Tenho%20interesse%20em%20servi%C3%A7os%20de%20IMEI.", externo: true },
     { emoji: "🔑", label: "Licenças • Créditos", href: "/ativacao" },
     { emoji: "🕐", label: "Aluguel de Ferramentas", href: "/alugueis" },
-    { emoji: "💳", label: "Créditos de Servidor", href: "https://wa.me/5581995716227?text=Ol%C3%A1!%20Tenho%20interesse%20em%20cr%C3%A9ditos%20de%20servidor.", externo: true },
   ];
 
   const mais = [
