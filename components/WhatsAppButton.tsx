@@ -8,7 +8,7 @@ export default function WhatsAppButton() {
       aria-label="Falar no WhatsApp"
     >
       <img
-        src="/whatsapp-icon.png"
+        src="/whatsapp-icon.webp"
         alt="WhatsApp"
         className="w-24 h-24 object-contain"
       />

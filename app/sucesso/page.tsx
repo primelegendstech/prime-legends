@@ -116,7 +116,7 @@ function ConteudoSucesso() {
     <main className="min-h-screen bg-[#0B0B0B] text-white flex items-center justify-center px-6">
       <div className="max-w-md w-full bg-white/[0.03] border border-yellow-500/20 rounded-2xl p-8 text-center">
         <div className="flex items-center justify-center gap-2 mb-6">
-          <img src="/logo.png" alt="Prime Legends GSM" className="w-8 h-8 object-contain" />
+          <img src="/logo.webp" alt="Prime Legends GSM" className="w-8 h-8 object-contain" />
           <span className="bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent font-black tracking-wide text-sm">
             PRIME LEGENDS GSM
           </span>

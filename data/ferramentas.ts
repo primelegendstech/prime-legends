@@ -26,7 +26,7 @@ export type Ferramenta = {
 export const ferramentas: Ferramenta[] = [
   {
     nome: "UnlockTool",
-    imagens: ["/laptops/unlocktool-1.png", "/laptops/unlocktool-2.png"],
+    imagens: ["/laptops/unlocktool-1.webp", "/laptops/unlocktool-2.webp"],
     links: {
       modelos: "https://unlocktool.net/models/",
       download: "https://file.unlocktool.net/",
@@ -42,7 +42,7 @@ export const ferramentas: Ferramenta[] = [
   },
   {
     nome: "TSM Tool",
-    imagens: ["/laptops/tsm-1.png", "/laptops/tsm-2.png"],
+    imagens: ["/laptops/tsm-1.webp", "/laptops/tsm-2.webp"],
     links: {
       modelos: "https://tsm-tool.com/SupportedModels",
       download: "https://tsm-tool.com/download",
@@ -58,7 +58,7 @@ export const ferramentas: Ferramenta[] = [
   },
   {
     nome: "AMT Tool",
-    imagens: ["/laptops/amt-1.png", "/laptops/amt-2.png"],
+    imagens: ["/laptops/amt-1.webp", "/laptops/amt-2.webp"],
     links: {
       modelos: "https://androidmultitool.com/supported_models/",
       download: "https://androidmultitool.com/",
@@ -75,7 +75,7 @@ export const ferramentas: Ferramenta[] = [
   {
     nome: "Samsung Tool",
     badge: "CellTool",
-    imagens: ["/laptops/samsung-1.png", "/laptops/samsung-2.png"],
+    imagens: ["/laptops/samsung-1.webp", "/laptops/samsung-2.webp"],
     links: {
       modelos: "https://celltool.io/qcsupportmodel",
       download: "https://celltool.io/",
@@ -91,7 +91,7 @@ export const ferramentas: Ferramenta[] = [
   },
   {
     nome: "Griffin-Unlocker",
-    imagens: ["/laptops/griffin-1.png", "/laptops/griffin-2.png"],
+    imagens: ["/laptops/griffin-1.webp", "/laptops/griffin-2.webp"],
     links: {
       modelos: "https://griffin-unlocker.com/models.html",
       download: "https://griffin-unlocker.com/download.html",

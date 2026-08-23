@@ -92,7 +92,7 @@ export default function Header() {
           className="flex items-center gap-2 md:gap-2.5 font-black tracking-widest text-sm group"
         >
           <img
-            src="/logo.png"
+            src="/logo.webp"
             alt="Prime Legends Tech"
             className="w-9 h-9 md:w-11 md:h-11 object-contain transition-transform duration-300 group-hover:scale-105"
           />
