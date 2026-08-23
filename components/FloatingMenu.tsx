@@ -76,21 +76,29 @@ export default function FloatingMenu() {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3">
       {itens.map((item, i) => (
-        <a
+        <div
           key={item.label}
-          href={item.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={item.label}
-          className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 ${item.cor} ${
+          className={`group relative transition-all duration-300 ${
             aberto
               ? "opacity-100 translate-y-0 pointer-events-auto"
               : "opacity-0 translate-y-4 pointer-events-none"
           }`}
           style={{ transitionDelay: aberto ? `${i * 50}ms` : "0ms" }}
         >
-          {item.icone}
-        </a>
+          <span className="pointer-events-none absolute right-full top-1/2 mr-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-black/90 border border-yellow-500/30 px-3 py-1.5 text-xs font-semibold text-yellow-400 opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
+            {item.label}
+          </span>
+
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={item.label}
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 ${item.cor}`}
+          >
+            {item.icone}
+          </a>
+        </div>
       ))}
 
       <button
