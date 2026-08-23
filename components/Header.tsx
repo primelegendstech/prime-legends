@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useIdioma } from "@/context/LanguageContext";
+import { createClient } from "@/lib/supabase-browser";
+import type { User } from "@supabase/supabase-js";
 
 const textos = {
   pt: {
@@ -20,6 +22,7 @@ const textos = {
     mensagemMdm:
       "Olá! Tenho interesse nos arquivos MDM/PayJoy. Podem me passar mais informações?",
     entrar: "Entrar",
+    minhaConta: "Minha Conta",
   },
   en: {
     inicio: "Home",
@@ -36,6 +39,7 @@ const textos = {
     mensagemMdm:
       "Hi! I'm interested in the MDM/PayJoy files. Could you send me more information?",
     entrar: "Sign in",
+    minhaConta: "My Account",
   },
 };
 
@@ -43,10 +47,23 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicosOpen, setServicosOpen] = useState(false);
   const [maisOpen, setMaisOpen] = useState(false);
+  const [usuario, setUsuario] = useState<User | null>(null);
   const { idioma, trocarIdioma } = useIdioma();
   const t = textos[idioma];
   const servicosRef = useRef<HTMLDivElement>(null);
   const maisRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase.auth.getUser().then(({ data }) => setUsuario(data.user));
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUsuario(session?.user ?? null);
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     function fecharAoClicarFora(e: MouseEvent) {
@@ -222,10 +239,13 @@ export default function Header() {
           </div>
 
           <Link
-            href="/entrar"
+            href={usuario ? "/minha-conta" : "/entrar"}
             className="flex items-center gap-1.5 uppercase text-gray-300 hover:text-yellow-400 text-sm font-semibold transition whitespace-nowrap"
           >
-            👤 <span className="hidden lg:inline">{t.entrar}</span>
+            👤{" "}
+            <span className="hidden lg:inline">
+              {usuario ? t.minhaConta : t.entrar}
+            </span>
           </Link>
         </nav>
 
@@ -325,11 +345,11 @@ export default function Header() {
           </div>
 
           <a
-            href="/entrar"
+            href={usuario ? "/minha-conta" : "/entrar"}
             className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
             onClick={() => setMenuOpen(false)}
           >
-            👤 {t.entrar}
+            👤 {usuario ? t.minhaConta : t.entrar}
           </a>
         </nav>
       )}

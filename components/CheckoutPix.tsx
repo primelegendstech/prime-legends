@@ -256,6 +256,17 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
               {emailCliente.length > 0 && !emailValido && (
                 <p className="text-red-400 text-xs mt-1">Digite um e-mail válido.</p>
               )}
+              <p className="text-zinc-500 text-[11px] mt-2">
+                Já tem conta?{" "}
+                <a href="/entrar" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline">
+                  Entrar
+                </a>{" "}
+                para usar seu saldo, ou{" "}
+                <a href="/cadastro" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline">
+                  crie uma conta
+                </a>{" "}
+                (opcional) pra guardar seu histórico de pedidos.
+              </p>
             </div>
 
             {emailValido ? (

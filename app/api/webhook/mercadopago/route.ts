@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { processarEntrega } from "@/lib/processar-entrega";
 import { processarEntregaAtivacao } from "@/lib/processar-entrega-ativacao";
+import { processarEntregaCarteira } from "@/lib/processar-entrega-carteira";
 
 // Mesmo motivo do /api/entregar: dá folga suficiente pro fluxo completo
 // (Mercado Pago + GSM Cheap) rodar sem ser cortado no meio do caminho.
@@ -20,7 +21,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ recebido: true }, { status: 200 });
     }
 
-    // Primeiro checa se é um pagamento de Ativação de Licença — se for, já dispara
+    // Primeiro checa se é um depósito de saldo na carteira
+    const resultadoCarteira = await processarEntregaCarteira(String(paymentId));
+
+    if (resultadoCarteira.encontrado) {
+      return NextResponse.json({ recebido: true }, { status: 200 });
+    }
+
+    // Depois checa se é um pagamento de Ativação de Licença — se for, já dispara
     // o e-mail automático pra você e para por aqui, sem tentar o fluxo de aluguel.
     const resultadoAtivacao = await processarEntregaAtivacao(String(paymentId));
 
