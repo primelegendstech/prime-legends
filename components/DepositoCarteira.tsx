@@ -17,7 +17,7 @@ const PaymentBrick = memo(function PaymentBrick({
   return (
     <Payment
       initialization={initialization}
-      customization={{ paymentMethods: { bankTransfer: "all", creditCard: "none", debitCard: "none" } }}
+      customization={{ paymentMethods: { bankTransfer: "all", } }}
       onSubmit={onSubmit}
       onError={onError}
     />
