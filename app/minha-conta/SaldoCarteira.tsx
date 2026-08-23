@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import DepositoCarteira from "./DepositoCarteira";
+import DepositoCarteira from "@/components/DepositoCarteira";
 
 function formatarReais(centavos: number) {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
