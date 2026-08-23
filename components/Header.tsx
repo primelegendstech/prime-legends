@@ -19,6 +19,7 @@ const textos = {
       "Olá! Tenho interesse no serviço remoto. Podem me passar mais informações?",
     mensagemMdm:
       "Olá! Tenho interesse nos arquivos MDM/PayJoy. Podem me passar mais informações?",
+    entrar: "Entrar",
   },
   en: {
     inicio: "Home",
@@ -34,6 +35,7 @@ const textos = {
       "Hi! I'm interested in the remote service. Could you send me more information?",
     mensagemMdm:
       "Hi! I'm interested in the MDM/PayJoy files. Could you send me more information?",
+    entrar: "Sign in",
   },
 };
 
@@ -218,6 +220,13 @@ export default function Header() {
               EN
             </button>
           </div>
+
+          <Link
+            href="/entrar"
+            className="flex items-center gap-1.5 uppercase text-gray-300 hover:text-yellow-400 text-sm font-semibold transition"
+          >
+            👤 {t.entrar}
+          </Link>
         </nav>
 
         <button
@@ -314,6 +323,14 @@ export default function Header() {
               EN
             </button>
           </div>
+
+          <a
+            href="/entrar"
+            className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
+            onClick={() => setMenuOpen(false)}
+          >
+            👤 {t.entrar}
+          </a>
         </nav>
       )}
     </header>
