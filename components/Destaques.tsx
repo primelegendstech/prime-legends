@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
 type Destaque = {
@@ -15,16 +16,25 @@ const destaques: Destaque[] = [
   { ferramenta: "Samsung Tool", precoDesde: 15, imagem: "/laptops/samsung-1-thumb.webp" },
   { ferramenta: "Griffin-Unlocker", precoDesde: 9, imagem: "/laptops/griffin-1-thumb.webp" },
 ];
-const loop = Array(6).fill(destaques).flat();
+const loop = Array(4).fill(destaques).flat();
 
 export default function Destaques() {
+  const [pausado, setPausado] = useState(false);
+
   return (
     <div className="relative w-full overflow-hidden">
       <div className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-20 bg-gradient-to-r from-black/90 to-transparent z-10" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-10 md:w-20 bg-gradient-to-l from-black/90 to-transparent z-10" />
 
-      <div className="group flex overflow-hidden">
-        <div className="flex gap-2.5 md:gap-3 animate-marquee group-hover:[animation-play-state:paused] pl-4 md:pl-16">
+      <div
+        className="flex overflow-hidden"
+        onMouseEnter={() => setPausado(true)}
+        onMouseLeave={() => setPausado(false)}
+      >
+        <div
+          className="flex gap-2.5 md:gap-3 animate-marquee pl-4 md:pl-16"
+          style={{ animationPlayState: pausado ? "paused" : "running" }}
+        >
           {loop.map((item, i) => (
             <Link
               key={`${item.ferramenta}-${i}`}
