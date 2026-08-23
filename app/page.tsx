@@ -6,7 +6,6 @@ import HeroBanner from "@/components/HeroBanner";
 import CircuitGlow from "@/components/CircuitGlow";
 import Services from "@/components/Services";
 import Contact from "@/components/Contact";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import MaisVendidos from "@/components/MaisVendidos";
 import About from "@/components/About";
 import CategoriasGrid from "@/components/CategoriasGrid";
@@ -100,7 +99,6 @@ export default function Home() {
         <About />
         <Services />
         <Contact />
-        <WhatsAppButton />
       </div>
     </main>
   );
