@@ -96,7 +96,7 @@ export default function FloatingMenu() {
       <button
         onClick={() => setAberto((v) => !v)}
         aria-label={aberto ? "Fechar menu" : "Abrir menu"}
-        className="w-14 h-14 rounded-full bg-gradient-to-br from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white shadow-[0_4px_20px_rgba(220,38,38,0.5)] flex items-center justify-center transition-all duration-300 hover:scale-105"
+        className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-black shadow-[0_4px_20px_rgba(251,191,36,0.5)] flex items-center justify-center transition-all duration-300 hover:scale-105"
       >
         <IconeMenu aberto={aberto} />
       </button>
