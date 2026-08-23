@@ -85,7 +85,7 @@ export default function Header() {
 
   return (
     <header className="w-full bg-black/95 backdrop-blur-sm border-b border-yellow-500/30 shadow-[0_2px_20px_rgba(251,191,36,0.08)] fixed top-0 left-0 z-50">
-      <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-2 md:py-2.5">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 px-6 py-2 md:py-2.5">
         <Link
           href="/"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -106,7 +106,7 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-4 lg:gap-5">
           <a href="/" className={linkClass}>
             {t.inicio}
           </a>
@@ -223,9 +223,9 @@ export default function Header() {
 
           <Link
             href="/entrar"
-            className="flex items-center gap-1.5 uppercase text-gray-300 hover:text-yellow-400 text-sm font-semibold transition"
+            className="flex items-center gap-1.5 uppercase text-gray-300 hover:text-yellow-400 text-sm font-semibold transition whitespace-nowrap"
           >
-            👤 {t.entrar}
+            👤 <span className="hidden lg:inline">{t.entrar}</span>
           </Link>
         </nav>
 
