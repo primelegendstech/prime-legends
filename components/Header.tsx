@@ -81,11 +81,11 @@ export default function Header() {
   ];
 
   const linkClass =
-    "relative uppercase text-gray-300 hover:text-yellow-400 text-sm font-semibold transition py-1.5 after:content-[''] after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-gradient-to-r after:from-yellow-300 after:to-amber-500 after:transition-all after:duration-300 hover:after:w-full";
+    "relative uppercase text-gray-300 hover:text-yellow-400 text-[13px] lg:text-sm font-semibold transition py-1.5 after:content-[''] after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-gradient-to-r after:from-yellow-300 after:to-amber-500 after:transition-all after:duration-300 hover:after:w-full";
 
   return (
     <header className="w-full bg-black/95 backdrop-blur-sm border-b border-yellow-500/30 shadow-[0_2px_20px_rgba(251,191,36,0.08)] fixed top-0 left-0 z-50">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 px-6 py-2 md:py-2.5">
+      <div className="max-w-6xl mx-auto flex items-center justify-between gap-10 md:gap-14 px-6 py-2 md:py-2.5">
         <Link
           href="/"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -106,7 +106,7 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-4 lg:gap-5">
+        <nav className="hidden md:flex items-center gap-3 lg:gap-5 text-[13px] lg:text-sm shrink-0">
           <a href="/" className={linkClass}>
             {t.inicio}
           </a>
@@ -119,7 +119,7 @@ export default function Header() {
           <div className="relative" ref={servicosRef}>
             <button
               onClick={() => setServicosOpen((v) => !v)}
-              className={`flex items-center gap-1.5 uppercase text-sm font-semibold transition py-1.5 ${
+              className={`flex items-center gap-1.5 uppercase text-[13px] lg:text-sm font-semibold transition py-1.5 ${
                 servicosOpen ? "text-yellow-400" : "text-gray-300 hover:text-yellow-400"
               }`}
             >
@@ -165,7 +165,7 @@ export default function Header() {
           <div className="relative" ref={maisRef}>
             <button
               onClick={() => setMaisOpen((v) => !v)}
-              className={`flex items-center gap-1.5 uppercase text-sm font-semibold transition py-1.5 ${
+              className={`flex items-center gap-1.5 uppercase text-[13px] lg:text-sm font-semibold transition py-1.5 ${
                 maisOpen ? "text-yellow-400" : "text-gray-300 hover:text-yellow-400"
               }`}
             >
