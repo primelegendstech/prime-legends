@@ -16,12 +16,12 @@ const textos = {
     sobre: "Sobre",
     consultar: "Consultar Pedido",
     menuServicos: "Menu de Serviços",
-    arquivosMdm: "Arquivos MDM/PayJoy",
+    arquivosMdm: "ARQUIVOS ⋮ MÉTODOS",
     mais: "Mais",
     mensagemServico:
       "Olá! Tenho interesse no serviço remoto. Podem me passar mais informações?",
     mensagemMdm:
-      "Olá! Tenho interesse nos arquivos MDM/PayJoy. Podem me passar mais informações?",
+      "Olá! Tenho interesse em arquivos e métodos. Podem me passar mais informações?",
     entrar: "Entrar",
     minhaConta: "Minha Conta",
   },
@@ -33,12 +33,12 @@ const textos = {
     sobre: "About",
     consultar: "Track Order",
     menuServicos: "Services Menu",
-    arquivosMdm: "MDM/PayJoy Files",
+    arquivosMdm: "FILES ⋮ METHODS",
     mais: "More",
     mensagemServico:
       "Hi! I'm interested in the remote service. Could you send me more information?",
     mensagemMdm:
-      "Hi! I'm interested in the MDM/PayJoy files. Could you send me more information?",
+      "Hi! I'm interested in files and methods. Could you send me more information?",
     entrar: "Sign in",
     minhaConta: "My Account",
   },
@@ -103,8 +103,6 @@ export default function Header() {
     document.addEventListener("mousedown", fecharAoClicarFora);
     return () => document.removeEventListener("mousedown", fecharAoClicarFora);
   }, []);
-
-  const arquivosMdmHref = `https://wa.me/5581995716227?text=${encodeURIComponent(t.mensagemMdm)}`;
 
   const servicos = [
     { emoji: "🔓", label: "Serviços de IMEI", href: "https://wa.me/5581995716227?text=Ol%C3%A1!%20Tenho%20interesse%20em%20servi%C3%A7os%20de%20IMEI.", externo: true },
@@ -196,15 +194,11 @@ export default function Header() {
           </div>
 
           <a
-            href={arquivosMdmHref}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/metodos"
             className={linkClass}
           >
             📁 {t.arquivosMdm}
           </a>
-
-          {/* Serviço Remoto + Sobre + Consultar Pedido agrupados em "Mais" */}
           <div className="relative" ref={maisRef}>
             <button
               onClick={() => setMaisOpen((v) => !v)}
@@ -312,9 +306,7 @@ export default function Header() {
           </div>
 
           <a
-            href={arquivosMdmHref}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/metodos"
             className="uppercase text-gray-300 hover:text-yellow-400 text-sm"
             onClick={() => setMenuOpen(false)}
           >

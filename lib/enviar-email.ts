@@ -61,7 +61,55 @@ export async function enviarEmailAcesso(params: {
   }
 }
 
-// Avisa VOCÊ (o admin) por e-mail quando um pedido de ALUGUEL precisa de
+// Envia o e-mail de acesso para um item da aba ARQUIVOS ⋮ MÉTODOS depois do
+// pagamento confirmado: descrição do método, vídeo (se tiver) e link de
+// download temporário (se o item tiver arquivo).
+export async function enviarEmailAcessoMetodo(params: {
+  destinatario: string;
+  nome: string;
+  descricao: string;
+  video?: string;
+  linkDownload: string | null;
+}) {
+  const { destinatario, nome, descricao, video, linkDownload } = params;
+
+  if (!destinatario) {
+    console.log("[email] sem e-mail do cliente, pulando envio");
+    return;
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[email] RESEND_API_KEY não configurada, pulando envio");
+    return;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  const corpoHtml = `
+    <p>Olá!</p>
+    <p>Seu pagamento de <strong>${nome}</strong> foi confirmado.</p>
+    <p>${descricao}</p>
+    ${video ? `<p>Vídeo: <a href="${video.replace("/embed/", "/watch?v=")}">${video.replace("/embed/", "/watch?v=")}</a></p>` : ""}
+    ${
+      linkDownload
+        ? `<p>Link para download (válido por 72h): <a href="${linkDownload}">${linkDownload}</a></p>`
+        : `<p>Não conseguimos gerar o link automaticamente — chama a gente no WhatsApp (https://wa.me/5581995716227) que liberamos na hora.</p>`
+    }
+    <p>Prime Legends GSM</p>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: REMETENTE,
+      to: destinatario,
+      subject: `Seu acesso está pronto - ${nome}`,
+      html: corpoHtml,
+    });
+    console.log(`[email] enviado com sucesso para ${destinatario}`);
+  } catch (erro) {
+    console.error("[email] falha ao enviar:", erro);
+  }
+}
 // atenção manual (falhou de verdade na GSM Cheap, ou ficou processando por
 // tempo demais). Assim você fica sabendo ANTES do cliente reclamar, em vez
 // de descobrir só quando ele manda mensagem irritado.
