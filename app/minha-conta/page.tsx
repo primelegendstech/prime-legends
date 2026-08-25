@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase-server";
 import { supabase as supabaseAdmin } from "@/lib/supabase";
 import LogoutButton from "./logout-button";
 import PainelConta from "./PainelConta";
+import GoldNetworkBackground from "@/components/GoldNetworkBackground";
 
 export default async function MinhaContaPage() {
   const supabase = await createClient();
@@ -83,8 +84,9 @@ export default async function MinhaContaPage() {
   });
 
   return (
-    <main className="min-h-screen bg-black px-4 pt-24 pb-10">
-      <div className="max-w-2xl mx-auto">
+    <main className="relative min-h-screen bg-black px-4 pt-24 pb-10 overflow-hidden">
+      <GoldNetworkBackground />
+      <div className="relative z-10 max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-black text-white mb-1">Olá, {nome}!</h1>

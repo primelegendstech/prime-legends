@@ -380,7 +380,7 @@ export default function Header() {
                 className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
                 onClick={() => setMenuOpen(false)}
               >
-                📊 Dashboard
+                📊 {idioma === "pt" ? "Painel" : "Dashboard"}
               </a>
               <a
                 href="/minha-conta?tab=pedidos"
@@ -395,6 +395,13 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
               >
                 📋 {idioma === "pt" ? "Extrato" : "Statement"}
+              </a>
+              <a
+                href="/minha-conta?tab=depositos"
+                className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
+                onClick={() => setMenuOpen(false)}
+              >
+                💰 {idioma === "pt" ? "Consultar Depósitos" : "Deposits"}
               </a>
               <button
                 onClick={sairMobile}

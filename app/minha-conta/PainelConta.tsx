@@ -22,12 +22,13 @@ type Movimentacao = {
   created_at: string | null;
 };
 
-type Aba = "dashboard" | "pedidos" | "extrato";
+type Aba = "dashboard" | "pedidos" | "extrato" | "depositos";
 
 const ABAS: { id: Aba; label: string; emoji: string }[] = [
-  { id: "dashboard", label: "Dashboard", emoji: "📊" },
+  { id: "dashboard", label: "Painel", emoji: "📊" },
   { id: "pedidos", label: "Meus Pedidos", emoji: "📦" },
   { id: "extrato", label: "Extrato", emoji: "📋" },
+  { id: "depositos", label: "Depósitos", emoji: "💰" },
 ];
 
 export default function PainelConta({
@@ -51,6 +52,11 @@ export default function PainelConta({
     const processando = total - concluidos;
     return { total, concluidos, processando };
   }, [pedidos]);
+
+  const depositos = useMemo(
+    () => movimentacoes.filter((m) => m.tipo === "deposito"),
+    [movimentacoes]
+  );
 
   return (
     <div>
@@ -114,6 +120,13 @@ export default function PainelConta({
         <div>
           <h2 className="text-white font-bold mb-3">Extrato da carteira</h2>
           <ExtratoCarteira movimentacoes={movimentacoes} />
+        </div>
+      )}
+
+      {abaAtiva === "depositos" && (
+        <div>
+          <h2 className="text-white font-bold mb-3">Depósitos realizados</h2>
+          <ExtratoCarteira movimentacoes={depositos} />
         </div>
       )}
     </div>
