@@ -27,7 +27,7 @@ export const metodos: Metodo[] = [
   {
     id: "payjoy-infinix-smart-10",
     nome: "Ferramenta PayJoy — Infinix Smart 10",
-    imagem: "/laptops/samsung-1.png",
+    imagem: "/laptops/payjoy-infinix-smart-10.webp",
     preco: 29.9,
     descricao:
       "Ferramenta para remover PayJoy do Infinix Smart 10.\n\n" +
