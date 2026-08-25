@@ -37,8 +37,8 @@ export default function DetalheServicoModal({ ferramenta, plano, onFechar, onAlu
         </h3>
         <p className="text-gray-400 text-sm mb-5">Aluguel {plano.nome}</p>
 
-        {/* Vídeo, só aparece se tiver link cadastrado */}
-        {ferramenta.video && (
+        {/* Vídeo, só aparece se tiver link cadastrado; senão mostra a imagem da ferramenta */}
+        {ferramenta.video ? (
           <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-5 border border-white/10">
             <iframe
               src={ferramenta.video}
@@ -48,6 +48,16 @@ export default function DetalheServicoModal({ ferramenta, plano, onFechar, onAlu
               allowFullScreen
             />
           </div>
+        ) : (
+          ferramenta.imagens[0] && (
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-5 border border-white/10 bg-gradient-to-br from-zinc-900 to-black">
+              <img
+                src={ferramenta.imagens[0]}
+                alt={ferramenta.nome}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          )
         )}
 
         <div className="flex flex-wrap gap-4 mb-5 text-sm">

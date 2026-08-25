@@ -147,20 +147,20 @@ export default function DepositoCarteira({ onFechar, onSucesso, variante = "moda
             </div>
             <input
               type="number"
-              min={20}
+              min={1}
               step={1}
               value={valor}
               onChange={(e) => setValor(Number(e.target.value))}
               className="w-full rounded-lg bg-black/40 border border-yellow-500/30 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-yellow-400"
             />
-            <p className="text-zinc-600 text-[11px] mt-1">Valor mínimo: R$ 20,00</p>
+            <p className="text-zinc-600 text-[11px] mt-1">Valor mínimo: R$ 1,00</p>
           </div>
 
-          {valor >= 20 ? (
+          {valor >= 1 ? (
             <PaymentBrick initialization={initialization} onSubmit={aoEnviar} onError={aoDarErro} />
           ) : (
             <p className="text-zinc-500 text-xs text-center py-6">
-              O valor mínimo pra depósito é R$ 20,00.
+              O valor mínimo pra depósito é R$ 1,00.
             </p>
           )}
         </>

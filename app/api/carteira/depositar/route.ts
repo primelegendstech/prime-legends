@@ -8,7 +8,7 @@ const client = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 });
 
-const VALOR_MINIMO_CENTAVOS = 2000; // R$20,00
+const VALOR_MINIMO_CENTAVOS = 100; // R$1,00
 
 export async function POST(request: NextRequest) {
   try {

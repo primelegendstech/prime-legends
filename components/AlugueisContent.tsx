@@ -213,7 +213,7 @@ export default function AlugueisContent() {
                 <span
                   onClick={(e) => {
                     e.stopPropagation();
-                    abrirCheckoutDireto(l);
+                    setDetalheAberto(l);
                   }}
                   className="flex-shrink-0 px-4 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-xs md:text-sm whitespace-nowrap"
                 >
