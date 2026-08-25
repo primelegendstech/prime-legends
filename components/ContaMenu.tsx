@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
-import DepositoCarteira from "@/components/DepositoCarteira";
 
 function formatarReais(centavos: number) {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -38,7 +37,6 @@ export default function ContaMenu({ idioma }: { idioma: "pt" | "en" }) {
   const [usuario, setUsuario] = useState<User | null>(null);
   const [saldoCentavos, setSaldoCentavos] = useState<number | null>(null);
   const [dropdownAberto, setDropdownAberto] = useState(false);
-  const [modalDepositoAberto, setModalDepositoAberto] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   async function carregarSaldo(userId: string) {
@@ -86,14 +84,6 @@ export default function ContaMenu({ idioma }: { idioma: "pt" | "en" }) {
     router.refresh();
   }
 
-  function aoConcluirDeposito() {
-    setTimeout(() => {
-      setModalDepositoAberto(false);
-      if (usuario) carregarSaldo(usuario.id);
-      router.refresh();
-    }, 1200);
-  }
-
   if (!usuario) {
     return (
       <Link
@@ -131,15 +121,13 @@ export default function ContaMenu({ idioma }: { idioma: "pt" | "en" }) {
             <p className="text-yellow-400 font-black text-xl">
               {saldoCentavos === null ? "..." : formatarReais(saldoCentavos)}
             </p>
-            <button
-              onClick={() => {
-                setDropdownAberto(false);
-                setModalDepositoAberto(true);
-              }}
-              className="mt-2 w-full rounded-lg bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold py-2 hover:brightness-110 transition"
+            <Link
+              href="/minha-conta/adicionar-saldo"
+              onClick={() => setDropdownAberto(false)}
+              className="mt-2 block w-full text-center rounded-lg bg-gradient-to-r from-yellow-400 to-amber-500 text-black text-xs font-bold py-2 hover:brightness-110 transition"
             >
               + {t.adicionar}
-            </button>
+            </Link>
           </div>
 
           <Link
@@ -173,10 +161,6 @@ export default function ContaMenu({ idioma }: { idioma: "pt" | "en" }) {
             <span className="text-base">🚪</span> {t.sair}
           </button>
         </div>
-      )}
-
-      {modalDepositoAberto && (
-        <DepositoCarteira onFechar={() => setModalDepositoAberto(false)} onSucesso={aoConcluirDeposito} />
       )}
     </div>
   );

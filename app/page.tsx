@@ -1,6 +1,5 @@
 "use client";
 
-import Header from "@/components/Header";
 import Destaques from "@/components/Destaques";
 import HeroBanner from "@/components/HeroBanner";
 import CircuitGlow from "@/components/CircuitGlow";
@@ -42,8 +41,6 @@ export default function Home() {
         }}
       />
       <div className="relative z-10">
-        <Header />
-
         {/* Carrossel de produtos em destaque, colado logo abaixo do menu */}
         <div className="pt-[52px] md:pt-[64px]">
           <Destaques />
