@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { processarEntrega } from "@/lib/processar-entrega";
 import { processarEntregaAtivacao } from "@/lib/processar-entrega-ativacao";
 import { processarEntregaCarteira } from "@/lib/processar-entrega-carteira";
+import { processarEntregaMetodo } from "@/lib/processar-entrega-metodo";
 
 // Mesmo motivo do /api/entregar: dá folga suficiente pro fluxo completo
 // (Mercado Pago + GSM Cheap) rodar sem ser cortado no meio do caminho.
@@ -32,8 +33,17 @@ export async function POST(request: NextRequest) {
     // o e-mail automático pra você e para por aqui, sem tentar o fluxo de aluguel.
     const resultadoAtivacao = await processarEntregaAtivacao(String(paymentId));
 
-    if (!resultadoAtivacao.encontrado) {
-      // Não é ativação — processa a entrega usando a mesma lógica da tela de sucesso (aluguel).
+    if (resultadoAtivacao.encontrado) {
+      return NextResponse.json({ recebido: true }, { status: 200 });
+    }
+
+    // Depois checa se é um Método (arquivo/ROM vendido via Backblaze B2) —
+    // garante a entrega mesmo se o cliente fechar a aba antes do polling
+    // da tela de checkout terminar.
+    const resultadoMetodo = await processarEntregaMetodo(String(paymentId));
+
+    if (!resultadoMetodo.encontrado) {
+      // Não é ativação nem método — processa a entrega usando a mesma lógica da tela de sucesso (aluguel).
       // Não repassamos o resultado pro Mercado Pago em detalhe — só confirmamos que recebemos,
       // pra ele não ficar tentando reenviar a notificação várias vezes.
       await processarEntrega(String(paymentId));

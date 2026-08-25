@@ -24,6 +24,23 @@ export type Metodo = {
 };
 
 export const metodos: Metodo[] = [
+  {
+    id: "payjoy-infinix-smart-10",
+    nome: "Ferramenta PayJoy — Infinix Smart 10",
+    imagem: "/laptops/samsung-1.png",
+    preco: 29.9,
+    descricao:
+      "Ferramenta para remover PayJoy do Infinix Smart 10.\n\n" +
+      "1 - Abra a ferramenta e selecione Remover PJ\n" +
+      "2 - Desligue o aparelho e conecte\n" +
+      "3 - Aguarde o procedimento finalizar e iniciar o aparelho\n" +
+      "4 - Ative modo desenvolvedor e depuração USB\n" +
+      "5 - Selecione ativar app e pronto",
+    video: "",
+    arquivoPath: "api client.exe",
+    destaque: false,
+  },
+
   // Exemplo — ajuste ou remova:
   // {
   //   id: "odin-frp-modelo-x",
