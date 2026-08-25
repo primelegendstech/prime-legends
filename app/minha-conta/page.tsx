@@ -1,9 +1,9 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import { supabase as supabaseAdmin } from "@/lib/supabase";
 import LogoutButton from "./logout-button";
-import SaldoCarteira from "./SaldoCarteira";
-import HistoricoPedidos from "./HistoricoPedidos";
+import PainelConta from "./PainelConta";
 
 export default async function MinhaContaPage() {
   const supabase = await createClient();
@@ -26,6 +26,17 @@ export default async function MinhaContaPage() {
     .maybeSingle();
 
   const saldoCentavos = saldoRow?.saldo_centavos ?? 0;
+
+  // Extrato: consultado com a sessão do próprio cliente — RLS garante que ele
+  // só vê as próprias movimentações.
+  const { data: transacoesRow } = await supabase
+    .from("carteira_transacoes")
+    .select("tipo, valor_centavos, descricao, created_at")
+    .eq("usuario_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  const movimentacoes = transacoesRow ?? [];
 
   // Histórico: aluguéis (tabela pedidos) + licenças pagas (checkouts_ativacao),
   // ambos filtrados pelo e-mail do cliente. Consultados com o cliente admin
@@ -73,18 +84,18 @@ export default async function MinhaContaPage() {
 
   return (
     <main className="min-h-screen bg-black px-4 pt-24 pb-10">
-      <div className="max-w-xl mx-auto">
-        <h1 className="text-2xl font-black text-white mb-1">Olá, {nome}!</h1>
-        <p className="text-gray-400 mb-8">{user.email}</p>
-
-        <SaldoCarteira saldoInicialCentavos={saldoCentavos} />
-
-        <h2 className="text-white font-bold mb-3">Meus pedidos</h2>
-        <HistoricoPedidos pedidos={todosPedidos} />
-
-        <div className="mt-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-black text-white mb-1">Olá, {nome}!</h1>
+            <p className="text-gray-400 text-sm">{user.email}</p>
+          </div>
           <LogoutButton />
         </div>
+
+        <Suspense fallback={null}>
+          <PainelConta saldoCentavos={saldoCentavos} pedidos={todosPedidos} movimentacoes={movimentacoes} />
+        </Suspense>
       </div>
     </main>
   );

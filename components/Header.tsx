@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useIdioma } from "@/context/LanguageContext";
 import { createClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
+import ContaMenu from "@/components/ContaMenu";
 
 const textos = {
   pt: {
@@ -48,6 +49,7 @@ export default function Header() {
   const [servicosOpen, setServicosOpen] = useState(false);
   const [maisOpen, setMaisOpen] = useState(false);
   const [usuario, setUsuario] = useState<User | null>(null);
+  const [saldoCentavosMobile, setSaldoCentavosMobile] = useState<number | null>(null);
   const { idioma, trocarIdioma } = useIdioma();
   const t = textos[idioma];
   const servicosRef = useRef<HTMLDivElement>(null);
@@ -56,14 +58,38 @@ export default function Header() {
   useEffect(() => {
     const supabase = createClient();
 
-    supabase.auth.getUser().then(({ data }) => setUsuario(data.user));
+    async function buscarSaldo(userId: string) {
+      const { data } = await supabase
+        .from("carteira_saldo")
+        .select("saldo_centavos")
+        .eq("usuario_id", userId)
+        .maybeSingle();
+      setSaldoCentavosMobile(data?.saldo_centavos ?? 0);
+    }
+
+    supabase.auth.getUser().then(({ data }) => {
+      setUsuario(data.user);
+      if (data.user) buscarSaldo(data.user.id);
+    });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUsuario(session?.user ?? null);
+      if (session?.user) {
+        buscarSaldo(session.user.id);
+      } else {
+        setSaldoCentavosMobile(null);
+      }
     });
 
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  async function sairMobile() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    setMenuOpen(false);
+    window.location.href = "/";
+  }
 
   useEffect(() => {
     function fecharAoClicarFora(e: MouseEvent) {
@@ -238,15 +264,7 @@ export default function Header() {
             </button>
           </div>
 
-          <Link
-            href={usuario ? "/minha-conta" : "/entrar"}
-            className="flex items-center gap-1.5 uppercase text-gray-300 hover:text-yellow-400 text-sm font-semibold transition whitespace-nowrap"
-          >
-            👤{" "}
-            <span className="hidden lg:inline">
-              {usuario ? t.minhaConta : t.entrar}
-            </span>
-          </Link>
+          <ContaMenu idioma={idioma} />
         </nav>
 
         <button
@@ -344,13 +362,56 @@ export default function Header() {
             </button>
           </div>
 
-          <a
-            href={usuario ? "/minha-conta" : "/entrar"}
-            className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
-            onClick={() => setMenuOpen(false)}
-          >
-            👤 {usuario ? t.minhaConta : t.entrar}
-          </a>
+          {usuario ? (
+            <div className="flex flex-col gap-2 pl-2 border-l border-yellow-500/20">
+              <span className="text-xs uppercase tracking-wide text-amber-500/70 font-bold mb-1">
+                👤 {t.minhaConta}
+              </span>
+              <p className="text-yellow-400 font-black text-sm">
+                {saldoCentavosMobile === null
+                  ? "..."
+                  : (saldoCentavosMobile / 100).toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+              </p>
+              <a
+                href="/minha-conta"
+                className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
+                onClick={() => setMenuOpen(false)}
+              >
+                📊 Dashboard
+              </a>
+              <a
+                href="/minha-conta?tab=pedidos"
+                className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
+                onClick={() => setMenuOpen(false)}
+              >
+                📦 {idioma === "pt" ? "Meus Pedidos" : "My Orders"}
+              </a>
+              <a
+                href="/minha-conta?tab=extrato"
+                className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
+                onClick={() => setMenuOpen(false)}
+              >
+                📋 {idioma === "pt" ? "Extrato" : "Statement"}
+              </a>
+              <button
+                onClick={sairMobile}
+                className="flex items-center gap-2 uppercase text-red-400 hover:text-red-300 text-sm text-left"
+              >
+                🚪 {idioma === "pt" ? "Sair da conta" : "Sign out"}
+              </button>
+            </div>
+          ) : (
+            <a
+              href="/entrar"
+              className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
+              onClick={() => setMenuOpen(false)}
+            >
+              👤 {t.entrar}
+            </a>
+          )}
         </nav>
       )}
     </header>
