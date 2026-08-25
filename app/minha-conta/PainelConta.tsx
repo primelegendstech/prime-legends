@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import SaldoCarteira from "./SaldoCarteira";
 import HistoricoPedidos from "./HistoricoPedidos";
@@ -45,6 +45,18 @@ export default function PainelConta({
   const [abaAtiva, setAbaAtiva] = useState<Aba>(
     ABAS.some((a) => a.id === abaInicial) ? abaInicial : "dashboard"
   );
+
+  // Como o painel inteiro fica numa única página (as "abas" são só um
+  // estado local), navegar de novo pra cá com um ?tab= diferente (ex: pelo
+  // menu do header) não re-executa o useState acima — precisa sincronizar
+  // sempre que o parâmetro da URL mudar.
+  useEffect(() => {
+    const abaDaUrl = searchParams.get("tab") as Aba | null;
+    if (abaDaUrl && ABAS.some((a) => a.id === abaDaUrl) && abaDaUrl !== abaAtiva) {
+      setAbaAtiva(abaDaUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const stats = useMemo(() => {
     const total = pedidos.length;

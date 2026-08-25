@@ -10,6 +10,13 @@ type Particula = {
   r: number;
 };
 
+type Pulso = {
+  ai: number;
+  bi: number;
+  progresso: number; // 0 -> 1
+  velocidade: number;
+};
+
 export default function GoldNetworkBackground({
   quantidade = 55,
   distanciaConexao = 130,
@@ -31,7 +38,10 @@ export default function GoldNetworkBackground({
     let altura = 0;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
     let particulas: Particula[] = [];
+    let pulsos: Pulso[] = [];
+    let conexoesAtivas: [number, number][] = [];
     let animId = 0;
+    let visivel = true;
 
     function criarParticulas() {
       particulas = Array.from({ length: quantidade }, () => ({
@@ -41,6 +51,7 @@ export default function GoldNetworkBackground({
         vy: (Math.random() - 0.5) * 0.35,
         r: Math.random() * 1.6 + 0.8,
       }));
+      pulsos = [];
     }
 
     function redimensionar() {
@@ -59,7 +70,8 @@ export default function GoldNetworkBackground({
     function desenhar() {
       ctx!.clearRect(0, 0, largura, altura);
 
-      // conexões
+      // trilhas do "circuito" (conexoes entre pontos proximos)
+      conexoesAtivas = [];
       for (let i = 0; i < particulas.length; i++) {
         for (let j = i + 1; j < particulas.length; j++) {
           const a = particulas[i];
@@ -68,18 +80,35 @@ export default function GoldNetworkBackground({
           const dy = a.y - b.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < distanciaConexao) {
-            const opacidade = (1 - dist / distanciaConexao) * 0.35;
+            const opacidade = (1 - dist / distanciaConexao) * 0.32;
             ctx!.strokeStyle = `rgba(212, 175, 55, ${opacidade})`;
-            ctx!.lineWidth = 0.6;
+            ctx!.lineWidth = 0.7;
             ctx!.beginPath();
             ctx!.moveTo(a.x, a.y);
             ctx!.lineTo(b.x, b.y);
             ctx!.stroke();
+            conexoesAtivas.push([i, j]);
           }
         }
       }
 
-      // pontos
+      // pulsos de energia percorrendo as trilhas (efeito "dado circulando")
+      for (const p of pulsos) {
+        const a = particulas[p.ai];
+        const b = particulas[p.bi];
+        if (!a || !b) continue;
+        const x = a.x + (b.x - a.x) * p.progresso;
+        const y = a.y + (b.y - a.y) * p.progresso;
+        ctx!.beginPath();
+        ctx!.arc(x, y, 2.2, 0, Math.PI * 2);
+        ctx!.fillStyle = "rgba(255, 223, 128, 0.95)";
+        ctx!.shadowColor = "rgba(255, 210, 90, 1)";
+        ctx!.shadowBlur = 8;
+        ctx!.fill();
+      }
+      ctx!.shadowBlur = 0;
+
+      // nos do circuito
       for (const p of particulas) {
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
@@ -88,6 +117,7 @@ export default function GoldNetworkBackground({
         ctx!.shadowBlur = 4;
         ctx!.fill();
       }
+      ctx!.shadowBlur = 0;
     }
 
     function atualizar() {
@@ -97,12 +127,35 @@ export default function GoldNetworkBackground({
         if (p.x < 0 || p.x > largura) p.vx *= -1;
         if (p.y < 0 || p.y > altura) p.vy *= -1;
       }
+
+      // avanca os pulsos existentes e remove os que chegaram ao fim
+      pulsos = pulsos.filter((p) => {
+        p.progresso += p.velocidade;
+        return p.progresso < 1;
+      });
+
+      // de vez em quando, dispara um novo pulso numa trilha ativa aleatoria
+      if (conexoesAtivas.length > 0 && pulsos.length < 14 && Math.random() < 0.06) {
+        const [ai, bi] = conexoesAtivas[Math.floor(Math.random() * conexoesAtivas.length)];
+        pulsos.push({
+          ai: Math.random() < 0.5 ? ai : bi,
+          bi: Math.random() < 0.5 ? bi : ai,
+          progresso: 0,
+          velocidade: 0.012 + Math.random() * 0.014,
+        });
+      }
     }
 
     function loop() {
-      atualizar();
-      desenhar();
+      if (visivel) {
+        atualizar();
+        desenhar();
+      }
       animId = requestAnimationFrame(loop);
+    }
+
+    function aoMudarVisibilidade() {
+      visivel = document.visibilityState === "visible";
     }
 
     redimensionar();
@@ -113,8 +166,10 @@ export default function GoldNetworkBackground({
     }
 
     window.addEventListener("resize", redimensionar);
+    document.addEventListener("visibilitychange", aoMudarVisibilidade);
     return () => {
       window.removeEventListener("resize", redimensionar);
+      document.removeEventListener("visibilitychange", aoMudarVisibilidade);
       if (animId) cancelAnimationFrame(animId);
     };
   }, [quantidade, distanciaConexao]);
