@@ -16,7 +16,8 @@ const textos = {
     dashboard: "Painel",
     pedidos: "Meus Pedidos",
     extrato: "Extrato",
-    depositos: "Consultar Depósitos",
+    ordens: "Ordem de Serviço",
+    depositos: "Depósitos",
     adicionar: "Adicionar saldo",
     sair: "Sair da conta",
   },
@@ -25,6 +26,7 @@ const textos = {
     dashboard: "Dashboard",
     pedidos: "My Orders",
     extrato: "Statement",
+    ordens: "Service Orders",
     depositos: "Deposits",
     adicionar: "Add balance",
     sair: "Sign out",
@@ -141,7 +143,7 @@ export default function ContaMenu({ idioma }: { idioma: "pt" | "en" }) {
           </Link>
 
           <Link
-            href="/minha-conta?tab=pedidos"
+            href="/minha-conta/pedidos"
             onClick={() => setDropdownAberto(false)}
             className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5"
           >
@@ -149,7 +151,7 @@ export default function ContaMenu({ idioma }: { idioma: "pt" | "en" }) {
           </Link>
 
           <Link
-            href="/minha-conta?tab=extrato"
+            href="/minha-conta/extrato"
             onClick={() => setDropdownAberto(false)}
             className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5"
           >
@@ -157,7 +159,15 @@ export default function ContaMenu({ idioma }: { idioma: "pt" | "en" }) {
           </Link>
 
           <Link
-            href="/minha-conta?tab=depositos"
+            href="/minha-conta/ordens"
+            onClick={() => setDropdownAberto(false)}
+            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5"
+          >
+            <span className="text-base">🧾</span> {t.ordens}
+          </Link>
+
+          <Link
+            href="/minha-conta/depositos"
             onClick={() => setDropdownAberto(false)}
             className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5"
           >
