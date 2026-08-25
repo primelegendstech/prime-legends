@@ -27,18 +27,29 @@ export default function DetalheServicoModal({ ferramenta, plano, onFechar, onAlu
           ✕
         </button>
 
-        <h3 className="text-2xl font-black text-white mb-1 flex items-center gap-2 pr-8">
-          {ferramenta.nome}
-          {ferramenta.badge && (
-            <span className="text-xs font-semibold text-yellow-400 border border-yellow-400 px-2 py-0.5 rounded">
-              {ferramenta.badge}
-            </span>
+        <div className="flex items-center gap-3 mb-1 pr-8">
+          {ferramenta.imagens[0] && (
+            <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10">
+              <img
+                src={ferramenta.imagens[0]}
+                alt={ferramenta.nome}
+                className="w-full h-full object-cover"
+              />
+            </div>
           )}
-        </h3>
+          <h3 className="text-2xl font-black text-white flex items-center gap-2">
+            {ferramenta.nome}
+            {ferramenta.badge && (
+              <span className="text-xs font-semibold text-yellow-400 border border-yellow-400 px-2 py-0.5 rounded">
+                {ferramenta.badge}
+              </span>
+            )}
+          </h3>
+        </div>
         <p className="text-gray-400 text-sm mb-5">Aluguel {plano.nome}</p>
 
-        {/* Vídeo, só aparece se tiver link cadastrado; senão mostra a imagem da ferramenta */}
-        {ferramenta.video ? (
+        {/* Vídeo, só aparece se tiver link cadastrado */}
+        {ferramenta.video && (
           <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-5 border border-white/10">
             <iframe
               src={ferramenta.video}
@@ -48,16 +59,6 @@ export default function DetalheServicoModal({ ferramenta, plano, onFechar, onAlu
               allowFullScreen
             />
           </div>
-        ) : (
-          ferramenta.imagens[0] && (
-            <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-5 border border-white/10 bg-gradient-to-br from-zinc-900 to-black">
-              <img
-                src={ferramenta.imagens[0]}
-                alt={ferramenta.nome}
-                className="w-full h-full object-contain"
-              />
-            </div>
-          )
         )}
 
         <div className="flex flex-wrap gap-4 mb-5 text-sm">

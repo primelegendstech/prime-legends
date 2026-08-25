@@ -24,7 +24,7 @@ const PaymentBrick = memo(function PaymentBrick({
   );
 });
 
-const VALORES_SUGERIDOS = [20, 50, 100, 200];
+const VALORES_SUGERIDOS = [5, 10, 20, 50, 100];
 
 type Props = {
   onFechar: () => void;
@@ -130,7 +130,7 @@ export default function DepositoCarteira({ onFechar, onSucesso, variante = "moda
         <>
           <div className="mb-4">
             <label className="block text-zinc-400 text-xs font-semibold mb-1.5">Valor</label>
-            <div className="grid grid-cols-4 gap-2 mb-2">
+            <div className="grid grid-cols-5 gap-1.5 mb-2">
               {VALORES_SUGERIDOS.map((v) => (
                 <button
                   key={v}
