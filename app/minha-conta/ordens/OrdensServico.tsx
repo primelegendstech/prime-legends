@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatarCredenciais } from "@/lib/formatar-credenciais";
-import type { PedidoCompleto } from "@/lib/buscar-pedidos-usuario";
+import type { PedidoCompleto, DadosMetodo } from "@/lib/buscar-pedidos-usuario";
 
 function formatarData(data: string | null) {
   if (!data) return "";
@@ -44,9 +44,21 @@ export default function OrdensServico({ pedidos }: { pedidos: PedidoCompleto[] }
     );
   }
 
-  const credenciais = selecionado ? formatarCredenciais(selecionado.dados) : null;
+  // Métodos usam um formato próprio (dados.linkDownload, não login/senha),
+  // então nunca passam por formatarCredenciais — evita cair no fallback
+  // genérico e mostrar campos internos (metodoId, etc) pro cliente.
+  const dadosMetodo = selecionado?.tipo === "metodo" ? (selecionado.dados as DadosMetodo) : null;
+  const credenciais = selecionado && selecionado.tipo !== "metodo" ? formatarCredenciais(selecionado.dados) : null;
 
   function copiarCredenciais() {
+    if (dadosMetodo) {
+      if (!dadosMetodo.linkDownload) return;
+      navigator.clipboard.writeText(dadosMetodo.linkDownload).then(() => {
+        setCopiado(true);
+        setTimeout(() => setCopiado(false), 2000);
+      });
+      return;
+    }
     if (!credenciais) return;
     const texto =
       credenciais.login || credenciais.senha
@@ -74,7 +86,13 @@ export default function OrdensServico({ pedidos }: { pedidos: PedidoCompleto[] }
                   {pedido.ferramenta} — {pedido.duracao}
                   <span className="text-gray-500 font-normal">
                     {" "}
-                    ({pedido.tipo === "aluguel" ? "Aluguel" : "Licença"})
+                    (
+                    {pedido.tipo === "aluguel"
+                      ? "Aluguel"
+                      : pedido.tipo === "licenca"
+                      ? "Licença"
+                      : "Método"}
+                    )
                   </span>
                 </p>
                 <p className="text-gray-500 text-xs mt-0.5">
@@ -129,24 +147,64 @@ export default function OrdensServico({ pedidos }: { pedidos: PedidoCompleto[] }
               </p>
               <p className="text-sm text-gray-300 mt-1">
                 <span className="text-gray-500">Tipo:</span>{" "}
-                {selecionado.tipo === "aluguel" ? "Aluguel de ferramenta" : "Licença de ativação"}
+                {selecionado.tipo === "aluguel"
+                  ? "Aluguel de ferramenta"
+                  : selecionado.tipo === "licenca"
+                  ? "Licença de ativação"
+                  : "Método (arquivo/procedimento)"}
               </p>
             </div>
 
             <div className="bg-white/[0.03] border border-yellow-500/15 rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-bold text-amber-400 uppercase tracking-wide">Login e senha</p>
-                {(credenciais?.login || credenciais?.senha || (credenciais?.linhas.length ?? 0) > 0) && (
+                <p className="text-xs font-bold text-amber-400 uppercase tracking-wide">
+                  {dadosMetodo ? "Arquivo do método" : "Login e senha"}
+                </p>
+                {(credenciais?.login ||
+                  credenciais?.senha ||
+                  (credenciais?.linhas.length ?? 0) > 0 ||
+                  dadosMetodo?.linkDownload) && (
                   <button
                     onClick={copiarCredenciais}
                     className="text-xs font-semibold text-yellow-400 hover:text-yellow-300 transition"
                   >
-                    {copiado ? "✓ Copiado" : "📋 Copiar"}
+                    {copiado ? "✓ Copiado" : dadosMetodo ? "📋 Copiar link" : "📋 Copiar"}
                   </button>
                 )}
               </div>
 
-              {selecionado.tipo === "licenca" ? (
+              {dadosMetodo ? (
+                <div className="space-y-3">
+                  {dadosMetodo.descricao && (
+                    <p className="text-sm text-gray-300 whitespace-pre-line">{dadosMetodo.descricao}</p>
+                  )}
+                  {dadosMetodo.video && (
+                    <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/10">
+                      <iframe
+                        src={dadosMetodo.video}
+                        title="Vídeo do método"
+                        className="w-full h-full"
+                        allowFullScreen
+                      />
+                    </div>
+                  )}
+                  {dadosMetodo.linkDownload ? (
+                    <a
+                      href={dadosMetodo.linkDownload}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 w-full rounded-full bg-gradient-to-r from-yellow-400 to-amber-500 px-5 py-3 text-sm font-bold text-black hover:brightness-110 transition"
+                    >
+                      ⬇️ Baixar arquivo
+                    </a>
+                  ) : (
+                    <p className="text-sm text-gray-400">
+                      Não foi possível gerar o link agora. Chama no WhatsApp que a gente reenvia o
+                      arquivo pra você.
+                    </p>
+                  )}
+                </div>
+              ) : selecionado.tipo === "licenca" ? (
                 <p className="text-sm text-gray-400">
                   Licenças de ativação são liberadas manualmente — os dados foram enviados por WhatsApp
                   ou e-mail no momento da entrega.

@@ -375,13 +375,6 @@ export default function Header() {
                 📊 {idioma === "pt" ? "Painel" : "Dashboard"}
               </a>
               <a
-                href="/minha-conta/pedidos"
-                className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
-                onClick={() => setMenuOpen(false)}
-              >
-                📦 {idioma === "pt" ? "Meus Pedidos" : "My Orders"}
-              </a>
-              <a
                 href="/minha-conta/extrato"
                 className="flex items-center gap-2 uppercase text-gray-300 hover:text-yellow-400 text-sm"
                 onClick={() => setMenuOpen(false)}

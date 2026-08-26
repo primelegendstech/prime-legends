@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 const ITENS = [
   { href: "/minha-conta", label: "Painel", emoji: "📊" },
-  { href: "/minha-conta/pedidos", label: "Meus Pedidos", emoji: "📦" },
   { href: "/minha-conta/extrato", label: "Extrato", emoji: "📋" },
   { href: "/minha-conta/ordens", label: "Ordem de Serviço", emoji: "🧾" },
   { href: "/minha-conta/depositos", label: "Depósitos", emoji: "💰" },

@@ -14,7 +14,6 @@ const textos = {
   pt: {
     entrar: "Entrar",
     dashboard: "Painel",
-    pedidos: "Meus Pedidos",
     extrato: "Extrato",
     ordens: "Ordem de Serviço",
     depositos: "Depósitos",
@@ -24,7 +23,6 @@ const textos = {
   en: {
     entrar: "Sign in",
     dashboard: "Dashboard",
-    pedidos: "My Orders",
     extrato: "Statement",
     ordens: "Service Orders",
     depositos: "Deposits",
@@ -140,14 +138,6 @@ export default function ContaMenu({ idioma }: { idioma: "pt" | "en" }) {
             className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5"
           >
             <span className="text-base">📊</span> {t.dashboard}
-          </Link>
-
-          <Link
-            href="/minha-conta/pedidos"
-            onClick={() => setDropdownAberto(false)}
-            className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-yellow-500/10 hover:text-yellow-400 transition border-b border-white/5"
-          >
-            <span className="text-base">📦</span> {t.pedidos}
           </Link>
 
           <Link

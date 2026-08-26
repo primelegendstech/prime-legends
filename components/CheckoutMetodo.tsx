@@ -319,6 +319,15 @@ export default function CheckoutMetodo({ metodo, onFechar }: Props) {
                 </a>
               </>
             )}
+
+            {logado === true && (
+              <a
+                href="/minha-conta/ordens"
+                className="inline-flex items-center justify-center gap-2 w-full rounded-full border border-yellow-500/40 text-yellow-400 text-sm font-bold py-2.5 hover:bg-yellow-500/10 transition"
+              >
+                🧾 Ver na Ordem de Serviço
+              </a>
+            )}
           </div>
         )}
 

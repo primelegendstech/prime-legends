@@ -1,5 +1,5 @@
 type Pedido = {
-  tipo: "aluguel" | "licenca";
+  tipo: "aluguel" | "licenca" | "metodo";
   ferramenta: string;
   duracao: string;
   preco: number;
