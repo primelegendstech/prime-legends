@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 import { formatarCredenciais } from "@/lib/formatar-credenciais";
+import { createClient } from "@/lib/supabase-browser";
+import PainelPagarComSaldo from "@/components/PainelPagarComSaldo";
 
 initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY!, { locale: "pt-BR" });
 
@@ -52,6 +54,15 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
   // esse e-mail que garante o envio do login/senha por e-mail sempre.
   const [emailCliente, setEmailCliente] = useState("");
   const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailCliente);
+
+  // Cliente logado paga só com saldo (regra do site: quem loga usa Carteira,
+  // quem não loga paga Pix normal). null = ainda checando.
+  const [logado, setLogado] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setLogado(!!data.user));
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -238,7 +249,42 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
           Aluguel {duracao} — R$ {preco.toFixed(2).replace(".", ",")}
         </p>
 
-        {status === "formulario" && (
+        {status === "formulario" && logado === true && (
+          <PainelPagarComSaldo
+            preco={preco}
+            corpo={{ tipo: "aluguel", ferramenta, duracao }}
+            onSucesso={(dados) => {
+              if (dados.codigo) setCodigo(dados.codigo);
+
+              if (dados.manual) {
+                // Serviço não automatizado — liberação manual, resposta já é final.
+                setMensagemErro(dados.mensagem || "");
+                setStatus("aprovado");
+                return;
+              }
+
+              if (dados.estado === "concluido" && dados.dados) {
+                setCredenciais(dados.dados);
+                setStatus("aprovado");
+                return;
+              }
+
+              // Fornecedor ainda não finalizou na hora (comum, leva alguns
+              // segundos) — segue pelo MESMO polling já usado no Pix,
+              // reconsultando esse mesmo pedido até ficar pronto.
+              setStatus("aguardando");
+              if (dados.paymentId) {
+                tentarEntrega(dados.paymentId, 1);
+              }
+            }}
+            onErro={(msg) => {
+              setStatus("erro");
+              setMensagemErro(msg);
+            }}
+          />
+        )}
+
+        {status === "formulario" && logado === false && (
           <>
             <div className="mb-4">
               <label className="block text-zinc-400 text-xs font-semibold mb-1.5">
@@ -282,6 +328,10 @@ export default function CheckoutPix({ ferramenta, duracao, preco, onFechar }: Pr
               </p>
             )}
           </>
+        )}
+
+        {status === "formulario" && logado === null && (
+          <p className="text-zinc-500 text-xs text-center py-6">Carregando...</p>
         )}
 
         {status === "aguardando" && qrCodeBase64 && (

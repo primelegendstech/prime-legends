@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
+import { createClient } from "@/lib/supabase-browser";
+import PainelPagarComSaldo from "@/components/PainelPagarComSaldo";
 
 initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY!, { locale: "pt-BR" });
 
@@ -59,6 +61,15 @@ export default function CheckoutAtivacao({
   const [mensagemErro, setMensagemErro] = useState<string>("");
   const [copiado, setCopiado] = useState(false);
   const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Cliente logado paga só com saldo (regra do site). null = ainda checando.
+  const [logado, setLogado] = useState<boolean | null>(null);
+  const [pagoComSaldoManual, setPagoComSaldoManual] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setLogado(!!data.user));
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -244,13 +255,48 @@ export default function CheckoutAtivacao({
           Ativação {duracao} — R$ {preco.toFixed(2).replace(".", ",")}
         </p>
 
-        {status === "formulario" && (
+        {status === "formulario" && logado === true && (
+          <PainelPagarComSaldo
+            preco={preco}
+            corpo={{ tipo: "ativacao", ferramenta, duracao, nome, username, senha, email }}
+            onSucesso={(dados) => {
+              if (dados.mensagem) setMensagemErro(dados.mensagem);
+
+              if (automatico) {
+                if (dados.estado === "concluido") {
+                  setStatus("aprovado");
+                  return;
+                }
+                // Ainda processando no fornecedor — continua pelo MESMO
+                // polling já usado no fluxo Pix, reconsultando esse pedido.
+                setStatus("aguardando");
+                if (dados.paymentId) tentarEntrega(dados.paymentId, 1);
+                return;
+              }
+
+              // Plano manual: já foi registrado e a equipe já foi notificada
+              // automaticamente (sem depender de webhook nem de WhatsApp).
+              setPagoComSaldoManual(true);
+              setStatus("aprovado");
+            }}
+            onErro={(msg) => {
+              setStatus("erro");
+              setMensagemErro(msg);
+            }}
+          />
+        )}
+
+        {status === "formulario" && logado === false && (
           <PaymentBrick
             initialization={initialization}
             customization={customization}
             onSubmit={aoEnviar}
             onError={aoDarErro}
           />
+        )}
+
+        {status === "formulario" && logado === null && (
+          <p className="text-zinc-500 text-xs text-center py-6">Carregando...</p>
         )}
 
         {status === "aguardando" && qrCodeBase64 && (
@@ -307,7 +353,9 @@ export default function CheckoutAtivacao({
             <div className="text-4xl mb-2">✅</div>
             <p className="text-white font-bold mb-3">Pagamento aprovado!</p>
             <p className="text-zinc-400 text-sm mb-4">
-              Confirma os dados abaixo e manda pra gente no WhatsApp pra liberarmos sua ativação.
+              {pagoComSaldoManual
+                ? "Pedido registrado e nossa equipe já foi notificada automaticamente. Você recebe a confirmação por e-mail."
+                : "Confirma os dados abaixo e manda pra gente no WhatsApp pra liberarmos sua ativação."}
             </p>
 
             <div className="bg-black/40 border border-yellow-500/30 rounded-xl p-4 mb-4 text-left text-sm space-y-2">

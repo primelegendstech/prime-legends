@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 import type { Metodo } from "@/data/metodos";
+import { createClient } from "@/lib/supabase-browser";
+import PainelPagarComSaldo from "@/components/PainelPagarComSaldo";
 
 initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY!, { locale: "pt-BR" });
 
@@ -43,6 +45,14 @@ export default function CheckoutMetodo({ metodo, onFechar }: Props) {
 
   const [emailCliente, setEmailCliente] = useState("");
   const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailCliente);
+
+  // Cliente logado paga só com saldo (regra do site). null = ainda checando.
+  const [logado, setLogado] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setLogado(!!data.user));
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -176,7 +186,22 @@ export default function CheckoutMetodo({ metodo, onFechar }: Props) {
         <h3 className="text-white font-bold text-lg mb-1">{metodo.nome}</h3>
         <p className="text-zinc-400 text-sm mb-4">R$ {metodo.preco.toFixed(2).replace(".", ",")}</p>
 
-        {status === "formulario" && (
+        {status === "formulario" && logado === true && (
+          <PainelPagarComSaldo
+            preco={metodo.preco}
+            corpo={{ tipo: "metodo", metodoId: metodo.id }}
+            onSucesso={(dados) => {
+              setResultado({ descricao: dados.descricao, video: dados.video, linkDownload: dados.linkDownload });
+              setStatus("aprovado");
+            }}
+            onErro={(msg) => {
+              setStatus("erro");
+              setMensagemErro(msg);
+            }}
+          />
+        )}
+
+        {status === "formulario" && logado === false && (
           <>
             <div className="mb-4">
               <label className="block text-zinc-400 text-xs font-semibold mb-1.5">
@@ -209,6 +234,10 @@ export default function CheckoutMetodo({ metodo, onFechar }: Props) {
               </p>
             )}
           </>
+        )}
+
+        {status === "formulario" && logado === null && (
+          <p className="text-zinc-500 text-xs text-center py-6">Carregando...</p>
         )}
 
         {status === "aguardando" && qrCodeBase64 && (
