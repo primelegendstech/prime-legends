@@ -7,6 +7,7 @@ export const mapaServicos: Record<
   "TSM Tool|3 horas": { serviceId: 257, creditos: 0.48, fornecedor: "gsmcheap" },
   "TSM Tool|12 horas": { serviceId: 1271, creditos: 0.68, fornecedor: "gsmcheap" },
   "AMT Tool|2 horas": { serviceId: 256, creditos: 0.38, fornecedor: "gsmcheap" },
+  "AMT Tool|3 horas": { serviceId: 256, creditos: 0.2, fornecedor: "gsmcheap" },
   "AMT Tool|12 horas": { serviceId: 1121, creditos: 0.78, fornecedor: "gsmcheap" },
   "Samsung Tool|12 horas": { serviceId: 1061, creditos: 2.5, fornecedor: "gsmcheap" },
   "Griffin-Unlocker|6 horas": { serviceId: 271, creditos: 1.2, fornecedor: "gsmcheap" },
