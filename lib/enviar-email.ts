@@ -157,6 +157,48 @@ export async function enviarEmailAlertaPedido(params: {
   }
 }
 
+// Reenvio manual disparado pelo painel /admin: avisa o CLIENTE que a
+// liberação da licença/ativação dele foi concluída (o fluxo automático só
+// avisava você, o admin — esse aqui é a confirmação pro cliente).
+export async function enviarEmailLicencaLiberada(params: {
+  destinatario: string;
+  ferramenta: string;
+  duracao: string;
+}) {
+  const { destinatario, ferramenta, duracao } = params;
+
+  if (!destinatario) {
+    console.log("[email] sem e-mail do cliente, pulando envio");
+    return;
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[email] RESEND_API_KEY não configurada, pulando envio");
+    return;
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  const corpoHtml = `
+    <p>Olá!</p>
+    <p>Sua ativação de <strong>${ferramenta} - ${duracao}</strong> foi liberada com sucesso.</p>
+    <p>Qualquer dúvida, chama a gente no WhatsApp (https://wa.me/5581995716227).</p>
+    <p>Prime Legends GSM</p>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: REMETENTE,
+      to: destinatario,
+      subject: `Sua ativação está liberada - ${ferramenta}`,
+      html: corpoHtml,
+    });
+    console.log(`[email] confirmação de licença enviada para ${destinatario}`);
+  } catch (erro) {
+    console.error("[email] falha ao enviar confirmação de licença:", erro);
+  }
+}
+
 // Avisa VOCÊ (o admin) por e-mail assim que uma ativação é paga — não depende
 // do cliente clicar em nada. O destinatário é o seu e-mail, configurado em
 // ADMIN_NOTIFICATION_EMAIL na Vercel (cai pro contato do site se não configurar).
