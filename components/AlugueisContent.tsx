@@ -33,6 +33,9 @@ const textos = {
     instantaneo: "⚡ INSTANTÂNEO",
     minutos: "🕐 MINUTOS",
     popular: "POPULAR",
+    online: "🟢 ONLINE",
+    manutencao: "🔴 EM MANUTENÇÃO",
+    indisponivel: "Indisponível",
     vazio: (busca: string) => `Nenhum serviço encontrado para "${busca}".`,
   },
   en: {
@@ -47,6 +50,9 @@ const textos = {
     instantaneo: "⚡ INSTANT",
     minutos: "🕐 MINUTES",
     popular: "POPULAR",
+    online: "🟢 ONLINE",
+    manutencao: "🔴 MAINTENANCE",
+    indisponivel: "Unavailable",
     vazio: (busca: string) => `No service found for "${busca}".`,
   },
 };
@@ -98,6 +104,7 @@ export default function AlugueisContent() {
   ];
 
   function abrirCheckoutDireto(l: Listagem) {
+    if (l.ferramenta.online === false) return;
     setPlanoSelecionado({
       ferramenta: l.ferramenta.nome,
       nome: l.plano.nome,
@@ -164,63 +171,86 @@ export default function AlugueisContent() {
 
         {listagensFiltradas.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {listagensFiltradas.map((l, i) => (
-              <button
-                key={`${l.ferramenta.nome}-${l.plano.nome}-${i}`}
-                onClick={() => setDetalheAberto(l)}
-                className="flex items-center gap-4 bg-white/[0.03] border border-yellow-500/15 rounded-xl p-4 hover:border-yellow-400/50 transition text-left"
-              >
-                <div className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10">
-                  <img
-                    src={l.ferramenta.imagens[0]}
-                    alt={l.ferramenta.nome}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-white font-bold text-sm md:text-base leading-tight">
-                    # {l.ferramenta.nome}
-                    {l.ferramenta.badge && (
-                      <span className="ml-2 text-[10px] font-semibold text-yellow-400 border border-yellow-400/50 px-1.5 py-0.5 rounded">
-                        {l.ferramenta.badge}
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-gray-400 text-xs md:text-sm">{l.plano.nome}</p>
-
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    <span className="text-sm font-extrabold bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
-                      R$ {l.plano.preco.toFixed(2).replace(".", ",")}
-                    </span>
-                    {l.plano.instantaneo ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-emerald-400 border-emerald-400/40 bg-emerald-400/10">
-                        {t.instantaneo}
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-amber-400 border-amber-400/40 bg-amber-400/10">
-                        {t.minutos}
-                      </span>
-                    )}
-                    {l.plano.destaque && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-400 text-black">
-                        {t.popular}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDetalheAberto(l);
-                  }}
-                  className="flex-shrink-0 px-4 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-xs md:text-sm whitespace-nowrap"
+            {listagensFiltradas.map((l, i) => {
+              const offline = l.ferramenta.online === false;
+              return (
+                <button
+                  key={`${l.ferramenta.nome}-${l.plano.nome}-${i}`}
+                  onClick={() => setDetalheAberto(l)}
+                  className={`flex items-center gap-4 bg-white/[0.03] border rounded-xl p-4 transition text-left ${
+                    offline
+                      ? "border-red-500/20 opacity-60"
+                      : "border-yellow-500/15 hover:border-yellow-400/50"
+                  }`}
                 >
-                  {t.alugar}
-                </span>
-              </button>
-            ))}
+                  <div className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10 relative">
+                    <img
+                      src={l.ferramenta.imagens[0]}
+                      alt={l.ferramenta.nome}
+                      className={`w-full h-full object-cover ${offline ? "grayscale" : ""}`}
+                    />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-white font-bold text-sm md:text-base leading-tight">
+                      # {l.ferramenta.nome}
+                      {l.ferramenta.badge && (
+                        <span className="ml-2 text-[10px] font-semibold text-yellow-400 border border-yellow-400/50 px-1.5 py-0.5 rounded">
+                          {l.ferramenta.badge}
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-gray-400 text-xs md:text-sm">{l.plano.nome}</p>
+
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <span className="text-sm font-extrabold bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
+                        R$ {l.plano.preco.toFixed(2).replace(".", ",")}
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                          offline
+                            ? "text-red-400 border-red-400/40 bg-red-400/10"
+                            : "text-emerald-400 border-emerald-400/40 bg-emerald-400/10"
+                        }`}
+                      >
+                        {offline ? t.manutencao : t.online}
+                      </span>
+                      {!offline && l.plano.instantaneo && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-emerald-400 border-emerald-400/40 bg-emerald-400/10">
+                          {t.instantaneo}
+                        </span>
+                      )}
+                      {!offline && !l.plano.instantaneo && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-amber-400 border-amber-400/40 bg-amber-400/10">
+                          {t.minutos}
+                        </span>
+                      )}
+                      {!offline && l.plano.destaque && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-400 text-black">
+                          {t.popular}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {offline ? (
+                    <span className="flex-shrink-0 px-4 py-2 rounded-full font-bold text-gray-400 bg-white/[0.05] border border-white/10 text-xs md:text-sm whitespace-nowrap cursor-not-allowed">
+                      {t.indisponivel}
+                    </span>
+                  ) : (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDetalheAberto(l);
+                      }}
+                      className="flex-shrink-0 px-4 py-2 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-xs md:text-sm whitespace-nowrap"
+                    >
+                      {t.alugar}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         ) : (
           <p className="text-gray-500 text-sm py-8 text-center">{t.vazio(busca)}</p>

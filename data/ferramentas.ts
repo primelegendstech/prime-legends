@@ -13,6 +13,11 @@ export type Plano = {
 export type Ferramenta = {
   nome: string;
   badge?: string;
+  // Controla o status exibido nos cards de aluguel. Não precisa preencher em
+  // ferramentas já existentes — sem esse campo, o site trata como "online"
+  // normalmente. Pra tirar uma ferramenta do ar (ex: fornecedor fora do ar,
+  // manutenção), é só colocar `online: false` no bloco dela aqui embaixo.
+  online?: boolean;
   imagens: string[];
   links: {
     modelos: string;

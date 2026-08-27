@@ -44,6 +44,15 @@ export default function DetalheServicoModal({ ferramenta, plano, onFechar, onAlu
                 {ferramenta.badge}
               </span>
             )}
+            {ferramenta.online === false ? (
+              <span className="text-xs font-bold text-red-400 border border-red-400/40 bg-red-400/10 px-2 py-0.5 rounded-full">
+                🔴 Em manutenção
+              </span>
+            ) : (
+              <span className="text-xs font-bold text-emerald-400 border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 rounded-full">
+                🟢 Online
+              </span>
+            )}
           </h3>
         </div>
         <p className="text-gray-400 text-sm mb-5">Aluguel {plano.nome}</p>
@@ -98,9 +107,10 @@ export default function DetalheServicoModal({ ferramenta, plano, onFechar, onAlu
           </div>
           <button
             onClick={onAlugar}
-            className="px-6 py-3 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm"
+            disabled={ferramenta.online === false}
+            className="px-6 py-3 rounded-full font-bold text-black bg-gradient-to-r from-yellow-400 to-amber-500 hover:opacity-90 transition text-sm disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:opacity-40"
           >
-            Alugar Agora
+            {ferramenta.online === false ? "Indisponível" : "Alugar Agora"}
           </button>
         </div>
       </div>
