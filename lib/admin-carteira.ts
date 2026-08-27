@@ -27,6 +27,24 @@ async function mapaUsuarios(): Promise<Map<string, { email: string; nome: string
   return mapa;
 }
 
+// Localiza o usuario_id a partir do e-mail do cliente — necessário pro
+// estorno de saldo, já que pedidos/checkouts_ativacao/pedidos_metodos só
+// guardam o e-mail, não o usuario_id. Reaproveita a mesma paginação da
+// listUsers usada em mapaUsuarios().
+export async function buscarUsuarioIdPorEmail(email: string): Promise<string | null> {
+  const alvo = email.trim().toLowerCase();
+  let pagina = 1;
+  for (let tentativas = 0; tentativas < 20; tentativas++) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: pagina, perPage: 1000 });
+    if (error || !data?.users?.length) break;
+    const encontrado = data.users.find((u) => u.email?.toLowerCase() === alvo);
+    if (encontrado) return encontrado.id;
+    if (data.users.length < 1000) break;
+    pagina++;
+  }
+  return null;
+}
+
 export async function buscarClientesCarteira(busca = ""): Promise<ClienteCarteira[]> {
   const [{ data: saldos }, usuarios] = await Promise.all([
     supabaseAdmin.from("carteira_saldo").select("usuario_id, saldo_centavos").order("saldo_centavos", { ascending: false }),

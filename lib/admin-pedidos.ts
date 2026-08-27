@@ -13,6 +13,7 @@ export type PedidoAdmin = {
   codigo: string | null;
   criadoEm: string | null;
   pagoComSaldo: boolean; // payment_id começando com "saldo_" → não existe no Mercado Pago, não dá pra estornar por lá
+  estornado: boolean;
   dados: any; // json bruto (aluguel) ou null
   // Só em licenças:
   entregueManual?: boolean;
@@ -52,7 +53,7 @@ export async function buscarPedidosAdmin(filtros: FiltrosPedidos = {}): Promise<
     buscarAlugueis
       ? supabaseAdmin
           .from("pedidos")
-          .select("payment_id, codigo, ferramenta, duracao, preco, dados, email_cliente, created_at")
+          .select("payment_id, codigo, ferramenta, duracao, preco, dados, email_cliente, created_at, estornado")
           .order("created_at", { ascending: false })
           .limit(300)
       : Promise.resolve({ data: [] as any[] }),
@@ -60,7 +61,7 @@ export async function buscarPedidosAdmin(filtros: FiltrosPedidos = {}): Promise<
       ? supabaseAdmin
           .from("checkouts_ativacao")
           .select(
-            "payment_id, ferramenta, duracao, preco, nome, email, username, senha, entregue, created_at"
+            "payment_id, ferramenta, duracao, preco, nome, email, username, senha, entregue, created_at, estornado"
           )
           .not("payment_id", "is", null)
           .order("created_at", { ascending: false })
@@ -69,7 +70,7 @@ export async function buscarPedidosAdmin(filtros: FiltrosPedidos = {}): Promise<
     buscarMetodos
       ? supabaseAdmin
           .from("pedidos_metodos")
-          .select("payment_id, metodo_id, nome, preco, email_cliente, created_at")
+          .select("payment_id, metodo_id, nome, preco, email_cliente, created_at, estornado")
           .order("created_at", { ascending: false })
           .limit(300)
       : Promise.resolve({ data: [] as any[] }),
@@ -86,6 +87,7 @@ export async function buscarPedidosAdmin(filtros: FiltrosPedidos = {}): Promise<
     codigo: p.codigo,
     criadoEm: p.created_at,
     pagoComSaldo: String(p.payment_id).startsWith("saldo_"),
+    estornado: !!p.estornado,
     dados: p.dados,
   }));
 
@@ -102,6 +104,7 @@ export async function buscarPedidosAdmin(filtros: FiltrosPedidos = {}): Promise<
     codigo: null,
     criadoEm: p.created_at,
     pagoComSaldo: String(p.payment_id).startsWith("saldo_"),
+    estornado: !!p.estornado,
     dados: { username: p.username, senha: p.senha },
     entregueManual: !!p.entregue,
     nomeCliente: p.nome,
@@ -118,6 +121,7 @@ export async function buscarPedidosAdmin(filtros: FiltrosPedidos = {}): Promise<
     codigo: null,
     criadoEm: p.created_at,
     pagoComSaldo: String(p.payment_id).startsWith("saldo_"),
+    estornado: !!p.estornado,
     dados: null,
   }));
 

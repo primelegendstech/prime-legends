@@ -60,6 +60,7 @@ export default function PedidoCard({ pedido }: { pedido: PedidoAdmin }) {
     if (acao === "entregue") return "Marcado como entregue e cliente notificado.";
     if (acao === "email") return "E-mail reenviado com sucesso.";
     if (acao === "estornar") return "Pagamento estornado no Mercado Pago.";
+    if (acao === "estornar-saldo") return "Valor devolvido pro saldo do cliente.";
     return "Feito.";
   }
 
@@ -124,6 +125,9 @@ export default function PedidoCard({ pedido }: { pedido: PedidoAdmin }) {
             <p>
               <span className="text-gray-600">Pago com:</span> {pedido.pagoComSaldo ? "Saldo interno" : "Mercado Pago"}
             </p>
+            {pedido.estornado && (
+              <p className="text-red-400 font-semibold">↩ Já estornado</p>
+            )}
           </div>
 
           {pedido.dados && (
@@ -190,18 +194,44 @@ export default function PedidoCard({ pedido }: { pedido: PedidoAdmin }) {
                   {carregando === "ver" ? "Consultando..." : "🔍 Ver pagamento"}
                 </button>
 
-                <button
-                  disabled={!!carregando}
-                  onClick={() => {
-                    if (confirm(`Estornar ${formatarReais(pedido.preco)} desse pagamento no Mercado Pago?`)) {
-                      chamarAcao("estornar", "/api/admin/pagamento/estornar", { paymentId: pedido.id, tipo: pedido.tipo });
-                    }
-                  }}
-                  className="text-xs font-bold px-3 py-2 rounded-lg bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 transition disabled:opacity-50"
-                >
-                  {carregando === "estornar" ? "Estornando..." : "↩ Estornar pagamento"}
-                </button>
+                {!pedido.estornado && (
+                  <button
+                    disabled={!!carregando}
+                    onClick={() => {
+                      if (confirm(`Estornar ${formatarReais(pedido.preco)} desse pagamento no Mercado Pago?`)) {
+                        chamarAcao("estornar", "/api/admin/pagamento/estornar", {
+                          paymentId: pedido.id,
+                          tipo: pedido.tipo,
+                        });
+                      }
+                    }}
+                    className="text-xs font-bold px-3 py-2 rounded-lg bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 transition disabled:opacity-50"
+                  >
+                    {carregando === "estornar" ? "Estornando..." : "↩ Estornar pagamento"}
+                  </button>
+                )}
               </>
+            )}
+
+            {pedido.pagoComSaldo && !pedido.estornado && (
+              <button
+                disabled={!!carregando}
+                onClick={() => {
+                  if (
+                    confirm(
+                      `Devolver ${formatarReais(pedido.preco)} pro saldo do cliente (${pedido.emailCliente ?? "sem e-mail"})?`
+                    )
+                  ) {
+                    chamarAcao("estornar-saldo", "/api/admin/pedidos/estornar-saldo", {
+                      paymentId: pedido.id,
+                      tipo: pedido.tipo,
+                    });
+                  }
+                }}
+                className="text-xs font-bold px-3 py-2 rounded-lg bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 transition disabled:opacity-50"
+              >
+                {carregando === "estornar-saldo" ? "Devolvendo..." : "↩ Estornar (creditar saldo)"}
+              </button>
             )}
           </div>
         </div>
