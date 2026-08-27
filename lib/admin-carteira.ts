@@ -47,19 +47,26 @@ export async function buscarUsuarioIdPorEmail(email: string): Promise<string | n
 
 export async function buscarClientesCarteira(busca = ""): Promise<ClienteCarteira[]> {
   const [{ data: saldos }, usuarios] = await Promise.all([
-    supabaseAdmin.from("carteira_saldo").select("usuario_id, saldo_centavos").order("saldo_centavos", { ascending: false }),
+    supabaseAdmin.from("carteira_saldo").select("usuario_id, saldo_centavos"),
     mapaUsuarios(),
   ]);
 
-  let clientes: ClienteCarteira[] = (saldos ?? []).map((s: any) => {
-    const u = usuarios.get(s.usuario_id);
-    return {
-      usuarioId: s.usuario_id,
-      email: u?.email ?? "(usuário não encontrado)",
-      nome: u?.nome ?? "",
-      saldoCentavos: s.saldo_centavos,
-    };
-  });
+  // Mapa de saldo por usuario_id — quem nunca depositou simplesmente não
+  // tem linha aqui, e por isso entra com 0 abaixo.
+  const saldoPorUsuario = new Map<string, number>();
+  for (const s of saldos ?? []) saldoPorUsuario.set((s as any).usuario_id, (s as any).saldo_centavos);
+
+  // Parte de TODOS os usuários cadastrados (não só de quem já tem linha em
+  // carteira_saldo) — assim quem acabou de se cadastrar e nunca depositou
+  // também aparece aqui, com saldo R$ 0,00, pronto pra receber um crédito manual.
+  let clientes: ClienteCarteira[] = Array.from(usuarios.entries()).map(([usuarioId, u]) => ({
+    usuarioId,
+    email: u.email || "(sem e-mail)",
+    nome: u.nome ?? "",
+    saldoCentavos: saldoPorUsuario.get(usuarioId) ?? 0,
+  }));
+
+  clientes.sort((a, b) => b.saldoCentavos - a.saldoCentavos);
 
   if (busca.trim()) {
     const termo = busca.trim().toLowerCase();
