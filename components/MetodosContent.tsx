@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import CheckoutMetodo from "@/components/CheckoutMetodo";
 import DetalheMetodoModal from "@/components/DetalheMetodoModal";
 import { metodos, type Metodo } from "@/data/metodos";
@@ -36,8 +37,8 @@ export default function MetodosContent() {
                 onClick={() => setDetalheAberto(m)}
                 className="flex items-center gap-4 bg-white/[0.03] border border-yellow-500/15 rounded-xl p-4 hover:border-yellow-400/50 transition text-left"
               >
-                <div className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10">
-                  <img src={m.imagem} alt={m.nome} className="w-full h-full object-cover" />
+                <div className="relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10">
+                  <Image src={m.imagem} alt={m.nome} fill sizes="80px" className="object-cover" />
                 </div>
 
                 <div className="min-w-0 flex-1">

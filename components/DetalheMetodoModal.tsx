@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { Metodo } from "@/data/metodos";
 
 type Props = {
@@ -27,8 +28,8 @@ export default function DetalheMetodoModal({ metodo, onFechar, onComprar }: Prop
         </button>
 
         <div className="flex items-center gap-3 mb-4 pr-8">
-          <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10">
-            <img src={metodo.imagem} alt={metodo.nome} className="w-full h-full object-cover" />
+          <div className="relative w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-zinc-900 to-black border border-white/10">
+            <Image src={metodo.imagem} alt={metodo.nome} fill className="object-cover" />
           </div>
           <h3 className="text-2xl font-black text-white">{metodo.nome}</h3>
         </div>

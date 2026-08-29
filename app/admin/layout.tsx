@@ -1,7 +1,12 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { exigirAdmin } from "@/lib/admin";
 import GoldNetworkBackground from "@/components/GoldNetworkBackground";
 import AdminSidebar from "@/components/AdminSidebar";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await exigirAdmin();

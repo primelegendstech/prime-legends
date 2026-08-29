@@ -1,5 +1,19 @@
+import type { Metadata } from "next";
 import AlugueisContent from "@/components/AlugueisContent";
 import GoldNetworkBackground from "@/components/GoldNetworkBackground";
+
+export const metadata: Metadata = {
+  title: "Aluguel de Ferramentas GSM | UnlockTool, TSM Tool, AMT Tool, Samsung Tool | Prime Legends",
+  description:
+    "Alugue UnlockTool, TSM Tool, AMT Tool, Samsung Tool e Griffin-Unlocker com liberação automática de login e senha após o pagamento. Planos por hora, sem fidelidade.",
+  alternates: { canonical: "/alugueis" },
+  openGraph: {
+    title: "Aluguel de Ferramentas GSM | Prime Legends",
+    description:
+      "UnlockTool, TSM Tool, AMT Tool, Samsung Tool e Griffin-Unlocker com liberação automática após o pagamento.",
+    url: "/alugueis",
+  },
+};
 
 export default function AlugueisPage() {
   return (

@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import MetodosContent from "@/components/MetodosContent";
 import GoldNetworkBackground from "@/components/GoldNetworkBackground";
+
+export const metadata: Metadata = {
+  title: "Métodos e Arquivos para Reparo de Celular | Downloads Técnicos | Prime Legends",
+  description:
+    "Métodos, ROMs e arquivos técnicos para reparo e desbloqueio de smartphones, com download liberado automaticamente após o pagamento.",
+  alternates: { canonical: "/metodos" },
+  openGraph: {
+    title: "Métodos e Arquivos Técnicos | Prime Legends",
+    description: "Métodos, ROMs e arquivos técnicos para reparo e desbloqueio de smartphones, download automático.",
+    url: "/metodos",
+  },
+};
 
 export default function MetodosPage() {
   return (

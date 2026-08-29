@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { formatarCredenciais } from "@/lib/formatar-credenciais";
 
 function ConteudoConsultar() {
@@ -77,7 +78,7 @@ function ConteudoConsultar() {
     <main className="min-h-screen bg-[#0B0B0B] text-white flex items-center justify-center px-6 pt-24 pb-10">
       <div className="max-w-md w-full bg-white/[0.03] border border-yellow-500/20 rounded-2xl p-8 text-center">
         <div className="flex items-center justify-center gap-2 mb-6">
-          <img src="/logo.webp" alt="Prime Legends GSM" className="w-8 h-8 object-contain" />
+          <Image src="/logo.webp" alt="Prime Legends GSM" width={32} height={32} className="w-8 h-8 object-contain" />
           <span className="bg-gradient-to-r from-yellow-300 via-amber-500 to-yellow-600 bg-clip-text text-transparent font-black tracking-wide text-sm">
             PRIME LEGENDS GSM
           </span>

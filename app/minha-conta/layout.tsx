@@ -1,9 +1,14 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase-server";
 import GoldNetworkBackground from "@/components/GoldNetworkBackground";
 import ContaSidebar from "@/components/ContaSidebar";
 import LogoutButton from "./logout-button";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function MinhaContaLayout({
   children,
