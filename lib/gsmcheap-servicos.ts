@@ -30,4 +30,21 @@ export const mapaServicos: Record<
   "Alien Tool|3 meses": { serviceId: 1322, creditos: 20.59, fornecedor: "gsmcheap" },
   "Alien Tool|6 meses": { serviceId: 1323, creditos: 29.1, fornecedor: "gsmcheap" },
   "Alien Tool|12 meses": { serviceId: 1321, creditos: 39.1, fornecedor: "gsmcheap" },
+
+  // 👇 Aluguéis novos (data/ferramentas.ts) — adicionados em 29/08/2026.
+  // "Alien Tool|6 horas" (o de ALUGUEL, diferente do "Alien Tool" de ativação
+  // acima) ainda NÃO está aqui de propósito: o usuário não passou o service ID
+  // dele, então cai como entrega manual até ele mandar o ID.
+  "TFM Tool|6 horas": { serviceId: 270, creditos: 0.3, fornecedor: "gsmcheap" },
+  "MDM Fix Tool|6 horas": { serviceId: 264, creditos: 0.9, fornecedor: "gsmcheap" },
+  "DFT Pro|48 horas": { serviceId: 255, creditos: 1.55, fornecedor: "gsmcheap" },
+  "AndroidWinTool (AWT)|48 horas": { serviceId: 470, creditos: 1.1, fornecedor: "gsmcheap" },
+  "AnonySHU Tool|12 horas": { serviceId: 370, creditos: 2, fornecedor: "gsmcheap" },
+  "KG Killer Tool|4 horas": { serviceId: 427, creditos: 0.5, fornecedor: "gsmcheap" },
+  "MST (MobileSea Service Tool)|6 horas": { serviceId: 553, creditos: 0.2, fornecedor: "gsmcheap" },
+  "CF-Tools|12 horas": { serviceId: 262, creditos: 0.39, fornecedor: "gsmcheap" },
+  // Confirmado com o usuário: o service ID 265 da GSM Cheap é o plano de
+  // 24 horas (ele tinha rotulado como "3 horas" por engano) — rótulo corrigido.
+  "Hydra Tool (Sem Dongle)|24 horas": { serviceId: 265, creditos: 0.5, fornecedor: "gsmcheap" },
+  // Pandora Tool NÃO entra aqui — é manual por decisão do usuário (ver obs no catálogo).
 };
