@@ -4,10 +4,12 @@ import { supabase } from "@/lib/supabase";
 import { estornarCarteira } from "@/lib/carteira-debito";
 import { buscarUsuarioIdPorEmail } from "@/lib/admin-carteira";
 
-// Estorna um pedido pago com saldo interno (payment_id começando com
-// "saldo_"). Diferente do estorno via Mercado Pago (não existe cobrança lá
-// pra estornar) — aqui o valor volta direto pro saldo do cliente, através da
-// mesma função carteira_estornar já usada quando um fornecedor falha.
+// Estorna um pedido dando o valor de volta como saldo na carteira do
+// cliente. Funciona pra QUALQUER forma de pagamento original — se o pedido
+// foi pago com saldo interno, é literalmente devolver o que foi debitado;
+// se foi pago no Mercado Pago, é dar o valor como crédito no site em vez de
+// estornar o pagamento em si (isso é uma escolha do admin, não estorna o MP).
+// Cria a carteira do cliente automaticamente se ele nunca teve uma.
 export async function POST(request: NextRequest) {
   const admin = await verificarAdminApi();
   if (!admin) {
@@ -19,13 +21,6 @@ export async function POST(request: NextRequest) {
 
     if (!paymentId) {
       return NextResponse.json({ erro: "paymentId é obrigatório" }, { status: 400 });
-    }
-
-    if (!String(paymentId).startsWith("saldo_")) {
-      return NextResponse.json(
-        { erro: "Esse pedido não foi pago com saldo interno — use o estorno do Mercado Pago." },
-        { status: 400 }
-      );
     }
 
     const tabela = tipo === "licenca" ? "checkouts_ativacao" : tipo === "metodo" ? "pedidos_metodos" : "pedidos";
@@ -63,7 +58,13 @@ export async function POST(request: NextRequest) {
 
     const valorCentavos = Math.round(Number(pedido.preco) * 100);
 
-    await estornarCarteira(usuarioId, valorCentavos, `Estorno manual (admin) — pedido ${paymentId}`);
+    const resultadoEstorno = await estornarCarteira(usuarioId, valorCentavos, `Estorno manual (admin) — pedido ${paymentId}`);
+    if (!resultadoEstorno.sucesso) {
+      return NextResponse.json(
+        { erro: "Não foi possível creditar o saldo do cliente. Nada foi alterado — tente novamente ou avise o suporte técnico." },
+        { status: 500 }
+      );
+    }
 
     const { error: erroMarcar } = await supabase
       .from(tabela)
