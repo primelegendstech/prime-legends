@@ -11,7 +11,7 @@ export type ClienteCarteira = {
 // painel, cruza com auth.users via API admin do Supabase (só o service role
 // consegue chamar isso). listUsers pagina de 1000 em 1000; pra uma loja
 // desse porte isso cobre a base inteira numa chamada só.
-async function mapaUsuarios(): Promise<Map<string, { email: string; nome: string }>> {
+export async function mapaUsuarios(): Promise<Map<string, { email: string; nome: string }>> {
   const mapa = new Map<string, { email: string; nome: string }>();
   let pagina = 1;
   // Limite de segurança pra nunca entrar em loop infinito caso a API mude.
@@ -76,6 +76,80 @@ export async function buscarClientesCarteira(busca = ""): Promise<ClienteCarteir
   }
 
   return clientes;
+}
+
+export type StatusDeposito = "pago" | "pendente";
+
+export type DepositoAdmin = {
+  id: string;
+  usuarioId: string;
+  email: string;
+  nome: string;
+  valorCentavos: number;
+  status: StatusDeposito;
+  externalReference: string;
+  paymentId: string | null;
+  criadoEm: string | null;
+};
+
+export type FiltrosDepositos = {
+  status?: StatusDeposito | "todos";
+  busca?: string; // e-mail, nome, external_reference ou payment_id
+};
+
+// Lista todos os depósitos (tentativas de adicionar saldo) já iniciados no site,
+// pagos ou não. Um depósito nasce em checkouts_carteira quando o cliente clica em
+// "adicionar saldo" (/api/carteira/depositar) e só ganha payment_id quando o
+// Mercado Pago confirma o pagamento e o webhook credita o saldo
+// (lib/processar-entrega-carteira.ts) — por isso payment_id nulo = ainda pendente.
+export async function buscarDepositosAdmin(filtros: FiltrosDepositos = {}): Promise<DepositoAdmin[]> {
+  const { status = "todos", busca = "" } = filtros;
+
+  const [{ data: checkouts, error }, usuarios] = await Promise.all([
+    supabaseAdmin
+      .from("checkouts_carteira")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(500),
+    mapaUsuarios(),
+  ]);
+
+  if (error) {
+    console.error("[admin-carteira] erro ao buscar depositos:", error);
+    return [];
+  }
+
+  let depositos: DepositoAdmin[] = (checkouts ?? []).map((c: any) => {
+    const u = usuarios.get(c.usuario_id);
+    return {
+      id: String(c.id ?? c.external_reference),
+      usuarioId: c.usuario_id,
+      email: u?.email || "(sem e-mail)",
+      nome: u?.nome ?? "",
+      valorCentavos: c.valor_centavos,
+      status: c.payment_id ? "pago" : "pendente",
+      externalReference: c.external_reference,
+      paymentId: c.payment_id ?? null,
+      criadoEm: c.created_at ?? null,
+    };
+  });
+
+  if (status !== "todos") {
+    depositos = depositos.filter((d) => d.status === status);
+  }
+
+  if (busca.trim()) {
+    const termo = busca.trim().toLowerCase();
+    depositos = depositos.filter(
+      (d) =>
+        d.email.toLowerCase().includes(termo) ||
+        d.nome.toLowerCase().includes(termo) ||
+        d.externalReference?.toLowerCase().includes(termo) ||
+        d.paymentId?.toLowerCase().includes(termo)
+    );
+  }
+
+  return depositos;
 }
 
 export async function buscarExtratoCliente(usuarioId: string) {

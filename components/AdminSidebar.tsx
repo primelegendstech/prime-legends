@@ -7,6 +7,7 @@ const ITENS = [
   { href: "/admin", label: "Dashboard", emoji: "📊" },
   { href: "/admin/pedidos", label: "Pedidos", emoji: "🧾" },
   { href: "/admin/carteira", label: "Carteira", emoji: "💰" },
+  { href: "/admin/depositos", label: "Depósitos", emoji: "💳" },
 ];
 
 export default function AdminSidebar() {
