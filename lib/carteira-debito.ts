@@ -40,8 +40,5 @@ export async function estornarCarteira(usuarioId: string, valorCentavos: number,
       error,
       { usuarioId, valorCentavos, descricao }
     );
-    return { sucesso: false as const, erro: error.message as string };
   }
-
-  return { sucesso: true as const };
 }

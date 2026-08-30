@@ -24,10 +24,7 @@ export async function POST(request: NextRequest) {
     const descricaoFinal = descricao?.trim() || `Ajuste manual (admin: ${admin.email})`;
 
     if (tipoAjuste === "credito") {
-      const resultado = await estornarCarteira(usuarioId, valorCentavos, descricaoFinal);
-      if (!resultado.sucesso) {
-        return NextResponse.json({ erro: "Não foi possível creditar o saldo do cliente." }, { status: 500 });
-      }
+      await estornarCarteira(usuarioId, valorCentavos, descricaoFinal);
       return NextResponse.json({ sucesso: true });
     }
 

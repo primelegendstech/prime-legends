@@ -47,7 +47,7 @@ export const ferramentas: Ferramenta[] = [
   },
   {
     nome: "TSM Tool",
-    online:true,
+    online:false,
     imagens: ["/laptops/tsm-1.webp", "/laptops/tsm-2.webp"],
     links: {
       modelos: "https://tsm-tool.com/SupportedModels",
