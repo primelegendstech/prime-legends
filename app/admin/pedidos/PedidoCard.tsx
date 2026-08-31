@@ -213,15 +213,14 @@ export default function PedidoCard({ pedido }: { pedido: PedidoAdmin }) {
               </>
             )}
 
-            {pedido.pagoComSaldo && !pedido.estornado && (
+            {!pedido.estornado && (
               <button
                 disabled={!!carregando}
                 onClick={() => {
-                  if (
-                    confirm(
-                      `Devolver ${formatarReais(pedido.preco)} pro saldo do cliente (${pedido.emailCliente ?? "sem e-mail"})?`
-                    )
-                  ) {
+                  const aviso = pedido.pagoComSaldo
+                    ? `Devolver ${formatarReais(pedido.preco)} pro saldo do cliente (${pedido.emailCliente ?? "sem e-mail"})?`
+                    : `Creditar ${formatarReais(pedido.preco)} de saldo pro cliente (${pedido.emailCliente ?? "sem e-mail"})? Isso NÃO estorna o pagamento no Mercado Pago — se o cliente já foi reembolsado lá, não clique aqui.`;
+                  if (confirm(aviso)) {
                     chamarAcao("estornar-saldo", "/api/admin/pedidos/estornar-saldo", {
                       paymentId: pedido.id,
                       tipo: pedido.tipo,

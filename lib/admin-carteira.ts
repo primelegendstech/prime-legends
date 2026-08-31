@@ -162,3 +162,59 @@ export async function buscarExtratoCliente(usuarioId: string) {
 
   return data ?? [];
 }
+
+export type EstornoAdmin = {
+  id: string;
+  usuarioId: string;
+  email: string;
+  nome: string;
+  valorCentavos: number;
+  descricao: string | null;
+  criadoEm: string | null;
+};
+
+// Lista todos os créditos de estorno/ajuste já feitos na carteira de
+// qualquer cliente (tipo = 'estorno' em carteira_transacoes) — tanto os
+// automáticos (botão "Estornar (creditar saldo)" num pedido) quanto os
+// manuais (aba Carteira > Creditar). É o histórico central de reembolsos.
+export async function buscarEstornosAdmin(busca = ""): Promise<EstornoAdmin[]> {
+  const [{ data: transacoes, error }, usuarios] = await Promise.all([
+    supabaseAdmin
+      .from("carteira_transacoes")
+      .select("id, usuario_id, valor_centavos, descricao, created_at")
+      .eq("tipo", "estorno")
+      .order("created_at", { ascending: false })
+      .limit(500),
+    mapaUsuarios(),
+  ]);
+
+  if (error) {
+    console.error("[admin-carteira] erro ao buscar estornos:", error);
+    return [];
+  }
+
+  let estornos: EstornoAdmin[] = (transacoes ?? []).map((t: any) => {
+    const u = usuarios.get(t.usuario_id);
+    return {
+      id: String(t.id),
+      usuarioId: t.usuario_id,
+      email: u?.email || "(sem e-mail)",
+      nome: u?.nome ?? "",
+      valorCentavos: t.valor_centavos,
+      descricao: t.descricao,
+      criadoEm: t.created_at ?? null,
+    };
+  });
+
+  if (busca.trim()) {
+    const termo = busca.trim().toLowerCase();
+    estornos = estornos.filter(
+      (e) =>
+        e.email.toLowerCase().includes(termo) ||
+        e.nome.toLowerCase().includes(termo) ||
+        e.descricao?.toLowerCase().includes(termo)
+    );
+  }
+
+  return estornos;
+}
