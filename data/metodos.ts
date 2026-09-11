@@ -53,7 +53,7 @@ export const metodos: Metodo[] = [
       "📌 Caso você não saiba realizar o método, tenha dificuldade durante o procedimento ou simplesmente desista após receber os arquivos e o tutorial, não será possível solicitar reembolso, pois o conteúdo já terá sido entregue.\n\n" +
       "🛒 Compre somente se estiver de acordo com essas condições.",
     video: "",
-    arquivoPath: "PATH_A_DEFINIR_payjoy-realme-c71-note70",
+    arquivoPath: "[PrimeLegendsGSM] Payjoy Note 70 e C71 Arquivo + Metodo.zip",
     destaque: false,
   },
   {
@@ -74,7 +74,7 @@ export const metodos: Metodo[] = [
       "📌 Caso você não saiba realizar o método, tenha dificuldade durante o procedimento ou simplesmente desista após receber os arquivos e o tutorial, não será possível solicitar reembolso, pois o conteúdo já terá sido entregue.\n\n" +
       "🛒 Compre somente se estiver de acordo com essas condições.",
     video: "",
-    arquivoPath: "PATH_A_DEFINIR_rguard-c71-note70",
+    arquivoPath: "[PrimeLegendsGSM] Rguard Note 70 e C71 Arquivo + Metodo.zip",
     destaque: false,
   },
   {
@@ -100,7 +100,7 @@ export const metodos: Metodo[] = [
       "📌 Caso você não saiba realizar o método, tenha dificuldade durante o procedimento ou simplesmente desista após receber os arquivos e o tutorial, não será possível solicitar reembolso, pois o conteúdo já terá sido entregue.\n\n" +
       "🛒 Compre somente se estiver de acordo com essas condições.",
     video: "",
-    arquivoPath: "PATH_A_DEFINIR_rguard-c85-definitivo",
+    arquivoPath: "[PrimeLegendsGSM] Rguard C85 Arquivo Editado + Metodo.rar",
     destaque: false,
   },
 
@@ -117,7 +117,7 @@ export const metodos: Metodo[] = [
       "📌 Caso você não saiba realizar o método, tenha dificuldade durante o procedimento ou simplesmente desista após receber os arquivos e o tutorial, não será possível solicitar reembolso, pois o conteúdo já terá sido entregue.\n\n" +
       "🛒 Compre somente se estiver de acordo com essas condições.",
     video: "",
-    arquivoPath: "PATH_A_DEFINIR_payjoy-c61-note50-60-c63-c51-c53",
+    arquivoPath: "Miscdata REALME C61- NOTE 50-60 60s-60x-C63-C51-C53 Android 16.rar",
     destaque: false,
   },
   {
@@ -136,7 +136,7 @@ export const metodos: Metodo[] = [
       "📌 Caso você não saiba realizar o método, tenha dificuldade durante o procedimento ou simplesmente desista após receber os arquivos e o tutorial, não será possível solicitar reembolso, pois o conteúdo já terá sido entregue.\n\n" +
       "🛒 Compre somente se estiver de acordo com essas condições.",
     video: "",
-    arquivoPath: "PATH_A_DEFINIR_artemis-unlock-protect1",
+    arquivoPath: "[PrimeLegendsGSM] Artemis Unlock Tool Vitalicio.zip",
     destaque: false,
   },
 
