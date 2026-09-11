@@ -47,9 +47,9 @@ export const ativacoes: Ativacao[] = [
     video: "",
     obs: "Antes de ativar, você precisa ter uma conta criada no site oficial do UnlockTool. A ativação é feita no username informado abaixo — confira se está correto antes de pagar.",
     planos: [
-      { nome: "3 meses", preco: 109.9 },
-      { nome: "6 meses", preco: 149.9, destaque: true },
-      { nome: "12 meses", preco: 234.9, destaque: true },
+      { nome: "3 meses", preco: 93.5 },
+      { nome: "6 meses", preco: 171.5, destaque: true },
+      { nome: "12 meses", preco: 223.9, destaque: true },
     ],
   },
   {
@@ -63,9 +63,9 @@ export const ativacoes: Ativacao[] = [
     video: "",
     obs: "Antes de ativar, você precisa ter uma conta criada no site oficial do TSM Tool. A ativação é feita no username informado abaixo — confira se está correto antes de pagar.",
     planos: [
-      { nome: "3 meses", preco: 149.9 },
-      { nome: "6 meses", preco: 199.9, destaque: true },
-      { nome: "12 meses", preco: 254.9, destaque: true },
+      { nome: "3 meses", preco: 185.9 },
+      { nome: "6 meses", preco: 269.9, destaque: true },
+      { nome: "12 meses", preco: 355.9, destaque: true },
     ],
   },
   {
