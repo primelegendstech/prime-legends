@@ -44,7 +44,7 @@ export const metodos: Metodo[] = [
   {
     id: "payjoy-realme-c71-note70-android16",
     nome: "Arquivos PayJoy — Realme C71 e Note 70 (Android 16)",
-    imagem: "/laptops/samsung-1.webp", // TROCAR: sem imagem própria ainda, usando placeholder
+    imagem: "/laptops/payjoy-c71-note70.webp",
     preco: 41,
     descricao:
       "INSTANT\n\n" +
@@ -107,7 +107,7 @@ export const metodos: Metodo[] = [
   {
     id: "payjoy-realme-c61-note50-60-60s-60x-c63-c51-c53-android16",
     nome: "Arquivo PayJoy — Realme C61, Note 50, Note 60/60s/60x, C63, C51, C53 (Android 16)",
-    imagem: "/laptops/samsung-1.webp", // TROCAR: sem imagem própria ainda, usando placeholder
+    imagem: "/laptops/payjoy-c61-note50-60-60s-60x-c63-c51-c53.webp",
     preco: 35,
     descricao:
       "SEM DOWNGRADE ✅\n" +
